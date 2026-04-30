@@ -1,0 +1,9 @@
+{
+  "name": "job-hunt-visualizer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local-first LinkedIn job search helper extension.",
+  "scripts": {
+    "test": "node --test"
+  }
+}
