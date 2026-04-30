@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Hunt Visualizer</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f6f4ef;
+        color: #1f1f1f;
+      }
+
+      body {
+        width: 340px;
+        margin: 0;
+        padding: 16px;
+        background: linear-gradient(180deg, #fffdf8 0%, #f3efe3 100%);
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+
+      p {
+        margin: 0;
+        color: #555;
+        line-height: 1.4;
+      }
+
+      .stack {
+        display: grid;
+        gap: 12px;
+      }
+
+      .panel {
+        padding: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.86);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
+      }
+
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      form {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 8px;
+      }
+
+      input[type='text'] {
+        min-width: 0;
+        padding: 10px 12px;
+        border: 1px solid #c7c2b8;
+        border-radius: 10px;
+      }
+
+      input[type='color'] {
+        width: 42px;
+        height: 42px;
+        padding: 0;
+        border: none;
+        background: transparent;
+      }
+
+      button {
+        border: none;
+        border-radius: 10px;
+        padding: 10px 12px;
+        background: #0a66c2;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: #e7e2d7;
+        color: #1f1f1f;
+      }
+
+      button.danger {
+        background: #b42318;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 8px;
+        max-height: 220px;
+        overflow: auto;
+      }
+
+      li {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 8px;
+        align-items: center;
+        padding: 8px 10px;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        border-radius: 10px;
+        background: #fff;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+
+      .swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        flex: 0 0 auto;
+      }
+
+      .term {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .counts {
+        font-size: 12px;
+        color: #555;
+      }
+
+      .hint {
+        font-size: 12px;
+      }
+
+      .empty {
+        text-align: center;
+        padding: 16px;
+        border: 1px dashed rgba(0, 0, 0, 0.15);
+        border-radius: 10px;
+        color: #666;
+      }
+
+      .toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stack">
+      <section class="panel stack">
+        <div>
+          <h1>Job Hunt Visualizer</h1>
+          <p class="hint">
+            Right-click selected LinkedIn text to add it, or add keywords here. Everything stays local.
+          </p>
+        </div>
+        <label class="toggle">
+          <input id="pauseToggle" type="checkbox" />
+          Pause on LinkedIn
+        </label>
+        <form id="keywordForm">
+          <input id="keywordInput" type="text" placeholder="Add a title or keyword" maxlength="120" />
+          <input id="keywordColor" type="color" value="#FFE082" aria-label="Keyword color" />
+          <button type="submit">Add</button>
+        </form>
+      </section>
+
+      <section class="panel stack">
+        <div class="row counts">
+          <span id="keywordCount">0 highlights</span>
+          <span id="viewedCount">0 viewed jobs</span>
+        </div>
+        <div id="keywordEmpty" class="empty" hidden>
+          No highlight terms yet. Select text on a LinkedIn job page or add one above.
+        </div>
+        <ul id="keywordList"></ul>
+      </section>
+
+      <section class="panel row">
+        <button id="clearViewedJobs" class="danger" type="button">Clear viewed history</button>
+        <span class="hint">No auto-clicking. No remote sync.</span>
+      </section>
+    </div>
+
+    <script src="shared.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Job Hunt Visualizer",
+  "description": "Local-first LinkedIn helper that highlights selected keywords and fades jobs you have already viewed.",
+  "version": "1.0.0",
+  "permissions": ["contextMenus", "storage"],
+  "host_permissions": ["https://www.linkedin.com/jobs/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Job Hunt Visualizer",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.linkedin.com/jobs/*"],
+      "js": ["shared.js", "content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
