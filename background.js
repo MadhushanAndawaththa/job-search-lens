@@ -10,6 +10,10 @@ const {
   upsertKeyword,
 } = self.JobHuntVisualizerShared;
 
+// Recreate the menu whenever the worker spins up so unpacked reloads and
+// browser-specific service worker restarts do not leave it missing.
+createContextMenu();
+
 chrome.runtime.onInstalled.addListener(() => {
   createContextMenu();
 });
@@ -22,6 +26,12 @@ chrome.runtime.onStartup.addListener(() => {
 // highlight term without injecting any controls into the LinkedIn page itself.
 chrome.contextMenus.onClicked.addListener(async (info) => {
   if (info.menuItemId !== CONTEXT_MENU_ID) {
+    return;
+  }
+
+  const pageUrl = info.pageUrl || info.frameUrl || '';
+
+  if (!/https:\/\/(?:[\w-]+\.)?linkedin\.com\//i.test(pageUrl)) {
     return;
   }
 
@@ -54,7 +64,6 @@ function createContextMenu() {
       id: CONTEXT_MENU_ID,
       title: 'Add "%s" to Highlighter',
       contexts: ['selection'],
-      documentUrlPatterns: ['https://www.linkedin.com/jobs/*'],
     });
   });
 }
