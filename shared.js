@@ -8,6 +8,11 @@
   const DEFAULT_SETTINGS = {
     paused: false,
     historyLimit: 2000,
+    dimStates: {
+      viewed: true,
+      saved: true,
+      applied: true,
+    },
   };
 
   const DEFAULT_COLORS = [
@@ -28,6 +33,29 @@
 
     const trimmed = value.replace(/\s+/g, ' ').trim();
     return trimmed && trimmed.length <= 120 ? trimmed : '';
+  }
+
+  function splitKeywordTerms(value) {
+    if (typeof value !== 'string') {
+      return [];
+    }
+
+    const seenTerms = new Set();
+
+    return value
+      .split(/\r?\n/)
+      .map((entry) => normalizeTerm(entry))
+      .filter(Boolean)
+      .filter((entry) => {
+        const normalized = entry.toLocaleLowerCase();
+
+        if (seenTerms.has(normalized)) {
+          return false;
+        }
+
+        seenTerms.add(normalized);
+        return true;
+      });
   }
 
   function sanitizeColor(value) {
@@ -160,12 +188,20 @@
     const historyLimit = Number.isFinite(nextSettings.historyLimit) && nextSettings.historyLimit > 0
       ? Math.floor(nextSettings.historyLimit)
       : DEFAULT_SETTINGS.historyLimit;
+    const nextDimStates = nextSettings.dimStates && typeof nextSettings.dimStates === 'object'
+      ? nextSettings.dimStates
+      : {};
 
     return {
       ...DEFAULT_SETTINGS,
       ...nextSettings,
       paused: Boolean(nextSettings.paused),
       historyLimit,
+      dimStates: {
+        viewed: 'viewed' in nextDimStates ? Boolean(nextDimStates.viewed) : DEFAULT_SETTINGS.dimStates.viewed,
+        saved: 'saved' in nextDimStates ? Boolean(nextDimStates.saved) : DEFAULT_SETTINGS.dimStates.saved,
+        applied: 'applied' in nextDimStates ? Boolean(nextDimStates.applied) : DEFAULT_SETTINGS.dimStates.applied,
+      },
     };
   }
 
@@ -224,6 +260,7 @@
     DEFAULT_SETTINGS,
     DEFAULT_COLORS,
     normalizeTerm,
+    splitKeywordTerms,
     sanitizeColor,
     pickColor,
     createKeywordId,

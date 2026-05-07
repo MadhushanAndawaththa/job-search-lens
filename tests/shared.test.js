@@ -8,6 +8,12 @@ test('normalizeTerm trims and collapses whitespace', () => {
   assert.equal(shared.normalizeTerm(''), '');
 });
 
+test('splitKeywordTerms splits newline-separated pasted input into unique keywords', () => {
+  const keywords = shared.splitKeywordTerms('  Python  \nReact\r\n\n python \nStaff   Engineer ');
+
+  assert.deepEqual(keywords, ['Python', 'React', 'Staff Engineer']);
+});
+
 test('sanitizeColor accepts only six-digit hex colors', () => {
   assert.equal(shared.sanitizeColor('#a1b2c3'), '#A1B2C3');
   assert.equal(shared.sanitizeColor('#abc'), '');
@@ -72,10 +78,23 @@ test('pruneViewedJobs keeps unique recent entries within the limit', () => {
 });
 
 test('hydrateSettings sanitizes invalid values', () => {
-  const settings = shared.hydrateSettings({ paused: 'yes', historyLimit: -1 });
+  const settings = shared.hydrateSettings({
+    paused: 'yes',
+    historyLimit: -1,
+    dimStates: {
+      viewed: false,
+      saved: 0,
+      applied: 'enabled',
+    },
+  });
 
   assert.equal(settings.paused, true);
   assert.equal(settings.historyLimit, 2000);
+  assert.deepEqual(settings.dimStates, {
+    viewed: false,
+    saved: false,
+    applied: true,
+  });
 });
 
 test('getContrastColor chooses readable text color', () => {
