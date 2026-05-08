@@ -3,11 +3,8 @@
     STORAGE_KEYS,
     DEFAULT_SETTINGS,
     coerceKeywords,
-    coerceViewedJobs,
     buildKeywordPatterns,
     hydrateSettings,
-    pruneViewedJobs,
-    extractJobId,
     getContrastColor,
   } = globalThis.JobHuntVisualizerShared;
 
@@ -30,19 +27,55 @@
     '[data-view-name="job-details"]',
   ];
 
-  const JOB_CARD_FALLBACK_SELECTORS = [
-    '[data-job-id]',
-    'a[href*="/jobs/view/"]',
+  const PAGE_CONTENT_SELECTORS = [
+    '[role="main"]',
+    'main',
+    '.scaffold-layout__main',
+    '.jobs-home-scalable-two-pane__container',
+    '.base-main',
   ];
 
-  const JOB_CARD_CONTAINER_SELECTORS = [
+  // LinkedIn renders job cards in multiple shapes. Keep candidate queries broad
+  // enough to cover both search-page variants and the main jobs page, but only
+  // fall back to anchors after trying stronger wrapper selectors first.
+  const JOB_CARD_QUERY_SELECTORS = [
+    '[componentkey^="job-card-component-ref"]',
+    'div[componentkey]',
     '[data-job-id]',
-    'li',
-    '[role="listitem"]',
-    'article',
     '.job-card-container',
     '.jobs-search-results__list-item',
     '.artdeco-list__item',
+    '[role="listitem"]',
+    'article',
+    'li',
+    'a[href*="/jobs/collections/"]',
+    'a[href*="/jobs/view/"]',
+  ];
+
+  // Only specific footer selectors here. Broad tag names (p, span, li …) are
+  // used in the slow-path of getStateBadgeElements, scoped to individual
+  // card containers so we never query them across the full document.
+  const JOB_STATE_BADGE_SELECTORS = [
+    '.job-card-container__footer-job-state',
+    '.job-card-container__footer-item',
+    '.job-card-list__footer-wrapper li',
+  ];
+
+  const JOB_CARD_CONTAINER_SELECTORS = [
+    '[componentkey^="job-card-component-ref"]',
+    'div[componentkey]',
+    '[data-job-id]',
+    '.job-card-container',
+    '.jobs-search-results__list-item',
+    '.artdeco-list__item',
+    '[role="listitem"]',
+    'article',
+    'li',
+  ];
+
+  const JOB_CARD_LINK_SELECTORS = [
+    'a[href*="/jobs/collections/"]',
+    'a[href*="/jobs/view/"]',
   ];
 
   const JOB_LIST_ANCESTOR_SELECTORS = [
@@ -58,18 +91,25 @@
 
   const ROUTE_CHANGE_EVENT = 'job-hunt-visualizer:route-change';
   const MARK_ATTRIBUTE = 'data-job-hunt-mark';
-  const GHOST_CLASS_NAME = 'ghost-job';
+  // A single data attribute carries the dim state so we never mutate LinkedIn's
+  // own class list — adding unexpected class names to their components is a
+  // known detection vector because LinkedIn observes class mutations.
+  const GHOST_DATA_ATTR = 'data-jhv-state';
+  const ACTIVE_MARK_CLASS_NAME = 'job-hunt-visualizer-mark-active';
+  const JOB_STATE_PRIORITY = ['applied', 'saved', 'viewed'];
+  const JOB_STATE_LABELS = ['viewed', 'saved', 'applied'];
 
   let keywords = [];
   let keywordPatterns = [];
-  let viewedJobs = new Set();
   let settings = { ...DEFAULT_SETTINGS };
+  let currentMatchIndex = -1;
 
   let listContainer = null;
   let detailContainer = null;
   let listObserver = null;
   let detailObserver = null;
   let rootObserver = null;
+  let fallbackHighlightRoot = null;
   let storageListenerBound = false;
   let navigationHooksInstalled = false;
   let routeListenerBound = false;
@@ -85,22 +125,48 @@
   async function bootstrap() {
     installNavigationHooks();
     bindRouteListener();
+    bindMessageListener();
     await loadState();
     bindStorageListener();
     startRootObserver();
     refreshBindings();
   }
 
+  function bindMessageListener() {
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      if (message?.type !== 'job-hunt-visualizer:ping') {
+        return false;
+      }
+
+      const stateCounts = countJobStates();
+
+      sendResponse({
+        ok: true,
+        isJobsPage: isJobsPage(),
+        route: `${window.location.pathname}${window.location.search}`,
+        hasListContainer: Boolean(listContainer || findJobListContainer()),
+        hasDetailContainer: Boolean(detailContainer || findJobDetailContainer()),
+        hasFallbackRoot: Boolean(findFallbackHighlightRoot()),
+        keywordCount: keywords.length,
+        viewedCount: stateCounts.viewed,
+        stateCounts,
+        matchCount: getHighlightMarks().length,
+        activeMatchIndex: getActiveMatchIndex(),
+        paused: settings.paused,
+      });
+
+      return false;
+    });
+  }
+
   async function loadState() {
     const stored = await chrome.storage.local.get([
       STORAGE_KEYS.keywords,
-      STORAGE_KEYS.viewedJobs,
       STORAGE_KEYS.settings,
     ]);
 
     keywords = coerceKeywords(stored[STORAGE_KEYS.keywords]);
     keywordPatterns = buildKeywordPatterns(keywords);
-    viewedJobs = new Set(coerceViewedJobs(stored[STORAGE_KEYS.viewedJobs]));
     settings = hydrateSettings(stored[STORAGE_KEYS.settings]);
   }
 
@@ -121,11 +187,6 @@
         keywordPatterns = buildKeywordPatterns(keywords);
         lastHighlightSignature = '';
         scheduleHighlight();
-      }
-
-      if (changes[STORAGE_KEYS.viewedJobs]) {
-        viewedJobs = new Set(coerceViewedJobs(changes[STORAGE_KEYS.viewedJobs].newValue));
-        applyGhostStyles();
       }
 
       if (changes[STORAGE_KEYS.settings]) {
@@ -156,20 +217,17 @@
       window.dispatchEvent(new Event(ROUTE_CHANGE_EVENT));
     };
 
-    const originalPushState = history.pushState;
-    const originalReplaceState = history.replaceState;
-
-    history.pushState = function pushState(...args) {
-      const result = originalPushState.apply(this, args);
-      notify();
-      return result;
-    };
-
-    history.replaceState = function replaceState(...args) {
-      const result = originalReplaceState.apply(this, args);
-      notify();
-      return result;
-    };
+    // Avoid patching history.pushState / replaceState: LinkedIn fingerprints
+    // those methods via Function.prototype.toString and stops rendering when it
+    // detects they are no longer native. Poll the URL at a low frequency instead
+    // so SPA navigations are still caught without touching any native method.
+    let lastPollUrl = location.href;
+    setInterval(() => {
+      if (location.href !== lastPollUrl) {
+        lastPollUrl = location.href;
+        notify();
+      }
+    }, 200);
 
     window.addEventListener('popstate', notify, { passive: true });
     navigationHooksInstalled = true;
@@ -217,7 +275,7 @@
   function refreshBindings() {
     if (!isJobsPage()) {
       clearGhostStyles();
-      clearHighlights(detailContainer);
+      clearAllHighlights();
       disconnectSurfaceObservers();
       listContainer = null;
       detailContainer = null;
@@ -226,6 +284,7 @@
 
     const nextListContainer = findJobListContainer();
     const nextDetailContainer = findJobDetailContainer();
+    fallbackHighlightRoot = findFallbackHighlightRoot();
 
     if (nextListContainer !== listContainer) {
       attachListSurface(nextListContainer);
@@ -237,7 +296,7 @@
 
     if (settings.paused) {
       clearGhostStyles();
-      clearHighlights(detailContainer);
+      clearAllHighlights();
       return;
     }
 
@@ -252,23 +311,16 @@
       listObserver = null;
     }
 
-    if (listContainer) {
-      listContainer.removeEventListener('click', handleListClick);
-      listContainer.removeEventListener('keydown', handleListKeydown);
-    }
-
     listContainer = nextContainer;
 
     if (!listContainer) {
       return;
     }
 
-    listContainer.addEventListener('click', handleListClick, { passive: true });
-    listContainer.addEventListener('keydown', handleListKeydown);
-
     listObserver = new MutationObserver(() => {
       if (!settings.paused) {
         applyGhostStyles();
+        scheduleHighlight();
       }
     });
 
@@ -276,6 +328,7 @@
       childList: true,
       subtree: true,
       attributes: true,
+      characterData: true,
       attributeFilter: ['data-job-id', 'href', 'class'],
     });
 
@@ -326,79 +379,73 @@
       detailObserver.disconnect();
       detailObserver = null;
     }
-
-    if (listContainer) {
-      listContainer.removeEventListener('click', handleListClick);
-      listContainer.removeEventListener('keydown', handleListKeydown);
-    }
-  }
-
-  function handleListClick(event) {
-    if (settings.paused) {
-      return;
-    }
-
-    if (event.button !== 0) {
-      return;
-    }
-
-    void trackViewedJob(event.target);
-  }
-
-  function handleListKeydown(event) {
-    if (settings.paused) {
-      return;
-    }
-
-    if (event.key !== 'Enter' && event.key !== ' ') {
-      return;
-    }
-
-    void trackViewedJob(event.target);
-  }
-
-  async function trackViewedJob(target) {
-    const card = getJobCardElement(target);
-
-    if (!card) {
-      return;
-    }
-
-    const jobId = resolveJobId(card);
-
-    if (!jobId || viewedJobs.has(jobId)) {
-      return;
-    }
-
-    const nextViewedJobs = pruneViewedJobs([...viewedJobs, jobId], settings.historyLimit);
-    viewedJobs = new Set(nextViewedJobs);
-    applyGhostStyles();
-
-    await chrome.storage.local.set({
-      [STORAGE_KEYS.viewedJobs]: nextViewedJobs,
-    });
   }
 
   function applyGhostStyles() {
-    if (!listContainer) {
+    const ghostRoot = getGhostRoot();
+
+    if (!ghostRoot) {
       return;
     }
 
-    for (const card of getJobCards(listContainer)) {
-      const jobId = resolveJobId(card);
+    const stateMap = getJobCardStateMap(ghostRoot);
 
-      if (jobId && viewedJobs.has(jobId) && !settings.paused) {
-        card.classList.add(GHOST_CLASS_NAME);
-      } else {
-        card.classList.remove(GHOST_CLASS_NAME);
+    for (const staleCard of ghostRoot.querySelectorAll(`[${GHOST_DATA_ATTR}]`)) {
+      staleCard.removeAttribute(GHOST_DATA_ATTR);
+    }
+
+    if (settings.paused) {
+      return;
+    }
+
+    for (const [card, states] of stateMap.entries()) {
+      const enabledStates = states.filter((state) => settings.dimStates?.[state]);
+
+      if (enabledStates.length === 0) {
+        continue;
       }
+
+      const primaryState = getPrimaryJobState(enabledStates);
+
+      card.setAttribute(GHOST_DATA_ATTR, primaryState);
     }
   }
 
-  function clearGhostStyles() {
-    for (const node of document.querySelectorAll(`.${GHOST_CLASS_NAME}`)) {
-      node.classList.remove(GHOST_CLASS_NAME);
+  function countJobStates() {
+    const ghostRoot = getGhostRoot();
+    const counts = {
+      viewed: 0,
+      saved: 0,
+      applied: 0,
+    };
+
+    if (!ghostRoot) {
+      return counts;
     }
+
+    for (const states of getJobCardStateMap(ghostRoot).values()) {
+      for (const state of states) {
+        counts[state] += 1;
+      }
+    }
+
+    return counts;
+  }
+
+  function clearGhostStyles() {
+    const ghostRoot = getGhostRoot();
+
+    if (!ghostRoot) {
+      return;
+    }
+
+    for (const node of ghostRoot.querySelectorAll(`[${GHOST_DATA_ATTR}]`)) {
+      node.removeAttribute(GHOST_DATA_ATTR);
+    }
+  }
+
+  function getGhostRoot() {
+    return listContainer || fallbackHighlightRoot || document.body || null;
   }
 
   function scheduleHighlight() {
@@ -414,12 +461,16 @@
   }
 
   function highlightDetail() {
-    if (!detailContainer) {
+    const roots = getHighlightRoots();
+
+    if (roots.length === 0) {
+      currentMatchIndex = -1;
       return;
     }
 
     if (settings.paused || keywordPatterns.length === 0) {
-      clearHighlights(detailContainer);
+      clearAllHighlights();
+      currentMatchIndex = -1;
       lastHighlightSignature = createHighlightSignature();
       return;
     }
@@ -430,13 +481,17 @@
       return;
     }
 
-    clearHighlights(detailContainer);
+    clearAllHighlights();
 
-    const textNodes = collectHighlightableTextNodes(detailContainer);
+    for (const root of roots) {
+      const textNodes = collectHighlightableTextNodes(root);
 
-    for (const textNode of textNodes) {
-      highlightTextNode(textNode);
+      for (const textNode of textNodes) {
+        highlightTextNode(textNode);
+      }
     }
+
+    syncActiveMatch(false);
 
     lastHighlightSignature = nextSignature;
   }
@@ -566,6 +621,86 @@
     }
   }
 
+  function clearAllHighlights() {
+    for (const root of getHighlightRoots()) {
+      clearHighlights(root);
+    }
+  }
+
+  function getHighlightMarks() {
+    const marks = [];
+
+    for (const root of getHighlightRoots()) {
+      marks.push(...root.querySelectorAll(`mark[${MARK_ATTRIBUTE}]`));
+    }
+
+    return marks;
+  }
+
+  function getActiveMatchIndex() {
+    const matchCount = getHighlightMarks().length;
+
+    if (matchCount === 0) {
+      return -1;
+    }
+
+    if (currentMatchIndex < 0 || currentMatchIndex >= matchCount) {
+      return 0;
+    }
+
+    return currentMatchIndex;
+  }
+
+  function syncActiveMatch(shouldScroll) {
+    const marks = getHighlightMarks();
+
+    if (marks.length === 0) {
+      currentMatchIndex = -1;
+      return;
+    }
+
+    if (currentMatchIndex < 0 || currentMatchIndex >= marks.length) {
+      currentMatchIndex = 0;
+    }
+
+    for (const [index, mark] of marks.entries()) {
+      mark.classList.toggle(ACTIVE_MARK_CLASS_NAME, index === currentMatchIndex);
+    }
+
+    if (shouldScroll) {
+      marks[currentMatchIndex].scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest',
+      });
+    }
+  }
+
+  function navigateMatch(direction) {
+    const marks = getHighlightMarks();
+
+    if (marks.length === 0) {
+      currentMatchIndex = -1;
+      return {
+        matchCount: 0,
+        activeMatchIndex: -1,
+      };
+    }
+
+    if (currentMatchIndex < 0 || currentMatchIndex >= marks.length) {
+      currentMatchIndex = direction < 0 ? marks.length - 1 : 0;
+    } else {
+      currentMatchIndex = (currentMatchIndex + direction + marks.length) % marks.length;
+    }
+
+    syncActiveMatch(true);
+
+    return {
+      matchCount: marks.length,
+      activeMatchIndex: currentMatchIndex,
+    };
+  }
+
   function shouldHighlightTextNode(node) {
     if (!node.parentElement) {
       return false;
@@ -591,11 +726,106 @@
   }
 
   function createHighlightSignature() {
+    const rootSignature = getHighlightRoots()
+      .map((root) => root.textContent || '')
+      .join('||');
+
     const keywordSignature = keywords
       .map((keyword) => `${keyword.normalized}:${keyword.color}`)
       .join('|');
 
-    return `${detailContainer?.textContent || ''}::${keywordSignature}::${settings.paused}`;
+    return `${rootSignature}::${keywordSignature}::${settings.paused}`;
+  }
+
+  function getHighlightRoots() {
+    const roots = [];
+
+    if (listContainer) {
+      roots.push(listContainer);
+    }
+
+    if (detailContainer && detailContainer !== listContainer) {
+      roots.push(detailContainer);
+    }
+
+    if (roots.length === 0 && fallbackHighlightRoot) {
+      roots.push(fallbackHighlightRoot);
+    }
+
+    return roots;
+  }
+
+  function getPrimaryJobState(states) {
+    for (const state of JOB_STATE_PRIORITY) {
+      if (states.includes(state)) {
+        return state;
+      }
+    }
+
+    return states[0] || 'viewed';
+  }
+
+  function getStateBadgeElements(root, state) {
+    const badges = [];
+
+    // Fast path: specific LinkedIn footer selectors — stable and cheap.
+    for (const candidate of root.querySelectorAll(JOB_STATE_BADGE_SELECTORS.join(', '))) {
+      if ((candidate.textContent || '').trim().toLocaleLowerCase() === state) {
+        badges.push(candidate);
+      }
+    }
+
+    if (badges.length > 0) {
+      return badges;
+    }
+
+    // Slow path: resolve likely job cards first, then scan only inside those
+    // cards so we still avoid a full-document inline-tag query.
+    for (const card of findJobCardCandidates(root)) {
+      for (const el of card.querySelectorAll('p, span, li, small, strong, mark')) {
+        if ((el.textContent || '').trim().toLocaleLowerCase() === state) {
+          badges.push(el);
+        }
+      }
+    }
+
+    return badges;
+  }
+
+  function getAnyStateBadgeElements(root) {
+    const badges = [];
+
+    for (const state of JOB_STATE_LABELS) {
+      badges.push(...getStateBadgeElements(root, state));
+    }
+
+    return badges;
+  }
+
+  function getJobCardStateMap(root) {
+    const stateMap = new Map();
+
+    for (const state of JOB_STATE_LABELS) {
+      for (const badge of getStateBadgeElements(root, state)) {
+        const card = getJobCardElement(badge);
+
+        if (!card) {
+          continue;
+        }
+
+        if (!stateMap.has(card)) {
+          stateMap.set(card, []);
+        }
+
+        const states = stateMap.get(card);
+
+        if (!states.includes(state)) {
+          states.push(state);
+        }
+      }
+    }
+
+    return stateMap;
   }
 
   function isJobsPage() {
@@ -603,29 +833,51 @@
   }
 
   function findJobListContainer() {
+    // Class/attribute-based selectors — only use them if they actually contain
+    // at least one job card. This prevents accidentally returning a filter-chip
+    // <ul> or pagination container that matches the selector but has no cards.
     for (const selector of JOB_LIST_SELECTORS) {
       const container = document.querySelector(selector);
 
-      if (container) {
+      if (container && findJobCardCandidates(container, 1).length > 0) {
         return container;
       }
     }
 
-    const fallbackCard = document.querySelector(JOB_CARD_FALLBACK_SELECTORS.join(', '));
+    // Walk up from a known card. Most reliable for any LinkedIn UI version.
+    const anyCard = findJobCardCandidates(document, 1)[0];
 
-    if (!fallbackCard) {
-      return null;
-    }
+    if (anyCard) {
+      for (const selector of JOB_LIST_ANCESTOR_SELECTORS) {
+        const container = anyCard.closest(selector);
 
-    for (const selector of JOB_LIST_ANCESTOR_SELECTORS) {
-      const container = fallbackCard.closest(selector);
-
-      if (container) {
-        return container;
+        if (container) {
+          return container;
+        }
       }
+
+      // Final reliable fallback: find the ancestor that wraps multiple cards.
+      // This works for the new hashed-class search UI where no stable selector
+      // matches the outer container.
+      return findMultiCardAncestor(anyCard);
     }
 
     return null;
+  }
+
+  function findMultiCardAncestor(card) {
+    let ancestor = card.parentElement;
+
+    while (ancestor && ancestor !== document.body) {
+      if (findJobCardCandidates(ancestor, 2).length > 1) {
+        return ancestor;
+      }
+
+      ancestor = ancestor.parentElement;
+    }
+
+    // Fall back to the immediate parent if only one card is visible yet.
+    return card.parentElement || null;
   }
 
   function findJobDetailContainer() {
@@ -640,19 +892,44 @@
     return null;
   }
 
-  function getJobCards(root) {
-    const cards = new Set();
-    const candidates = root.querySelectorAll(JOB_CARD_FALLBACK_SELECTORS.join(', '));
+  function findFallbackHighlightRoot() {
+    for (const selector of PAGE_CONTENT_SELECTORS) {
+      const container = document.querySelector(selector);
 
-    for (const candidate of candidates) {
-      const card = getJobCardElement(candidate);
-
-      if (card) {
-        cards.add(card);
+      if (container) {
+        return container;
       }
     }
 
-    return [...cards];
+    return document.body || null;
+  }
+
+  function getJobCards(root) {
+    return findJobCardCandidates(root);
+  }
+
+  function findJobCardCandidates(root, limit = Number.POSITIVE_INFINITY) {
+    const cards = [];
+    const seen = new Set();
+
+    for (const selector of JOB_CARD_QUERY_SELECTORS) {
+      for (const candidate of root.querySelectorAll(selector)) {
+        const card = getJobCardElement(candidate);
+
+        if (!card || seen.has(card)) {
+          continue;
+        }
+
+        seen.add(card);
+        cards.push(card);
+
+        if (cards.length >= limit) {
+          return cards;
+        }
+      }
+    }
+
+    return cards;
   }
 
   function getJobCardElement(target) {
@@ -660,30 +937,66 @@
       return null;
     }
 
-    for (const selector of JOB_CARD_CONTAINER_SELECTORS) {
-      const card = target.closest(selector);
+    let fallbackLink = null;
+    let current = target;
 
-      if (card) {
-        return card;
+    while (current && current !== document.body) {
+      if (matchesAnySelector(current, JOB_CARD_CONTAINER_SELECTORS) && isLikelyJobCard(current)) {
+        return current;
       }
+
+      if (!fallbackLink && matchesAnySelector(current, JOB_CARD_LINK_SELECTORS) && isLikelyJobCard(current)) {
+        fallbackLink = current;
+      }
+
+      current = current.parentElement;
     }
 
-    return null;
+    return fallbackLink;
   }
 
-  function resolveJobId(element) {
-    const dataNode = element.matches('[data-job-id]')
-      ? element
-      : element.querySelector('[data-job-id]');
+  function isLikelyJobCard(element) {
+    if (!(element instanceof Element) || element.matches('button, [role="button"]')) {
+      return false;
+    }
 
-    const dataJobId = dataNode?.getAttribute('data-job-id');
+    if (element.matches('[componentkey^="job-card-component-ref"], [data-job-id], .job-card-container')) {
+      return true;
+    }
 
-    const link = element.matches('a[href*="/jobs/view/"]')
-      ? element
-      : element.querySelector('a[href*="/jobs/view/"]');
+    const hasDismissButton = Boolean(element.querySelector('button[aria-label*="Dismiss"][aria-label*=" job"]'));
 
-    const href = link?.getAttribute('href') || '';
+    if (element.matches('div[componentkey]')) {
+      return hasDismissButton;
+    }
 
-    return extractJobId(dataJobId, href);
+    if (matchesAnySelector(element, JOB_CARD_LINK_SELECTORS)) {
+      return true;
+    }
+
+    if (element.matches('.jobs-search-results__list-item, .artdeco-list__item, [role="listitem"], article, li')) {
+      return hasDismissButton || Boolean(
+        element.querySelector('[componentkey], [data-job-id], .job-card-container, a[href*="/jobs/view/"], a[href*="/jobs/collections/"]')
+      );
+    }
+
+    return false;
   }
+
+  function matchesAnySelector(element, selectors) {
+    return selectors.some((selector) => element.matches(selector));
+  }
+
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message?.type !== 'job-hunt-visualizer:navigate-match') {
+      return false;
+    }
+
+    sendResponse({
+      ok: true,
+      ...navigateMatch(message.direction < 0 ? -1 : 1),
+    });
+
+    return false;
+  });
 })();
