@@ -6,190 +6,573 @@
     <title>Job Hunt Visualizer</title>
     <style>
       :root {
+        /* ── Tokens ──────────────────────────────────────────────── */
+        --blue:        #1a73e8;
+        --blue-hover:  #1557b0;
+        --blue-tint:   #e8f0fe;
+        --green:       #188038;
+        --gray-50:     #f8f9fa;
+        --gray-100:    #f1f3f4;
+        --gray-200:    #e8eaed;
+        --gray-400:    #bdc1c6;
+        --gray-500:    #9aa0a6;
+        --gray-700:    #5f6368;
+        --gray-800:    #3c4043;
+        --gray-900:    #202124;
+        --red:         #d93025;
+
+        --text:        var(--gray-900);
+        --text-soft:   var(--gray-700);
+        --border:      var(--gray-200);
+        --surface:     #ffffff;
+        --bg:          var(--gray-50);
+
+        --r-sm:  6px;
+        --r:     10px;
+        --r-lg:  14px;
+
+        --shadow: 0 1px 3px rgba(60,64,67,.15), 0 1px 2px rgba(60,64,67,.08);
+        --danger-tint: #fce8e6;
+
         color-scheme: light;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: #f6f4ef;
-        color: #1f1f1f;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                     "Helvetica Neue", Arial, sans-serif;
+      }
+
+      /* ── Dark theme (class toggled by popup.js) ── */
+      html.dark {
+        --danger-tint:  rgba(242,93,80,.18);
+        --gray-50:      #252527;
+        --gray-100:     #2c2c2e;
+        --gray-200:     #3a3a3c;
+        --gray-400:     #636366;
+        --gray-500:     #8e8e93;
+        --gray-700:     #aeaeb2;
+        --gray-800:     #c7c7cc;
+        --gray-900:     #f2f2f7;
+        --red:          #f28b82;
+        --green:        #34a853;
+        --text:         #f2f2f7;
+        --text-soft:    #aeaeb2;
+        --border:       rgba(255,255,255,0.1);
+        --surface:      #1c1c1e;
+        --bg:           #111113;
+        --shadow:       0 1px 4px rgba(0,0,0,.5), 0 1px 2px rgba(0,0,0,.35);
+      }
+
+      /* ── Reset ── */
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      html {
+        /* Fixed viewport — Chrome extension popup window is sized to these.
+           No vw/vh units: those can shift after the popup window itself resizes. */
+        width: 380px;
+        min-width: 380px;
+        height: 580px;
+        min-height: 580px;
+        overflow: hidden;
+        background: var(--bg);
       }
 
       body {
-        width: 340px;
-        margin: 0;
+        width: 100%;
+        height: 100%;
         padding: 16px;
-        background: linear-gradient(180deg, #fffdf8 0%, #f3efe3 100%);
+        overflow: hidden;
+        color: var(--text);
+        font-size: 14px;
+        background: transparent;
       }
 
+      /* ── Layout ── */
+      .app {
+        display: grid;
+        gap: 12px;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        padding-right: 2px;
+        scrollbar-gutter: stable;
+        contain: layout paint;
+      }
+
+      .app::-webkit-scrollbar { width: 6px; }
+      .app::-webkit-scrollbar-track { background: transparent; }
+      .app::-webkit-scrollbar-thumb { background: var(--gray-400); border-radius: 999px; }
+
+      .stack { display: grid; gap: 10px; }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        box-shadow: var(--shadow);
+        padding: 16px;
+      }
+
+      .divider { height: 1px; background: var(--border); }
+
+      /* ── Typography ── */
       h1 {
-        margin: 0 0 8px;
-        font-size: 18px;
+        font-size: 19px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--gray-900);
+        line-height: 1.2;
       }
 
       p {
-        margin: 0;
-        color: #555;
-        line-height: 1.4;
+        font-size: 13px;
+        color: var(--text-soft);
+        line-height: 1.5;
+        overflow-wrap: anywhere;
       }
 
-      .stack {
-        display: grid;
+      .section-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--text-soft);
+      }
+
+      /* ── Header row ── */
+      .header-row {
+        display: flex;
+        align-items: flex-start;
         gap: 12px;
       }
 
-      .panel {
-        padding: 12px;
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.86);
-        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
+      .header-text { flex: 1; min-width: 0; }
+      .header-text h1 { margin-bottom: 4px; }
+
+      /* ── Pause pill ── */
+      .pill-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1.5px solid var(--border);
+        background: var(--surface);
+        cursor: pointer;
+        font-size: 13px;
+        color: var(--gray-800);
+        font-weight: 500;
+        white-space: nowrap;
+        flex-shrink: 0;
+        -webkit-user-select: none;
+        user-select: none;
+        transition: background 80ms;
       }
 
-      .row {
+      .pill-toggle:hover { background: var(--gray-100); }
+
+      /* ── Checkboxes ── */
+      input[type='checkbox'] {
+        accent-color: var(--blue);
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+        cursor: pointer;
+      }
+
+      /* ── Keyword form ── */
+      .form-body { display: grid; gap: 8px; }
+
+      textarea {
+        width: 100%;
+        min-height: 72px;
+        max-height: 160px;
+        padding: 10px 12px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--r);
+        resize: vertical;
+        font: inherit;
+        font-size: 13px;
+        color: var(--text);
+        background: var(--surface);
+        line-height: 1.5;
+        transition: border-color 120ms;
+      }
+
+      textarea::placeholder { color: var(--gray-500); }
+
+      textarea:focus {
+        outline: none;
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(26,115,232,.12);
+      }
+
+      .form-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 8px;
+        flex-wrap: wrap;
       }
 
-      form {
-        display: grid;
-        grid-template-columns: 1fr auto auto;
-        gap: 8px;
-      }
-
-      input[type='text'] {
-        min-width: 0;
-        padding: 10px 12px;
-        border: 1px solid #c7c2b8;
-        border-radius: 10px;
-      }
-
-      input[type='color'] {
-        width: 42px;
-        height: 42px;
-        padding: 0;
-        border: none;
-        background: transparent;
-      }
-
-      button {
-        border: none;
-        border-radius: 10px;
-        padding: 10px 12px;
-        background: #0a66c2;
-        color: #fff;
+      .color-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 13px;
+        color: var(--gray-800);
         cursor: pointer;
       }
 
-      button.secondary {
-        background: #e7e2d7;
-        color: #1f1f1f;
+      input[type='color'] {
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-sm);
+        background: transparent;
+        cursor: pointer;
+        flex-shrink: 0;
       }
 
-      button.danger {
-        background: #b42318;
+      /* ── Buttons ── */
+      button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        border: none;
+        border-radius: var(--r-sm);
+        padding: 8px 16px;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 80ms, opacity 80ms;
+        white-space: nowrap;
+        flex-shrink: 0;
       }
 
+      button:focus-visible {
+        outline: 2px solid var(--blue);
+        outline-offset: 2px;
+      }
+
+      button:disabled { opacity: 0.45; cursor: default; }
+
+      .btn-primary {
+        background: var(--blue);
+        color: #fff;
+      }
+
+      .btn-primary:hover:not(:disabled) { background: var(--blue-hover); }
+
+      .secondary {
+        background: var(--gray-100);
+        color: var(--gray-800);
+      }
+
+      .secondary:hover:not(:disabled) { background: var(--gray-200); }
+
+      .btn-remove {
+        background: transparent;
+        color: var(--gray-500);
+        padding: 5px 9px;
+        border-radius: var(--r-sm);
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .btn-remove:hover:not(:disabled) { background: var(--danger-tint); color: var(--red); }
+
+      /* ── Stats row ── */
+      .stats-row {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      #keywordCount    { font-size: 13px; font-weight: 600; color: var(--text); }
+      .dot-sep         { color: var(--gray-400); font-size: 12px; }
+      #stateCountSummary { font-size: 12.5px; color: var(--text-soft); }
+
+      /* ── Status block ── */
+      .status-block {
+        padding: 10px 12px;
+        border-radius: var(--r-sm);
+        background: var(--gray-50);
+        border: 1px solid var(--border);
+        font-size: 12.5px;
+        color: var(--text-soft);
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+      }
+
+      .status-block strong {
+        display: block;
+        color: var(--text);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+
+      /* ── Dim controls ── */
+      .dim-group { display: grid; gap: 4px; }
+
+      .dim-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 12px;
+        border-radius: var(--r-sm);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        cursor: pointer;
+        font-size: 13px;
+        color: var(--gray-800);
+        transition: background 80ms;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      .dim-row:hover { background: var(--gray-50); }
+
+      .dim-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .dim-dot--viewed  { background: #6b7280; }
+      .dim-dot--saved   { background: var(--blue); }
+      .dim-dot--applied { background: var(--green); }
+
+      /* ── Keyword list ── */
       ul {
         list-style: none;
-        padding: 0;
-        margin: 0;
+        max-height: 224px;
+        overflow-y: auto;
         display: grid;
-        gap: 8px;
-        max-height: 220px;
-        overflow: auto;
+        gap: 4px;
+        padding-right: 4px;
       }
+
+      ul::-webkit-scrollbar { width: 6px; }
+      ul::-webkit-scrollbar-thumb { background: var(--gray-400); border-radius: 999px; }
 
       li {
         display: grid;
-        grid-template-columns: 1fr auto auto;
+        grid-template-columns: minmax(0,1fr) auto auto;
         gap: 8px;
         align-items: center;
         padding: 8px 10px;
-        border: 1px solid rgba(0, 0, 0, 0.06);
-        border-radius: 10px;
-        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--r-sm);
+        background: var(--surface);
       }
 
+      li:hover { background: var(--gray-50); }
+
       .pill {
-        display: inline-flex;
+        display: flex;
         align-items: center;
         gap: 8px;
         min-width: 0;
       }
 
       .swatch {
-        width: 12px;
-        height: 12px;
-        border-radius: 999px;
-        flex: 0 0 auto;
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        flex-shrink: 0;
       }
 
       .term {
-        overflow: hidden;
-        text-overflow: ellipsis;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        font-size: 13px;
+        line-height: 1.4;
+        color: var(--text);
+      }
+
+      li input[type='color'] { width: 24px; height: 24px; border-radius: 4px; }
+      li button { padding: 5px 9px; box-shadow: none; }
+
+      .empty {
+        padding: 20px 16px;
+        text-align: center;
+        font-size: 13px;
+        color: var(--text-soft);
+        border: 1.5px dashed var(--border);
+        border-radius: var(--r);
+        line-height: 1.5;
+      }
+
+      /* ── Match nav ── */
+      .match-nav {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .match-nav button { width: 100%; }
+
+      #matchStatus {
+        text-align: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--gray-800);
         white-space: nowrap;
       }
 
-      .counts {
+      .match-hint {
         font-size: 12px;
-        color: #555;
-      }
-
-      .hint {
-        font-size: 12px;
-      }
-
-      .empty {
+        color: var(--text-soft);
         text-align: center;
-        padding: 16px;
-        border: 1px dashed rgba(0, 0, 0, 0.15);
-        border-radius: 10px;
-        color: #666;
+        line-height: 1.4;
       }
 
-      .toggle {
+      /* ── Theme toggle button ── */
+      /* Icon is CSS-only via ::before so no DOM text mutation ever happens
+         (text mutations trigger popup remeasure → popup resize). */
+      .btn-theme {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        min-height: 32px;
+        padding: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: var(--text-soft);
+        font-size: 14px;
+        border: 1.5px solid var(--border);
+        flex-shrink: 0;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        font-size: 14px;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .btn-theme::before {
+        content: '\25D0'; /* ◐ auto */
+        line-height: 1;
+        display: block;
+        pointer-events: none;
+      }
+
+      html[data-theme='light'] .btn-theme::before { content: '\25CB'; /* ○ */ }
+      html[data-theme='dark']  .btn-theme::before { content: '\25CF'; /* ● */ }
+
+      .btn-theme:hover:not(:disabled) { background: var(--gray-100); color: var(--text); }
+
+      /* ── Focus rings ── */
+      input[type='checkbox']:focus-visible,
+      input[type='color']:focus-visible {
+        outline: 2px solid var(--blue);
+        outline-offset: 2px;
       }
     </style>
+    <!-- Sync theme class before first paint (external to satisfy MV3 CSP) -->
+    <script src="theme-init.js"></script>
   </head>
   <body>
-    <div class="stack">
-      <section class="panel stack">
-        <div>
-          <h1>Job Hunt Visualizer</h1>
-          <p class="hint">
-            Right-click selected LinkedIn text to add it, or add keywords here. Everything stays local.
-          </p>
-        </div>
-        <label class="toggle">
-          <input id="pauseToggle" type="checkbox" />
-          Pause on LinkedIn
-        </label>
-        <form id="keywordForm">
-          <input id="keywordInput" type="text" placeholder="Add a title or keyword" maxlength="120" />
-          <input id="keywordColor" type="color" value="#FFE082" aria-label="Keyword color" />
-          <button type="submit">Add</button>
-        </form>
-      </section>
+    <div class="app">
 
-      <section class="panel stack">
-        <div class="row counts">
-          <span id="keywordCount">0 highlights</span>
-          <span id="viewedCount">0 viewed jobs</span>
+      <!-- Header + Add Keywords -->
+      <div class="card stack">
+        <div class="header-row">
+          <div class="header-text">
+            <h1>Job Hunt Visualizer</h1>
+            <p>Highlight keywords and dim jobs you've already seen on LinkedIn.</p>
+          </div>
+          <button id="themeToggle" class="btn-theme" type="button" aria-label="Switch color theme" title="Switch theme: auto / light / dark"></button>
+          <label class="pill-toggle">
+            <input id="pauseToggle" type="checkbox" />
+            Pause
+          </label>
         </div>
+
+        <div class="divider"></div>
+
+        <form id="keywordForm" class="form-body">
+          <span class="section-label">Add keywords</span>
+          <textarea
+            id="keywordInput"
+            rows="3"
+            placeholder="Type a keyword, or paste a list — one per line"
+            maxlength="4000"
+          ></textarea>
+          <div class="form-row">
+            <label class="color-label">
+              <input id="keywordColor" type="color" value="#FFE082" aria-label="Highlight color" />
+              Color
+            </label>
+            <button type="submit" class="btn-primary">Add</button>
+          </div>
+        </form>
+
+        <p style="font-size:12px;color:var(--gray-500);">
+          Right-click selected text on LinkedIn to add instantly. Ctrl/Cmd+Enter to submit.
+        </p>
+      </div>
+
+      <!-- Status + Dim Controls -->
+      <div class="card stack">
+        <div class="stats-row">
+          <span id="keywordCount">0 highlights</span>
+          <span class="dot-sep">·</span>
+          <span id="stateCountSummary">0 viewed · 0 saved · 0 applied</span>
+        </div>
+
+        <div id="pageStatus" class="status-block">
+          Checking current tab status…
+        </div>
+
+        <div class="divider"></div>
+
+        <span class="section-label">Dim by state</span>
+        <div class="dim-group">
+          <label class="dim-row">
+            <input id="dimViewedToggle" type="checkbox" />
+            <span class="dim-dot dim-dot--viewed"></span>
+            Viewed
+          </label>
+          <label class="dim-row">
+            <input id="dimSavedToggle" type="checkbox" />
+            <span class="dim-dot dim-dot--saved"></span>
+            Saved
+          </label>
+          <label class="dim-row">
+            <input id="dimAppliedToggle" type="checkbox" />
+            <span class="dim-dot dim-dot--applied"></span>
+            Applied
+          </label>
+        </div>
+      </div>
+
+      <!-- Keyword list -->
+      <div class="card stack">
+        <span class="section-label">Highlighted keywords</span>
         <div id="keywordEmpty" class="empty" hidden>
-          No highlight terms yet. Select text on a LinkedIn job page or add one above.
+          No keywords yet. Add one above or right-click text on LinkedIn.
         </div>
         <ul id="keywordList"></ul>
-      </section>
+      </div>
 
-      <section class="panel row">
-        <button id="clearViewedJobs" class="danger" type="button">Clear viewed history</button>
-        <span class="hint">No auto-clicking. No remote sync.</span>
-      </section>
+      <!-- Match navigation -->
+      <div class="card stack">
+        <div class="match-nav">
+          <button id="prevMatch" class="secondary" type="button">← Prev</button>
+          <span id="matchStatus">0 / 0</span>
+          <button id="nextMatch" class="btn-primary" type="button">Next →</button>
+        </div>
+        <p class="match-hint">Jump between highlighted keywords on the page.</p>
+      </div>
+
     </div>
 
     <script src="shared.js"></script>
