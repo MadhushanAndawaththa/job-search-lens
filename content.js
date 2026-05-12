@@ -897,16 +897,6 @@
     return badges;
   }
 
-  function getAnyStateBadgeElements(root) {
-    const badges = [];
-
-    for (const state of JOB_STATE_LABELS) {
-      badges.push(...getStateBadgeElements(root, state));
-    }
-
-    return badges;
-  }
-
   function getJobCardStateMap(root) {
     const stateMap = new Map();
 
@@ -1007,10 +997,6 @@
     }
 
     return document.body || null;
-  }
-
-  function getJobCards(root) {
-    return findJobCardCandidates(root);
   }
 
   function findJobCardCandidates(root, limit = Number.POSITIVE_INFINITY) {

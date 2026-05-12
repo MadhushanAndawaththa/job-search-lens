@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Job Hunt Visualizer",
-  "description": "Local-first LinkedIn helper that highlights selected keywords and fades jobs you have already viewed.",
-  "version": "1.0.0",
+  "description": "Local-first LinkedIn helper that highlights keywords and passively dims Viewed, Saved, and Applied job cards.",
+  "version": "1.2.0",
   "permissions": ["contextMenus", "storage", "tabs"],
   "host_permissions": [
     "https://www.linkedin.com/*",

@@ -345,7 +345,7 @@ function createKeywordRow(keyword) {
 
   const removeButton = document.createElement('button');
   removeButton.type = 'button';
-  removeButton.className = 'secondary';
+  removeButton.className = 'btn-remove';
   removeButton.textContent = 'Remove';
   removeButton.setAttribute('data-action', 'remove-keyword');
   removeButton.setAttribute('data-keyword-id', keyword.id);
