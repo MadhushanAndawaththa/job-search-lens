@@ -105,6 +105,7 @@
   let currentMatchIndex = -1;
 
   let listContainer = null;
+  let listRoots = [];
   let detailContainer = null;
   let listObserver = null;
   let detailObserver = null;
@@ -144,7 +145,7 @@
         ok: true,
         isJobsPage: isJobsPage(),
         route: `${window.location.pathname}${window.location.search}`,
-        hasListContainer: Boolean(listContainer || findJobListContainer()),
+        hasListContainer: Boolean(listRoots.length || listContainer || findJobListContainer()),
         hasDetailContainer: Boolean(detailContainer || findJobDetailContainer()),
         hasFallbackRoot: Boolean(findFallbackHighlightRoot()),
         keywordCount: keywords.length,
@@ -278,6 +279,7 @@
       clearAllHighlights();
       disconnectSurfaceObservers();
       listContainer = null;
+      listRoots = [];
       detailContainer = null;
       return;
     }
@@ -285,6 +287,7 @@
     const nextListContainer = findJobListContainer();
     const nextDetailContainer = findJobDetailContainer();
     fallbackHighlightRoot = findFallbackHighlightRoot();
+    listRoots = resolveListRoots(nextListContainer, fallbackHighlightRoot);
 
     if (nextListContainer !== listContainer) {
       attachListSurface(nextListContainer);
@@ -382,20 +385,38 @@
   }
 
   function applyGhostStyles() {
-    const ghostRoot = getGhostRoot();
+    const ghostRoots = getGhostRoots();
 
-    if (!ghostRoot) {
+    if (ghostRoots.length === 0) {
       return;
     }
 
-    const stateMap = getJobCardStateMap(ghostRoot);
-
-    for (const staleCard of ghostRoot.querySelectorAll(`[${GHOST_DATA_ATTR}]`)) {
-      staleCard.removeAttribute(GHOST_DATA_ATTR);
+    for (const ghostRoot of ghostRoots) {
+      for (const staleCard of ghostRoot.querySelectorAll(`[${GHOST_DATA_ATTR}]`)) {
+        staleCard.removeAttribute(GHOST_DATA_ATTR);
+      }
     }
 
     if (settings.paused) {
       return;
+    }
+
+    const stateMap = new Map();
+
+    for (const ghostRoot of ghostRoots) {
+      for (const [card, states] of getJobCardStateMap(ghostRoot).entries()) {
+        if (!stateMap.has(card)) {
+          stateMap.set(card, []);
+        }
+
+        const existingStates = stateMap.get(card);
+
+        for (const state of states) {
+          if (!existingStates.includes(state)) {
+            existingStates.push(state);
+          }
+        }
+      }
     }
 
     for (const [card, states] of stateMap.entries()) {
@@ -412,20 +433,22 @@
   }
 
   function countJobStates() {
-    const ghostRoot = getGhostRoot();
+    const ghostRoots = getGhostRoots();
     const counts = {
       viewed: 0,
       saved: 0,
       applied: 0,
     };
 
-    if (!ghostRoot) {
+    if (ghostRoots.length === 0) {
       return counts;
     }
 
-    for (const states of getJobCardStateMap(ghostRoot).values()) {
-      for (const state of states) {
-        counts[state] += 1;
+    for (const ghostRoot of ghostRoots) {
+      for (const states of getJobCardStateMap(ghostRoot).values()) {
+        for (const state of states) {
+          counts[state] += 1;
+        }
       }
     }
 
@@ -433,19 +456,101 @@
   }
 
   function clearGhostStyles() {
-    const ghostRoot = getGhostRoot();
+    const ghostRoots = getGhostRoots();
 
-    if (!ghostRoot) {
+    if (ghostRoots.length === 0) {
       return;
     }
 
-    for (const node of ghostRoot.querySelectorAll(`[${GHOST_DATA_ATTR}]`)) {
-      node.removeAttribute(GHOST_DATA_ATTR);
+    for (const ghostRoot of ghostRoots) {
+      for (const node of ghostRoot.querySelectorAll(`[${GHOST_DATA_ATTR}]`)) {
+        node.removeAttribute(GHOST_DATA_ATTR);
+      }
     }
   }
 
-  function getGhostRoot() {
-    return listContainer || fallbackHighlightRoot || document.body || null;
+  function getGhostRoots() {
+    if (listRoots.length > 0) {
+      return listRoots;
+    }
+
+    if (listContainer) {
+      return [listContainer];
+    }
+
+    if (fallbackHighlightRoot) {
+      return [fallbackHighlightRoot];
+    }
+
+    if (document.body) {
+      return [document.body];
+    }
+
+    return [];
+  }
+
+  function resolveListRoots(listRoot, pageRoot) {
+    if (!(listRoot instanceof Element)) {
+      return [];
+    }
+
+    const roots = [];
+
+    const addRoot = (candidate) => {
+      if (!(candidate instanceof Element)) {
+        return;
+      }
+
+      for (const existing of roots) {
+        if (existing === candidate || existing.contains(candidate)) {
+          return;
+        }
+      }
+
+      for (let index = roots.length - 1; index >= 0; index -= 1) {
+        if (candidate.contains(roots[index])) {
+          roots.splice(index, 1);
+        }
+      }
+
+      roots.push(candidate);
+    };
+
+    addRoot(listRoot);
+
+    if (!(pageRoot instanceof Element) || pageRoot === listRoot || !pageRoot.contains(listRoot)) {
+      return roots;
+    }
+
+    // Discovery/collection pages can split results across multiple independent
+    // lists. Promote only the additional card-section ancestors, not the whole
+    // page, so LinkedIn keeps rendering normally while every job group is still
+    // covered by dimming and highlights.
+    for (const card of findJobCardCandidates(pageRoot)) {
+      if (listRoot.contains(card)) {
+        continue;
+      }
+
+      let sectionRoot = null;
+
+      for (const selector of JOB_LIST_ANCESTOR_SELECTORS) {
+        sectionRoot = card.closest(selector);
+
+        if (sectionRoot && pageRoot.contains(sectionRoot)) {
+          break;
+        }
+      }
+
+      if ((!sectionRoot || !pageRoot.contains(sectionRoot)) && card instanceof Element) {
+        sectionRoot = findMultiCardAncestor(card);
+      }
+
+      if (sectionRoot && pageRoot.contains(sectionRoot)) {
+        addRoot(sectionRoot);
+      }
+    }
+
+    return roots;
   }
 
   function scheduleHighlight() {
@@ -740,11 +845,11 @@
   function getHighlightRoots() {
     const roots = [];
 
-    if (listContainer) {
-      roots.push(listContainer);
+    for (const root of getGhostRoots()) {
+      roots.push(root);
     }
 
-    if (detailContainer && detailContainer !== listContainer) {
+    if (detailContainer && !roots.some((root) => root === detailContainer || root.contains(detailContainer))) {
       roots.push(detailContainer);
     }
 
@@ -942,7 +1047,7 @@
 
     while (current && current !== document.body) {
       if (matchesAnySelector(current, JOB_CARD_CONTAINER_SELECTORS) && isLikelyJobCard(current)) {
-        return current;
+        return getVisualJobCardElement(current);
       }
 
       if (!fallbackLink && matchesAnySelector(current, JOB_CARD_LINK_SELECTORS) && isLikelyJobCard(current)) {
@@ -952,7 +1057,37 @@
       current = current.parentElement;
     }
 
-    return fallbackLink;
+    return fallbackLink ? getVisualJobCardElement(fallbackLink) : null;
+  }
+
+  function getVisualJobCardElement(card) {
+    if (!(card instanceof Element)) {
+      return null;
+    }
+
+    // Collection/discovery layouts can render the interactive card inside a
+    // larger list-item wrapper. Promote to that wrapper so fading spans the
+    // whole tile instead of only the inner content column.
+    const wrapper = card.parentElement?.closest(
+      '.jobs-search-results__list-item, .artdeco-list__item, [role="listitem"], article, li'
+    );
+
+    if (!wrapper || wrapper === card) {
+      return card;
+    }
+
+    const dismissButtons = wrapper.querySelectorAll(
+      'button[aria-label*="Dismiss"][aria-label*=" job"]'
+    ).length;
+    const nestedCards = wrapper.querySelectorAll(
+      '[componentkey^="job-card-component-ref"], div[componentkey], [data-job-id], .job-card-container'
+    ).length;
+
+    if (dismissButtons === 1 && nestedCards === 1 && isLikelyJobCard(wrapper)) {
+      return wrapper;
+    }
+
+    return card;
   }
 
   function isLikelyJobCard(element) {
