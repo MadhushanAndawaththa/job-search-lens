@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Hunt Visualizer Support</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        background: #fcfcfd;
+        color: #111827;
+      }
+
+      main {
+        width: min(860px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0 64px;
+      }
+
+      section {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        padding: 28px;
+        margin-bottom: 18px;
+        box-shadow: 0 10px 24px rgba(17, 24, 39, 0.05);
+      }
+
+      h1 { margin-top: 0; }
+      p, li { line-height: 1.7; }
+      a { color: #0f766e; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section>
+        <h1>Support</h1>
+        <p>Job Hunt Visualizer is maintained as a focused utility for LinkedIn Jobs. This page covers installation, troubleshooting, and feedback paths.</p>
+      </section>
+
+      <section>
+        <h2>Installation</h2>
+        <ol>
+          <li>Open <code>chrome://extensions</code>.</li>
+          <li>Enable Developer mode.</li>
+          <li>Choose <strong>Load unpacked</strong> and select the project folder.</li>
+          <li>Open <code>https://www.linkedin.com/jobs/</code>.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Troubleshooting</h2>
+        <ul>
+          <li>If the popup says Site access is needed, enable extension access for <code>www.linkedin.com</code> and reload the LinkedIn tab.</li>
+          <li>If LinkedIn changes its markup, update to the latest extension build before reporting a bug.</li>
+          <li>If keyword matches are missing, verify the term exists in the job detail pane and that Pause is turned off.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Feedback and issue reports</h2>
+        <p>
+          Report bugs or request features through the repository issue tracker:
+          <a href="https://github.com/MadhushanAndawaththa/Job_Search/issues">https://github.com/MadhushanAndawaththa/Job_Search/issues</a>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

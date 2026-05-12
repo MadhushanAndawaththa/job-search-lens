@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Hunt Visualizer Privacy Policy</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        color: #1f2937;
+        background: #f8fafc;
+      }
+
+      main {
+        width: min(860px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0 64px;
+      }
+
+      article {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 20px;
+        padding: 32px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+      }
+
+      h1, h2 { color: #0f172a; }
+      h1 { margin-top: 0; }
+      p, li { line-height: 1.7; }
+      ul { padding-left: 20px; }
+      code { background: #f1f5f9; padding: 2px 6px; border-radius: 6px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <article>
+        <h1>Privacy Policy</h1>
+        <p><strong>Last updated:</strong> 2026-05-12</p>
+        <p>
+          Job Hunt Visualizer is a local-only Chrome extension for LinkedIn Jobs. This policy explains what the extension accesses,
+          how that information is used, and what is not collected or shared.
+        </p>
+
+        <h2>What the extension does</h2>
+        <p>
+          The extension highlights saved keywords on LinkedIn job pages and passively dims job cards that LinkedIn itself labels as
+          Viewed, Saved, or Applied.
+        </p>
+
+        <h2>What data is stored</h2>
+        <ul>
+          <li>Keywords you save.</li>
+          <li>Color choices for those keywords.</li>
+          <li>Extension settings such as pause state, dim-state toggles, and theme preference.</li>
+        </ul>
+        <p>These values are stored locally in <code>chrome.storage.local</code> on your device.</p>
+
+        <h2>What data is not collected</h2>
+        <ul>
+          <li>No account information is collected.</li>
+          <li>No personal data is transmitted to the developer.</li>
+          <li>No job application data is uploaded to any server.</li>
+          <li>No analytics, telemetry, tracking pixels, or third-party ads are used.</li>
+          <li>No remote code is executed.</li>
+        </ul>
+
+        <h2>How LinkedIn page content is used</h2>
+        <p>
+          The extension reads the content of LinkedIn job pages locally inside the browser in order to:
+        </p>
+        <ul>
+          <li>find text matches for your saved keywords, and</li>
+          <li>detect LinkedIn's own Viewed, Saved, and Applied labels already rendered on the page.</li>
+        </ul>
+        <p>
+          This processing happens on-device. The extension does not send LinkedIn page content, browsing history, or job metadata to any external endpoint.
+        </p>
+
+        <h2>Permissions</h2>
+        <ul>
+          <li><strong>contextMenus</strong>: used to add selected LinkedIn text as a keyword.</li>
+          <li><strong>storage</strong>: used to persist your keywords and settings locally.</li>
+          <li><strong>tabs</strong>: used so the popup can talk to the active LinkedIn tab.</li>
+          <li><strong>https://www.linkedin.com/*</strong>: used to run the content script only on LinkedIn pages.</li>
+        </ul>
+
+        <h2>Data sharing</h2>
+        <p>No stored or processed data is sold, rented, transferred, or disclosed to third parties.</p>
+
+        <h2>Contact</h2>
+        <p>
+          For support or privacy questions, use the support page in this repository or the issue tracker linked from the project homepage.
+        </p>
+      </article>
+    </main>
+  </body>
+</html>

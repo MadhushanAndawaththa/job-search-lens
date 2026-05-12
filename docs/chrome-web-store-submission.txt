@@ -1,0 +1,55 @@
+JOB HUNT VISUALIZER
+Chrome Web Store submission notes
+
+Single-purpose statement
+Job Hunt Visualizer helps users review LinkedIn Jobs more efficiently by highlighting saved keywords in job details and passively dimming job cards that LinkedIn already labels as Viewed, Saved, or Applied.
+
+Short description
+Highlight job-search keywords and dim viewed, saved, and applied LinkedIn jobs locally in your browser.
+
+Detailed description
+Job Hunt Visualizer is a privacy-first Chrome extension built for LinkedIn Jobs.
+
+It highlights the keywords you care about inside job details and passively dims job cards already marked by LinkedIn as Viewed, Saved, or Applied. This makes it easier to scan large result sets without losing your place.
+
+All settings stay local in the browser. The extension has no backend, no telemetry, no account system, and no remote code.
+
+Key features
+- Keyword highlighting inside LinkedIn job details
+- Right-click context menu to save selected text as a keyword
+- Per-keyword color palette
+- Sort, search, and export controls for the keyword library
+- Independent dim toggles for Viewed, Saved, and Applied states
+- Auto, Light, and Dark popup themes
+
+Permission justifications
+contextMenus
+Used only to add the selected LinkedIn text to the saved keyword list from the right-click menu.
+
+storage
+Used to store saved keywords, colors, theme preference, and dim-state settings locally in the browser.
+
+tabs
+Used by the popup to identify the active LinkedIn tab and request page status/match navigation from the content script.
+
+https://www.linkedin.com/* host access
+Used to inject the content script only on LinkedIn pages where highlighting and dimming are needed.
+
+Remote code declaration
+No, the extension does not use or execute remote code.
+
+Data-use declaration
+- No personal or sensitive user data is collected.
+- No browsing data is transmitted to external servers.
+- No analytics or advertising SDKs are used.
+- All processing happens locally in the browser.
+
+Publishing checklist
+1. Enable GitHub Pages from the docs/ folder if you want stable homepage/privacy/support URLs.
+2. Use docs/privacy-policy.html as the privacy policy content source.
+3. Use docs/support.html as the support page source.
+4. Upload assets/icons/icon128.png as the extension icon in the Chrome Web Store.
+5. Upload at least one real product screenshot before final submission.
+6. Upload assets/store/small-promo-440x280.png as the small promo tile.
+7. Upload assets/store/marquee-1400x560.png as the marquee promo tile if you want richer store presentation.
+8. Consider deferred publishing for the first submission so review can complete before public release.
