@@ -6,7 +6,7 @@
   "version": "1.2.1",
   "permissions": ["contextMenus", "storage", "tabs"],
   "host_permissions": ["https://www.linkedin.com/*"],
-  "homepage_url": "https://github.com/MadhushanAndawaththa/Job_Search",
+  "homepage_url": "https://madhushanandawaththa.github.io/Job_Search/",
   "minimum_chrome_version": "114",
   "icons": {
     "16": "assets/icons/icon16.png",
