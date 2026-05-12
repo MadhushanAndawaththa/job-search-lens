@@ -139,17 +139,18 @@ Current coverage includes:
 
 ## Publishing Resources
 
-This repo includes the assets and reference material needed for store preparation:
+The public product site is at **[madhushanandawaththa.github.io/Job_Search](https://madhushanandawaththa.github.io/Job_Search/)**
+(served from the `docs/` folder via GitHub Pages).
 
-- [docs/index.html](docs/index.html): homepage-style landing page
-- [docs/privacy-policy.html](docs/privacy-policy.html): privacy policy content
-- [docs/support.html](docs/support.html): support/help page
-- [docs/chrome-web-store-submission.txt](docs/chrome-web-store-submission.txt): single-purpose statement, listing copy, permission justifications, and publish checklist
-- `assets/icons/`: manifest and store icon files
-- `assets/store/`: branded listing graphics and promo assets
-- `tools/generate-assets.ps1`: repeatable asset generation script for store graphics
+This repo also includes the assets and reference material needed for store preparation:
 
-If you want to use the docs as public URLs, enable GitHub Pages from the `docs/` folder.
+- [docs/index.html](docs/index.html): product landing page
+- [docs/privacy-policy.html](docs/privacy-policy.html): privacy policy — [live link](https://madhushanandawaththa.github.io/Job_Search/privacy-policy.html)
+- [docs/support.html](docs/support.html): support page — [live link](https://madhushanandawaththa.github.io/Job_Search/support.html)
+- [docs/chrome-web-store-submission.txt](docs/chrome-web-store-submission.txt): listing copy, permission justifications, and publish checklist
+- `assets/icons/`: manifest and store icon files (16 / 32 / 48 / 128 px)
+- `assets/store/`: branded promo tiles and listing graphics
+- `tools/generate-assets.ps1`: repeatable PowerShell script to regenerate all store graphics
 
 ## Project Structure
 
@@ -182,6 +183,17 @@ Job_Search/
 └── .gitignore
 ```
 
+## License
+
+This project is released under the **MIT License + Commons Clause**.
+
+You are free to use, study, modify, and share the code for personal or educational purposes.
+Selling, charging for access to, or building a paid product from this code is not permitted.
+
+See [LICENSE](LICENSE) for the full text.
+
+---
+
 ## Disclaimer
 
 This project is an independent utility and is not affiliated with or endorsed by LinkedIn.
@@ -192,6 +204,7 @@ LinkedIn may change its markup or platform policies at any time, so selector mai
 
 | Version | Summary |
 |---|---|
+| 1.2.2 | Redesigned GitHub Pages product/privacy/support site, MIT + Commons Clause license, shared docs stylesheet |
 | 1.2.1 | Publish-prep metadata, icons, static policy/support pages, scenario 5 heuristics, and DOM fixture tests |
 | 1.2.0 | Color palette swatches, keyword export and sort, and multi-list root coverage |
 | 1.1.0 | Theme support, Saved and Applied dimming, and SPA-aware observers |
