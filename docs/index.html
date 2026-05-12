@@ -1,152 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Job Hunt Visualizer</title>
-    <style>
-      :root {
-        --bg: #f6fbfb;
-        --ink: #132326;
-        --muted: #4d6467;
-        --card: #ffffff;
-        --line: #d9e7e7;
-        --brand: #0f766e;
-        --brand-strong: #0b5e58;
-        --accent: #1d4ed8;
-        --shadow: 0 16px 40px rgba(15, 118, 110, 0.10);
-        font-family: "Segoe UI", system-ui, sans-serif;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Hunt Visualizer — Scan LinkedIn Jobs Faster</title>
+  <meta name="description" content="A privacy-first Chrome extension that highlights keywords and dims processed LinkedIn job cards. No accounts. No backend. All local.">
+  <link rel="icon" href="../assets/icons/icon32.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        color: var(--ink);
-        background:
-          radial-gradient(circle at top left, rgba(29, 78, 216, 0.10), transparent 35%),
-          radial-gradient(circle at right center, rgba(15, 118, 110, 0.12), transparent 30%),
-          var(--bg);
-      }
+  <header class="site-nav">
+    <a class="nav-brand" href="index.html">
+      <img src="../assets/icons/icon32.png" alt="">
+      Job Hunt Visualizer
+    </a>
+    <nav class="nav-links">
+      <a href="privacy-policy.html">Privacy</a>
+      <a href="support.html">Support</a>
+      <a class="nav-github" href="https://github.com/MadhushanAndawaththa/Job_Search"
+         target="_blank" rel="noopener" aria-label="View source on GitHub">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+      </a>
+    </nav>
+  </header>
 
-      main {
-        width: min(1080px, calc(100% - 32px));
-        margin: 0 auto;
-        padding: 56px 0 72px;
-      }
+  <main>
 
-      .hero {
-        display: grid;
-        gap: 20px;
-        padding: 36px;
-        border: 1px solid var(--line);
-        border-radius: 28px;
-        background: rgba(255, 255, 255, 0.88);
-        box-shadow: var(--shadow);
-        backdrop-filter: blur(12px);
-      }
+    <!-- Hero -->
+    <section class="hero">
+      <img class="hero-icon" src="../assets/icons/icon128.png" alt="Job Hunt Visualizer icon">
+      <h1>Job Hunt<br>Visualizer</h1>
+      <p class="hero-sub">Highlight the words that matter.<br>Dim the jobs you've already seen.</p>
+      <div class="hero-chips">
+        <span class="chip">Local-only</span>
+        <span class="chip">No accounts</span>
+        <span class="chip">Chrome MV3</span>
+        <span class="chip">LinkedIn Jobs</span>
+      </div>
+      <a class="btn-primary" href="https://github.com/MadhushanAndawaththa/Job_Search"
+         target="_blank" rel="noopener">
+        View on GitHub
+      </a>
+    </section>
 
-      h1 {
-        margin: 0;
-        font-size: clamp(2rem, 5vw, 3.4rem);
-        line-height: 1.05;
-      }
+    <!-- Features -->
+    <section class="features" aria-label="Features">
+      <article class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h2>Keyword Highlights</h2>
+        <p>Save terms that matter to you. The extension marks them inline on LinkedIn job details the moment you open them.</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-icon">🌫</div>
+        <h2>State Dimming</h2>
+        <p>Viewed, Saved, and Applied cards are quietly dimmed so you can focus on what you haven't processed yet.</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h2>Fully Local</h2>
+        <p>Keywords and settings stay in <code>chrome.storage.local</code>. Nothing leaves your browser. No logins, no sync, no backend.</p>
+      </article>
+    </section>
 
-      p {
-        margin: 0;
-        color: var(--muted);
-        line-height: 1.6;
-        font-size: 1rem;
-      }
+    <!-- How it works -->
+    <section class="how-section">
+      <div class="how-inner">
+        <p class="section-label">How it works</p>
+        <h2 class="section-title">Three steps to a cleaner job search</h2>
+        <ol class="steps">
+          <li class="step">
+            <span class="step-num">1</span>
+            <div>
+              <strong>Install the extension</strong>
+              <p>Load it from the GitHub source in developer mode, or install from the Chrome Web Store once published.</p>
+            </div>
+          </li>
+          <li class="step">
+            <span class="step-num">2</span>
+            <div>
+              <strong>Save your keywords</strong>
+              <p>Right-click any selected text on LinkedIn and choose "Add to Highlighter", or type keywords directly in the popup and pick a colour.</p>
+            </div>
+          </li>
+          <li class="step">
+            <span class="step-num">3</span>
+            <div>
+              <strong>Scan faster</strong>
+              <p>Open any LinkedIn Jobs page. Your terms are highlighted and previously processed cards are dimmed automatically.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
 
-      .pill-row, .link-row, .grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-      }
+    <!-- Permissions -->
+    <section class="perm-section">
+      <div class="perm-inner">
+        <p class="section-label">Permissions</p>
+        <h2 class="section-title">Minimal, purposeful access</h2>
+        <table class="perm-table">
+          <thead>
+            <tr>
+              <th>Permission</th>
+              <th>Why it is needed</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>contextMenus</code></td>
+              <td>Add selected text as a keyword via right-click on LinkedIn</td>
+            </tr>
+            <tr>
+              <td><code>storage</code></td>
+              <td>Save keywords and settings locally in the browser only</td>
+            </tr>
+            <tr>
+              <td><code>tabs</code></td>
+              <td>Let the popup identify the active LinkedIn tab</td>
+            </tr>
+            <tr>
+              <td><code>linkedin.com</code> host</td>
+              <td>Run the content script on LinkedIn pages — no other sites</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-      .pill {
-        padding: 10px 14px;
-        border-radius: 999px;
-        background: rgba(15, 118, 110, 0.08);
-        color: var(--brand-strong);
-        font-weight: 600;
-      }
+    <!-- Author -->
+    <section class="author-section">
+      <img class="author-avatar"
+           src="https://github.com/MadhushanAndawaththa.png"
+           alt="Madhushan Andawaththa">
+      <p class="author-label">Built by</p>
+      <a class="author-link" href="https://github.com/MadhushanAndawaththa"
+         target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+        Madhushan Andawaththa
+      </a>
+    </section>
 
-      .link-row a,
-      .card a {
-        color: white;
-        text-decoration: none;
-      }
+  </main>
 
-      .button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 12px 18px;
-        border-radius: 14px;
-        background: var(--brand);
-        color: white;
-        font-weight: 600;
-      }
+  <footer class="site-footer">
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <span class="footer-sep"></span>
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <span class="footer-sep"></span>
+      <a href="support.html">Support</a>
+      <span class="footer-sep"></span>
+      <a href="https://github.com/MadhushanAndawaththa/Job_Search"
+         target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <p class="footer-copy">© 2026 Madhushan Andawaththa · Job Hunt Visualizer</p>
+  </footer>
 
-      .button.secondary {
-        background: var(--accent);
-      }
-
-      .grid {
-        margin-top: 24px;
-      }
-
-      .card {
-        flex: 1 1 280px;
-        display: grid;
-        gap: 12px;
-        padding: 24px;
-        border: 1px solid var(--line);
-        border-radius: 22px;
-        background: var(--card);
-        box-shadow: 0 8px 24px rgba(19, 35, 38, 0.06);
-      }
-
-      .card h2 {
-        margin: 0;
-        font-size: 1.1rem;
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <section class="hero">
-        <div class="pill-row">
-          <span class="pill">Chrome Manifest V3</span>
-          <span class="pill">Local-only data</span>
-          <span class="pill">LinkedIn Jobs workflow</span>
-        </div>
-        <h1>Job Hunt Visualizer</h1>
-        <p>
-          A focused Chrome extension that highlights important job-search keywords and passively dims LinkedIn job cards
-          already marked as Viewed, Saved, or Applied. No accounts, no backend, and no telemetry.
-        </p>
-        <div class="link-row">
-          <a class="button" href="privacy-policy.html">Privacy Policy</a>
-          <a class="button secondary" href="support.html">Support</a>
-        </div>
-      </section>
-
-      <section class="grid">
-        <article class="card">
-          <h2>Purpose</h2>
-          <p>Reduce repetitive scanning on LinkedIn Jobs by surfacing the terms you care about and de-emphasizing cards you have already processed.</p>
-        </article>
-        <article class="card">
-          <h2>Privacy</h2>
-          <p>All keywords and settings stay in <code>chrome.storage.local</code>. The extension does not send job data, user data, or browsing history to external services.</p>
-        </article>
-        <article class="card">
-          <h2>Support</h2>
-          <p>Use the support page for install guidance, troubleshooting, and issue reporting links before publishing or after release.</p>
-        </article>
-      </section>
-    </main>
-  </body>
+</body>
 </html>

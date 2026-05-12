@@ -1,70 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Job Hunt Visualizer Support</title>
-    <style>
-      body {
-        margin: 0;
-        font-family: "Segoe UI", system-ui, sans-serif;
-        background: #fcfcfd;
-        color: #111827;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support — Job Hunt Visualizer</title>
+  <link rel="icon" href="../assets/icons/icon32.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-      main {
-        width: min(860px, calc(100% - 32px));
-        margin: 0 auto;
-        padding: 48px 0 64px;
-      }
+  <header class="site-nav">
+    <a class="nav-brand" href="index.html">
+      <img src="../assets/icons/icon32.png" alt="">
+      Job Hunt Visualizer
+    </a>
+    <nav class="nav-links">
+      <a href="privacy-policy.html">Privacy</a>
+      <a href="support.html">Support</a>
+      <a class="nav-github" href="https://github.com/MadhushanAndawaththa/Job_Search"
+         target="_blank" rel="noopener" aria-label="View source on GitHub">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+      </a>
+    </nav>
+  </header>
 
-      section {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 20px;
-        padding: 28px;
-        margin-bottom: 18px;
-        box-shadow: 0 10px 24px rgba(17, 24, 39, 0.05);
-      }
+  <main>
+    <div class="page-hero">
+      <h1>Support</h1>
+    </div>
 
-      h1 { margin-top: 0; }
-      p, li { line-height: 1.7; }
-      a { color: #0f766e; }
-    </style>
-  </head>
-  <body>
-    <main>
-      <section>
-        <h1>Support</h1>
-        <p>Job Hunt Visualizer is maintained as a focused utility for LinkedIn Jobs. This page covers installation, troubleshooting, and feedback paths.</p>
-      </section>
+    <div class="prose">
+      <div class="support-blocks">
 
-      <section>
-        <h2>Installation</h2>
-        <ol>
-          <li>Open <code>chrome://extensions</code>.</li>
-          <li>Enable Developer mode.</li>
-          <li>Choose <strong>Load unpacked</strong> and select the project folder.</li>
-          <li>Open <code>https://www.linkedin.com/jobs/</code>.</li>
-        </ol>
-      </section>
+        <div class="support-block">
+          <h2>Getting started</h2>
+          <p>Job Hunt Visualizer runs entirely inside Chrome and works on any <code>linkedin.com/jobs</code> page. No sign-in required.</p>
+          <ol>
+            <li>Open <code>chrome://extensions</code> and enable <strong>Developer mode</strong>.</li>
+            <li>Click <strong>Load unpacked</strong> and select the project folder.</li>
+            <li>Navigate to <a href="https://www.linkedin.com/jobs/" target="_blank" rel="noopener">linkedin.com/jobs</a>.</li>
+            <li>Open the extension popup, add a keyword, and reload the page.</li>
+          </ol>
+        </div>
 
-      <section>
-        <h2>Troubleshooting</h2>
-        <ul>
-          <li>If the popup says Site access is needed, enable extension access for <code>www.linkedin.com</code> and reload the LinkedIn tab.</li>
-          <li>If LinkedIn changes its markup, update to the latest extension build before reporting a bug.</li>
-          <li>If keyword matches are missing, verify the term exists in the job detail pane and that Pause is turned off.</li>
-        </ul>
-      </section>
+        <div class="support-block">
+          <h2>Troubleshooting</h2>
+          <ul>
+            <li>If the popup shows <em>“Site access needed”</em>, enable extension access for <code>www.linkedin.com</code> in Chrome’s extension settings and reload the tab.</li>
+            <li>If keyword matches are missing, confirm the term is in the job detail pane and that <strong>Pause</strong> is off in the popup.</li>
+            <li>If dimming stops working after a LinkedIn update, check for a newer extension version before filing a bug.</li>
+          </ul>
+        </div>
 
-      <section>
-        <h2>Feedback and issue reports</h2>
-        <p>
-          Report bugs or request features through the repository issue tracker:
-          <a href="https://github.com/MadhushanAndawaththa/Job_Search/issues">https://github.com/MadhushanAndawaththa/Job_Search/issues</a>
-        </p>
-      </section>
-    </main>
-  </body>
+        <div class="support-block">
+          <h2>Report a bug or request a feature</h2>
+          <p>Use the <a href="https://github.com/MadhushanAndawaththa/Job_Search/issues" target="_blank" rel="noopener">GitHub issue tracker</a> to report bugs or suggest improvements. Include the Chrome version, extension version (shown in the popup footer), and a brief description of what you expected vs. what happened.</p>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <span class="footer-sep"></span>
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <span class="footer-sep"></span>
+      <a href="support.html">Support</a>
+      <span class="footer-sep"></span>
+      <a href="https://github.com/MadhushanAndawaththa/Job_Search"
+         target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <p class="footer-copy">© 2026 Madhushan Andawaththa · Job Hunt Visualizer</p>
+  </footer>
+
+</body>
 </html>

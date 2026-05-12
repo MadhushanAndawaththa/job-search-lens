@@ -1,99 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Job Hunt Visualizer Privacy Policy</title>
-    <style>
-      body {
-        margin: 0;
-        font-family: "Segoe UI", system-ui, sans-serif;
-        color: #1f2937;
-        background: #f8fafc;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Job Hunt Visualizer</title>
+  <link rel="icon" href="../assets/icons/icon32.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-      main {
-        width: min(860px, calc(100% - 32px));
-        margin: 0 auto;
-        padding: 48px 0 64px;
-      }
+  <header class="site-nav">
+    <a class="nav-brand" href="index.html">
+      <img src="../assets/icons/icon32.png" alt="">
+      Job Hunt Visualizer
+    </a>
+    <nav class="nav-links">
+      <a href="privacy-policy.html">Privacy</a>
+      <a href="support.html">Support</a>
+      <a class="nav-github" href="https://github.com/MadhushanAndawaththa/Job_Search"
+         target="_blank" rel="noopener" aria-label="View source on GitHub">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+      </a>
+    </nav>
+  </header>
 
-      article {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 20px;
-        padding: 32px;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-      }
+  <main>
+    <div class="page-hero">
+      <h1>Privacy Policy</h1>
+      <p class="page-date">Last updated: May 13, 2026</p>
+    </div>
 
-      h1, h2 { color: #0f172a; }
-      h1 { margin-top: 0; }
-      p, li { line-height: 1.7; }
-      ul { padding-left: 20px; }
-      code { background: #f1f5f9; padding: 2px 6px; border-radius: 6px; }
-    </style>
-  </head>
-  <body>
-    <main>
-      <article>
-        <h1>Privacy Policy</h1>
-        <p><strong>Last updated:</strong> 2026-05-12</p>
-        <p>
-          Job Hunt Visualizer is a local-only Chrome extension for LinkedIn Jobs. This policy explains what the extension accesses,
-          how that information is used, and what is not collected or shared.
-        </p>
+    <div class="prose">
+      <p>Job Hunt Visualizer is a local-only Chrome extension for LinkedIn Jobs. This policy explains what the extension accesses, how that information is used, and what is not collected or shared.</p>
 
-        <h2>What the extension does</h2>
-        <p>
-          The extension highlights saved keywords on LinkedIn job pages and passively dims job cards that LinkedIn itself labels as
-          Viewed, Saved, or Applied.
-        </p>
+      <h2>What the extension does</h2>
+      <p>The extension highlights saved keywords on LinkedIn job pages and passively dims job cards that LinkedIn itself labels as Viewed, Saved, or Applied.</p>
 
-        <h2>What data is stored</h2>
-        <ul>
-          <li>Keywords you save.</li>
-          <li>Color choices for those keywords.</li>
-          <li>Extension settings such as pause state, dim-state toggles, and theme preference.</li>
-        </ul>
-        <p>These values are stored locally in <code>chrome.storage.local</code> on your device.</p>
+      <h2>What data is stored</h2>
+      <ul>
+        <li>Keywords you save.</li>
+        <li>Color choices for those keywords.</li>
+        <li>Extension settings such as pause state, dim-state toggles, and theme preference.</li>
+      </ul>
+      <p>These values are stored locally in <code>chrome.storage.local</code> on your device and are never transmitted anywhere.</p>
 
-        <h2>What data is not collected</h2>
-        <ul>
-          <li>No account information is collected.</li>
-          <li>No personal data is transmitted to the developer.</li>
-          <li>No job application data is uploaded to any server.</li>
-          <li>No analytics, telemetry, tracking pixels, or third-party ads are used.</li>
-          <li>No remote code is executed.</li>
-        </ul>
+      <h2>What data is not collected</h2>
+      <ul>
+        <li>No account information is collected.</li>
+        <li>No personal data is transmitted to the developer or any third party.</li>
+        <li>No job application data is uploaded to any server.</li>
+        <li>No analytics, telemetry, tracking pixels, or third-party advertising is used.</li>
+        <li>No remote code is executed.</li>
+      </ul>
 
-        <h2>How LinkedIn page content is used</h2>
-        <p>
-          The extension reads the content of LinkedIn job pages locally inside the browser in order to:
-        </p>
-        <ul>
-          <li>find text matches for your saved keywords, and</li>
-          <li>detect LinkedIn's own Viewed, Saved, and Applied labels already rendered on the page.</li>
-        </ul>
-        <p>
-          This processing happens on-device. The extension does not send LinkedIn page content, browsing history, or job metadata to any external endpoint.
-        </p>
+      <h2>How LinkedIn page content is used</h2>
+      <p>The extension reads LinkedIn job page content locally inside the browser to:</p>
+      <ul>
+        <li>find text matches for your saved keywords, and</li>
+        <li>detect LinkedIn’s own Viewed, Saved, and Applied labels already rendered on the page.</li>
+      </ul>
+      <p>This processing is on-device only. The extension does not send LinkedIn page content, browsing history, or job metadata to any external endpoint.</p>
 
-        <h2>Permissions</h2>
-        <ul>
-          <li><strong>contextMenus</strong>: used to add selected LinkedIn text as a keyword.</li>
-          <li><strong>storage</strong>: used to persist your keywords and settings locally.</li>
-          <li><strong>tabs</strong>: used so the popup can talk to the active LinkedIn tab.</li>
-          <li><strong>https://www.linkedin.com/*</strong>: used to run the content script only on LinkedIn pages.</li>
-        </ul>
+      <h2>Permissions</h2>
+      <ul>
+        <li><strong>contextMenus</strong> — add selected LinkedIn text as a keyword via right-click.</li>
+        <li><strong>storage</strong> — persist your keywords and settings locally in the browser.</li>
+        <li><strong>tabs</strong> — let the popup communicate with the active LinkedIn tab.</li>
+        <li><strong>https://www.linkedin.com/*</strong> — restrict the content script to LinkedIn pages only.</li>
+      </ul>
 
-        <h2>Data sharing</h2>
-        <p>No stored or processed data is sold, rented, transferred, or disclosed to third parties.</p>
+      <h2>Data sharing</h2>
+      <p>No stored or processed data is sold, rented, transferred, or disclosed to any third party.</p>
 
-        <h2>Contact</h2>
-        <p>
-          For support or privacy questions, use the support page in this repository or the issue tracker linked from the project homepage.
-        </p>
-      </article>
-    </main>
-  </body>
+      <h2>Contact</h2>
+      <p>For support or privacy questions, visit the <a href="support.html">support page</a> or open an issue on the <a href="https://github.com/MadhushanAndawaththa/Job_Search/issues" target="_blank" rel="noopener">GitHub issue tracker</a>.</p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <span class="footer-sep"></span>
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <span class="footer-sep"></span>
+      <a href="support.html">Support</a>
+      <span class="footer-sep"></span>
+      <a href="https://github.com/MadhushanAndawaththa/Job_Search"
+         target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <p class="footer-copy">© 2026 Madhushan Andawaththa · Job Hunt Visualizer</p>
+  </footer>
+
+</body>
 </html>
