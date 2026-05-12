@@ -490,7 +490,7 @@ async function getActiveLinkedInTab() {
 
   const url = activeTab.url || '';
 
-  if (!/https:\/\/(?:[\w-]+\.)?linkedin\.com\//i.test(url)) {
+  if (!/^https:\/\/www\.linkedin\.com\//i.test(url)) {
     return null;
   }
 
@@ -621,7 +621,7 @@ async function renderPageStatus() {
   } catch (error) {
     setPageStatus(
       'Site access needed',
-      'Cannot reach the LinkedIn tab. In Brave, open this extension\'s details, set Site access to On all sites or On linkedin.com, then reload the LinkedIn tab.',
+      'Cannot reach the LinkedIn tab. In Brave, open this extension\'s details, set Site access to On all sites or On www.linkedin.com, then reload the LinkedIn tab.',
       'error',
     );
     updateStateSummary();

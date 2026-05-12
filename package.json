@@ -1,8 +1,19 @@
 {
   "name": "job-hunt-visualizer",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": true,
-  "description": "Local-first LinkedIn job search helper extension.",
+  "description": "Chrome extension for highlighting keywords and dimming viewed, saved, and applied LinkedIn jobs locally in the browser.",
+  "homepage": "https://github.com/MadhushanAndawaththa/Job_Search",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MadhushanAndawaththa/Job_Search.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MadhushanAndawaththa/Job_Search/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "test": "node --test"
   },

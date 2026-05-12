@@ -31,7 +31,7 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
 
   const pageUrl = info.pageUrl || info.frameUrl || '';
 
-  if (!/https:\/\/(?:[\w-]+\.)?linkedin\.com\//i.test(pageUrl)) {
+  if (!/^https:\/\/www\.linkedin\.com\//i.test(pageUrl)) {
     return;
   }
 

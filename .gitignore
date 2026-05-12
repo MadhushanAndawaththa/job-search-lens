@@ -3,5 +3,6 @@ coverage/
 *.log
 Thumbs.db
 .DS_Store
-*.md
-!README.md
+PLAN.md
+senario*.md
+senarion*.md
