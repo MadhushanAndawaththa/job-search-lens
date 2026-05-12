@@ -10,6 +10,7 @@
   <img src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?style=flat-square&logo=googlechrome&logoColor=white" alt="Chrome Manifest V3" />
   <img src="https://img.shields.io/badge/privacy-local--only-0F9D58?style=flat-square" alt="Local-only privacy" />
   <img src="https://img.shields.io/badge/tests-15%20passing-brightgreen?style=flat-square" alt="15 tests passing" />
+  <img src="https://img.shields.io/badge/license-MIT%20%2B%20Commons%20Clause-blue?style=flat-square" alt="MIT + Commons Clause" />
 </p>
 
 <p align="center">
