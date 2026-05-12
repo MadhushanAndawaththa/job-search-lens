@@ -7,16 +7,11 @@
     hydrateSettings,
     getContrastColor,
   } = globalThis.JobHuntVisualizerShared;
-
-  // These selectors intentionally prefer semantic or attribute-driven hooks
-  // before falling back to LinkedIn class names that tend to drift over time.
-  const JOB_LIST_SELECTORS = [
-    '.jobs-search-results-list',
-    '.jobs-search-results__list',
-    '.jobs-search-results-list__list',
-    '.scaffold-layout__list-container',
-    '[data-view-name="search-results"] ul',
-  ];
+  const {
+    findJobListContainer,
+    findJobCardCandidates,
+    getJobCardElement,
+  } = globalThis.JobHuntVisualizerDom;
 
   const JOB_DETAIL_SELECTORS = [
     '.jobs-search__job-details--container',
@@ -35,23 +30,6 @@
     '.base-main',
   ];
 
-  // LinkedIn renders job cards in multiple shapes. Keep candidate queries broad
-  // enough to cover both search-page variants and the main jobs page, but only
-  // fall back to anchors after trying stronger wrapper selectors first.
-  const JOB_CARD_QUERY_SELECTORS = [
-    '[componentkey^="job-card-component-ref"]',
-    'div[componentkey]',
-    '[data-job-id]',
-    '.job-card-container',
-    '.jobs-search-results__list-item',
-    '.artdeco-list__item',
-    '[role="listitem"]',
-    'article',
-    'li',
-    'a[href*="/jobs/collections/"]',
-    'a[href*="/jobs/view/"]',
-  ];
-
   // Only specific footer selectors here. Broad tag names (p, span, li …) are
   // used in the slow-path of getStateBadgeElements, scoped to individual
   // card containers so we never query them across the full document.
@@ -59,34 +37,6 @@
     '.job-card-container__footer-job-state',
     '.job-card-container__footer-item',
     '.job-card-list__footer-wrapper li',
-  ];
-
-  const JOB_CARD_CONTAINER_SELECTORS = [
-    '[componentkey^="job-card-component-ref"]',
-    'div[componentkey]',
-    '[data-job-id]',
-    '.job-card-container',
-    '.jobs-search-results__list-item',
-    '.artdeco-list__item',
-    '[role="listitem"]',
-    'article',
-    'li',
-  ];
-
-  const JOB_CARD_LINK_SELECTORS = [
-    'a[href*="/jobs/collections/"]',
-    'a[href*="/jobs/view/"]',
-  ];
-
-  const JOB_LIST_ANCESTOR_SELECTORS = [
-    'ul',
-    'ol',
-    '[role="list"]',
-    '.jobs-search-results-list',
-    '.jobs-search-results__list',
-    '.jobs-search-results-list__list',
-    '.scaffold-layout__list-container',
-    '[data-view-name="search-results"]',
   ];
 
   const ROUTE_CHANGE_EVENT = 'job-hunt-visualizer:route-change';
@@ -927,54 +877,6 @@
     return /^\/jobs(\/|$)/.test(window.location.pathname);
   }
 
-  function findJobListContainer() {
-    // Class/attribute-based selectors — only use them if they actually contain
-    // at least one job card. This prevents accidentally returning a filter-chip
-    // <ul> or pagination container that matches the selector but has no cards.
-    for (const selector of JOB_LIST_SELECTORS) {
-      const container = document.querySelector(selector);
-
-      if (container && findJobCardCandidates(container, 1).length > 0) {
-        return container;
-      }
-    }
-
-    // Walk up from a known card. Most reliable for any LinkedIn UI version.
-    const anyCard = findJobCardCandidates(document, 1)[0];
-
-    if (anyCard) {
-      for (const selector of JOB_LIST_ANCESTOR_SELECTORS) {
-        const container = anyCard.closest(selector);
-
-        if (container) {
-          return container;
-        }
-      }
-
-      // Final reliable fallback: find the ancestor that wraps multiple cards.
-      // This works for the new hashed-class search UI where no stable selector
-      // matches the outer container.
-      return findMultiCardAncestor(anyCard);
-    }
-
-    return null;
-  }
-
-  function findMultiCardAncestor(card) {
-    let ancestor = card.parentElement;
-
-    while (ancestor && ancestor !== document.body) {
-      if (findJobCardCandidates(ancestor, 2).length > 1) {
-        return ancestor;
-      }
-
-      ancestor = ancestor.parentElement;
-    }
-
-    // Fall back to the immediate parent if only one card is visible yet.
-    return card.parentElement || null;
-  }
-
   function findJobDetailContainer() {
     for (const selector of JOB_DETAIL_SELECTORS) {
       const container = document.querySelector(selector);
@@ -997,115 +899,6 @@
     }
 
     return document.body || null;
-  }
-
-  function findJobCardCandidates(root, limit = Number.POSITIVE_INFINITY) {
-    const cards = [];
-    const seen = new Set();
-
-    for (const selector of JOB_CARD_QUERY_SELECTORS) {
-      for (const candidate of root.querySelectorAll(selector)) {
-        const card = getJobCardElement(candidate);
-
-        if (!card || seen.has(card)) {
-          continue;
-        }
-
-        seen.add(card);
-        cards.push(card);
-
-        if (cards.length >= limit) {
-          return cards;
-        }
-      }
-    }
-
-    return cards;
-  }
-
-  function getJobCardElement(target) {
-    if (!(target instanceof Element)) {
-      return null;
-    }
-
-    let fallbackLink = null;
-    let current = target;
-
-    while (current && current !== document.body) {
-      if (matchesAnySelector(current, JOB_CARD_CONTAINER_SELECTORS) && isLikelyJobCard(current)) {
-        return getVisualJobCardElement(current);
-      }
-
-      if (!fallbackLink && matchesAnySelector(current, JOB_CARD_LINK_SELECTORS) && isLikelyJobCard(current)) {
-        fallbackLink = current;
-      }
-
-      current = current.parentElement;
-    }
-
-    return fallbackLink ? getVisualJobCardElement(fallbackLink) : null;
-  }
-
-  function getVisualJobCardElement(card) {
-    if (!(card instanceof Element)) {
-      return null;
-    }
-
-    // Collection/discovery layouts can render the interactive card inside a
-    // larger list-item wrapper. Promote to that wrapper so fading spans the
-    // whole tile instead of only the inner content column.
-    const wrapper = card.parentElement?.closest(
-      '.jobs-search-results__list-item, .artdeco-list__item, [role="listitem"], article, li'
-    );
-
-    if (!wrapper || wrapper === card) {
-      return card;
-    }
-
-    const dismissButtons = wrapper.querySelectorAll(
-      'button[aria-label*="Dismiss"][aria-label*=" job"]'
-    ).length;
-    const nestedCards = wrapper.querySelectorAll(
-      '[componentkey^="job-card-component-ref"], div[componentkey], [data-job-id], .job-card-container'
-    ).length;
-
-    if (dismissButtons === 1 && nestedCards === 1 && isLikelyJobCard(wrapper)) {
-      return wrapper;
-    }
-
-    return card;
-  }
-
-  function isLikelyJobCard(element) {
-    if (!(element instanceof Element) || element.matches('button, [role="button"]')) {
-      return false;
-    }
-
-    if (element.matches('[componentkey^="job-card-component-ref"], [data-job-id], .job-card-container')) {
-      return true;
-    }
-
-    const hasDismissButton = Boolean(element.querySelector('button[aria-label*="Dismiss"][aria-label*=" job"]'));
-
-    if (element.matches('div[componentkey]')) {
-      return hasDismissButton;
-    }
-
-    if (matchesAnySelector(element, JOB_CARD_LINK_SELECTORS)) {
-      return true;
-    }
-
-    if (element.matches('.jobs-search-results__list-item, .artdeco-list__item, [role="listitem"], article, li')) {
-      return hasDismissButton || Boolean(
-        element.querySelector('[componentkey], [data-job-id], .job-card-container, a[href*="/jobs/view/"], a[href*="/jobs/collections/"]')
-      );
-    }
-
-    return false;
-  }
-
-  function matchesAnySelector(element, selectors) {
-    return selectors.some((selector) => element.matches(selector));
   }
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

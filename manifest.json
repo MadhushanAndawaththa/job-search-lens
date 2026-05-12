@@ -23,7 +23,7 @@
         "https://linkedin.com/*",
         "https://*.linkedin.com/*"
       ],
-      "js": ["shared.js", "content.js"],
+      "js": ["shared.js", "dom-heuristics.js", "content.js"],
       "css": ["styles.css"],
       "run_at": "document_idle"
     }
