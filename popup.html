@@ -130,11 +130,29 @@
         overflow-wrap: anywhere;
       }
 
+      .subtle-copy {
+        font-size: 12px;
+        color: var(--gray-500);
+      }
+
       .section-label {
         font-size: 11px;
         font-weight: 600;
         letter-spacing: 0.07em;
         text-transform: uppercase;
+        color: var(--text-soft);
+      }
+
+      .section-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .section-meta {
+        font-size: 12px;
         color: var(--text-soft);
       }
 
@@ -198,9 +216,23 @@
         transition: border-color 120ms;
       }
 
-      textarea::placeholder { color: var(--gray-500); }
+      .search-input {
+        width: 100%;
+        padding: 9px 12px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--r);
+        font: inherit;
+        font-size: 13px;
+        color: var(--text);
+        background: var(--surface);
+        transition: border-color 120ms;
+      }
 
-      textarea:focus {
+      textarea::placeholder,
+      .search-input::placeholder { color: var(--gray-500); }
+
+      textarea:focus,
+      .search-input:focus {
         outline: none;
         border-color: var(--blue);
         box-shadow: 0 0 0 3px rgba(26,115,232,.12);
@@ -214,24 +246,86 @@
         flex-wrap: wrap;
       }
 
-      .color-label {
-        display: inline-flex;
+      /* ── Color palette ── */
+      .color-palette {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
         align-items: center;
-        gap: 7px;
-        font-size: 13px;
-        color: var(--gray-800);
-        cursor: pointer;
       }
 
-      input[type='color'] {
-        width: 28px;
-        height: 28px;
+      .form-swatch {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        outline: none;
         padding: 0;
-        border: 1.5px solid var(--border);
-        border-radius: var(--r-sm);
-        background: transparent;
         cursor: pointer;
+        transition: transform 80ms, box-shadow 80ms;
         flex-shrink: 0;
+      }
+
+      .form-swatch:hover { transform: scale(1.18); }
+
+      .form-swatch[aria-pressed='true'] {
+        box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--blue);
+      }
+
+      .swatch-edit-wrap { position: relative; flex-shrink: 0; }
+
+      .swatch-edit-btn {
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        border: 1.5px solid var(--border);
+        padding: 0;
+        cursor: pointer;
+        transition: transform 80ms, border-color 80ms;
+        flex-shrink: 0;
+        background: transparent;
+      }
+
+      .swatch-edit-btn:hover { transform: scale(1.1); border-color: var(--gray-500); }
+
+      .color-popover {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 5px);
+        z-index: 100;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        box-shadow: 0 4px 12px rgba(0,0,0,.18), 0 2px 4px rgba(0,0,0,.1);
+        padding: 7px;
+        display: none;
+        flex-wrap: wrap;
+        gap: 5px;
+        width: 133px;
+      }
+
+      .color-popover.open { display: flex; }
+
+      .palette-swatch {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        outline: none;
+        padding: 0;
+        cursor: pointer;
+        transition: transform 80ms, box-shadow 80ms;
+        flex-shrink: 0;
+      }
+
+      .palette-swatch:hover { transform: scale(1.2); }
+
+      .palette-swatch.selected {
+        box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--gray-700);
+      }
+
+      html.dark .palette-swatch.selected {
+        box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--gray-400);
       }
 
       /* ── Buttons ── */
@@ -308,6 +402,26 @@
         overflow-wrap: anywhere;
       }
 
+      .status-block[data-tone='info'] {
+        background: rgba(26,115,232,.08);
+        border-color: rgba(26,115,232,.18);
+      }
+
+      .status-block[data-tone='success'] {
+        background: rgba(24,128,56,.08);
+        border-color: rgba(24,128,56,.18);
+      }
+
+      .status-block[data-tone='warning'] {
+        background: rgba(242,153,0,.08);
+        border-color: rgba(242,153,0,.2);
+      }
+
+      .status-block[data-tone='error'] {
+        background: rgba(217,48,37,.08);
+        border-color: rgba(217,48,37,.18);
+      }
+
       .status-block strong {
         display: block;
         color: var(--text);
@@ -316,6 +430,10 @@
         letter-spacing: 0.04em;
         text-transform: uppercase;
         margin-bottom: 4px;
+      }
+
+      .status-block span {
+        display: block;
       }
 
       /* ── Dim controls ── */
@@ -372,6 +490,7 @@
         border: 1px solid var(--border);
         border-radius: var(--r-sm);
         background: var(--surface);
+        position: relative;
       }
 
       li:hover { background: var(--gray-50); }
@@ -398,8 +517,29 @@
         color: var(--text);
       }
 
-      li input[type='color'] { width: 24px; height: 24px; border-radius: 4px; }
       li button { padding: 5px 9px; box-shadow: none; }
+
+      .btn-text {
+        background: none;
+        border: 1px solid transparent;
+        padding: 3px 7px;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--blue);
+        cursor: pointer;
+        border-radius: var(--r-sm);
+        flex-shrink: 0;
+      }
+
+      .btn-text:hover { background: var(--blue-tint); }
+      .btn-text[aria-pressed='true'] { background: var(--blue-tint); border-color: rgba(26,115,232,.3); }
+
+      .library-actions {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+      }
 
       .empty {
         padding: 20px 16px;
@@ -436,6 +576,19 @@
         line-height: 1.4;
       }
 
+      .action-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .inline-hint {
+        font-size: 12px;
+        color: var(--text-soft);
+      }
+
       /* ── Theme toggle button ── */
       /* Icon is CSS-only via ::before so no DOM text mutation ever happens
          (text mutations trigger popup remeasure → popup resize). */
@@ -470,8 +623,7 @@
       .btn-theme:hover:not(:disabled) { background: var(--gray-100); color: var(--text); }
 
       /* ── Focus rings ── */
-      input[type='checkbox']:focus-visible,
-      input[type='color']:focus-visible {
+      input[type='checkbox']:focus-visible {
         outline: 2px solid var(--blue);
         outline-offset: 2px;
       }
@@ -507,34 +659,48 @@
             maxlength="4000"
           ></textarea>
           <div class="form-row">
-            <label class="color-label">
-              <input id="keywordColor" type="color" value="#FFE082" aria-label="Highlight color" />
-              Color
-            </label>
+            <div id="formColorPalette" class="color-palette" role="group" aria-label="Highlight color"></div>
             <button type="submit" class="btn-primary">Add</button>
           </div>
         </form>
 
-        <p style="font-size:12px;color:var(--gray-500);">
+        <p class="subtle-copy">
           Right-click selected text on LinkedIn to add instantly. Ctrl/Cmd+Enter to submit.
         </p>
       </div>
 
-      <!-- Status + Dim Controls -->
+      <!-- Page tools -->
       <div class="card stack">
+        <div class="section-head">
+          <span class="section-label">Page tools</span>
+        </div>
+
         <div class="stats-row">
           <span id="keywordCount">0 highlights</span>
           <span class="dot-sep">·</span>
           <span id="stateCountSummary">0 viewed · 0 saved · 0 applied</span>
         </div>
 
-        <div id="pageStatus" class="status-block">
+        <div id="pageStatus" class="status-block" data-tone="info">
           Checking current tab status…
         </div>
 
-        <div class="divider"></div>
 
-        <span class="section-label">Dim by state</span>
+        <div class="match-nav">
+          <button id="prevMatch" class="secondary" type="button">← Prev</button>
+          <span id="matchStatus">0 / 0</span>
+          <button id="nextMatch" class="btn-primary" type="button">Next →</button>
+        </div>
+        <p class="match-hint">Jump between highlighted keywords on the page.</p>
+      </div>
+
+      <!-- Behavior -->
+      <div class="card stack">
+        <div class="section-head">
+          <span class="section-label">Behavior</span>
+          <span class="section-meta">Choose what fades on LinkedIn</span>
+        </div>
+
         <div class="dim-group">
           <label class="dim-row">
             <input id="dimViewedToggle" type="checkbox" />
@@ -554,27 +720,29 @@
         </div>
       </div>
 
-      <!-- Keyword list -->
+      <!-- Keyword library -->
       <div class="card stack">
-        <span class="section-label">Highlighted keywords</span>
-        <div id="keywordEmpty" class="empty" hidden>
-          No keywords yet. Add one above or right-click text on LinkedIn.
+        <div class="section-head">
+          <span class="section-label">Keyword library</span>
+          <div class="library-actions">
+            <button id="sortKeywords" type="button" class="btn-text" aria-pressed="false" title="Sort A–Z">A–Z</button>
+            <button id="exportKeywords" type="button" class="btn-text" title="Copy keywords to clipboard">Export</button>
+            <span id="keywordLibraryMeta" class="section-meta">0 saved</span>
+          </div>
         </div>
+        <input
+          id="keywordSearchInput"
+          class="search-input"
+          type="search"
+          placeholder="Search keywords"
+          autocomplete="off"
+          spellcheck="false"
+        />
         <ul id="keywordList"></ul>
-      </div>
-
-      <!-- Match navigation -->
-      <div class="card stack">
-        <div class="match-nav">
-          <button id="prevMatch" class="secondary" type="button">← Prev</button>
-          <span id="matchStatus">0 / 0</span>
-          <button id="nextMatch" class="btn-primary" type="button">Next →</button>
-        </div>
-        <p class="match-hint">Jump between highlighted keywords on the page.</p>
+        <p id="keywordEmpty" class="empty">No keywords yet. Add one above or right-click text on LinkedIn.</p>
       </div>
 
     </div>
-
     <script src="shared.js"></script>
     <script src="popup.js"></script>
   </body>
