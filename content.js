@@ -8,8 +8,10 @@
     getContrastColor,
   } = globalThis.JobHuntVisualizerShared;
   const {
+    JOB_LIST_ANCESTOR_SELECTORS,
     findJobListContainer,
     findJobCardCandidates,
+    findMultiCardAncestor,
     getJobCardElement,
   } = globalThis.JobHuntVisualizerDom;
 
