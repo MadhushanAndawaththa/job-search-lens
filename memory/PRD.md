@@ -59,6 +59,14 @@ Local-only Chrome MV3 extension. Highlights saved keywords on any website; on Li
 - `tools/render-store-assets.py` (new).
 - `assets/store/small-promo-440x280.png`, `assets/store/marquee-1400x560.png`, `assets/store/store-preview-1280x800.png` (regenerated).
 
+## Work Completed — 2026-01 Session 3 (Pre-Launch Bundle)
+- **Real popup screenshot** (`assets/store/popup-screenshot-1280x800.png`) — composite of the actual `popup.html` rendered in a Playwright iframe over a branded canvas. Real, faithful product image (no mockup).
+- **Open Graph image** (`assets/store/og-image-1200x630.png`) — 1200×630 social share asset, wired into `docs/index.html` meta tags.
+- **Production zip** (`dist/job-search-lens-v1.3.0.zip`) — 40 KB, 15 files, dev assets stripped (no tests, node_modules, docs, .git).
+- **Go-live runbook** (`docs/go-live.md`) — 10-step Chrome Web Store submission guide with copy-paste-ready listing copy, permission justifications, and post-launch comms checklist.
+- **Pre-flight audit** — verified no `console.log`/`debugger`/`TODO` in shipped code; manifest validates; all 30 tests still pass.
+- **tools/render-launch-assets.py** — Playwright pipeline for the popup composite + OG image.
+
 ## Backlog / Future
 - P2: Real annotated screenshot (popup over live LinkedIn) as a second store screenshot.
 - P2: Optional `host_permissions` flow for per-site grants.

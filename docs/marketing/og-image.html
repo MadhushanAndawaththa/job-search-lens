@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>OG Image 1200×630</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1200px;
+      height: 630px;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      color: #f1f3f8;
+    }
+    body {
+      position: relative;
+      background:
+        radial-gradient(40% 60% at 10% 15%, rgba(250,204,21,0.20), transparent 65%),
+        radial-gradient(50% 70% at 90% 85%, rgba(10,102,194,0.40), transparent 65%),
+        linear-gradient(135deg, #0b1220 0%, #101a34 45%, #0a2540 100%);
+      padding: 72px 84px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    body::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 36px 36px;
+      pointer-events: none;
+      mask-image: radial-gradient(120% 80% at 50% 50%, #000 30%, transparent 80%);
+    }
+    .top, .bottom, .mid { position: relative; z-index: 2; }
+    .brand {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: linear-gradient(135deg, #0b1220, #1b2440);
+      border: 1px solid rgba(255,255,255,0.14);
+      display: grid; place-items: center; color: #facc15;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .icon svg { width: 30px; height: 30px; }
+    .name {
+      font-size: 24px; font-weight: 700; letter-spacing: -0.01em; color: #fff;
+    }
+    h1 {
+      font-size: 92px;
+      font-weight: 800;
+      letter-spacing: -0.038em;
+      line-height: 1.0;
+      color: #fff;
+    }
+    h1 .hl {
+      background: linear-gradient(180deg, transparent 58%, #facc15 58% 92%, transparent 92%);
+      color: #0b1220;
+      padding: 0 0.05em;
+    }
+    .sub {
+      margin-top: 22px;
+      font-size: 22px;
+      color: rgba(255,255,255,0.74);
+      line-height: 1.45;
+      max-width: 900px;
+    }
+    .tag-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 9px 16px; border-radius: 999px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+      font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+    }
+    .tag .dot { width: 9px; height: 9px; border-radius: 50%; background: #facc15; }
+    .tag.linkedin .dot { background: #4ea1f0; }
+    .tag.privacy  .dot { background: #4ade80; }
+  </style>
+</head>
+<body>
+  <div class="top brand">
+    <span class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    </span>
+    <span class="name">Job Search Lens</span>
+  </div>
+
+  <div class="mid">
+    <h1>Highlight what matters.<br><span class="hl">On every job site.</span></h1>
+    <p class="sub">Local-only Chrome extension. Mark your saved keywords inline on LinkedIn, Indeed, Glassdoor, Seek, and every company career page.</p>
+  </div>
+
+  <div class="bottom tag-row">
+    <span class="tag"><span class="dot"></span>Keyword highlights</span>
+    <span class="tag linkedin"><span class="dot"></span>LinkedIn card dimming</span>
+    <span class="tag linkedin"><span class="dot"></span>Inline company stats</span>
+    <span class="tag privacy"><span class="dot"></span>Local-only · Open source</span>
+  </div>
+</body>
+</html>
