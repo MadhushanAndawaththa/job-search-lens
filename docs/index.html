@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Job Hunt Visualizer — Scan LinkedIn Jobs Faster</title>
-  <meta name="description" content="A privacy-first Chrome extension that highlights keywords and dims processed LinkedIn job cards. No accounts. No backend. All local.">
+  <title>Job Search Lens — Highlight Keywords on Any Job Site</title>
+  <meta name="description" content="Local-only Chrome extension that highlights keywords on any job site and adds LinkedIn-specific tools for card dimming and company stats.">
   <link rel="icon" href="../assets/icons/icon32.png">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -13,7 +13,7 @@
   <header class="site-nav">
     <a class="nav-brand" href="index.html">
       <img src="../assets/icons/icon32.png" alt="">
-      Job Hunt Visualizer
+      Job Search Lens
     </a>
     <nav class="nav-links">
       <a href="privacy-policy.html">Privacy</a>
@@ -31,14 +31,15 @@
 
     <!-- Hero -->
     <section class="hero">
-      <img class="hero-icon" src="../assets/icons/icon128.png" alt="Job Hunt Visualizer icon">
-      <h1>Job Hunt<br>Visualizer</h1>
-      <p class="hero-sub">Highlight the words that matter.<br>Dim the jobs you've already seen.</p>
+      <img class="hero-icon" src="../assets/icons/icon128.png" alt="Job Search Lens icon">
+      <h1>Job Search<br>Lens</h1>
+      <p class="hero-sub">Local-only Chrome extension that highlights your keywords<br>on any job site — with extra LinkedIn tools baked in.</p>
       <div class="hero-chips">
         <span class="chip">Local-only</span>
         <span class="chip">No accounts</span>
         <span class="chip">Chrome MV3</span>
-        <span class="chip">LinkedIn Jobs</span>
+        <span class="chip">Any job site</span>
+        <span class="chip">LinkedIn extras</span>
       </div>
       <a class="btn-primary" href="https://github.com/MadhushanAndawaththa/Job_Search"
          target="_blank" rel="noopener">
@@ -51,12 +52,17 @@
       <article class="feature-card">
         <div class="feature-icon">🔍</div>
         <h2>Keyword Highlights</h2>
-        <p>Save terms that matter to you. The extension marks them inline on LinkedIn job details the moment you open them.</p>
+        <p>Save terms that matter to you. The extension marks them inline on any page — LinkedIn, Indeed, Glassdoor, or any company career site you open.</p>
       </article>
       <article class="feature-card">
         <div class="feature-icon">🌫</div>
-        <h2>State Dimming</h2>
-        <p>Viewed, Saved, and Applied cards are quietly dimmed so you can focus on what you haven't processed yet.</p>
+        <h2>LinkedIn State Dimming</h2>
+        <p>On LinkedIn Jobs, Viewed, Saved, and Applied cards are quietly dimmed so you can focus on what you haven't processed yet.</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h2>Company Stats</h2>
+        <p>Inline company size and LinkedIn follower count appear next to job titles on LinkedIn so you can judge company fit without opening a new tab.</p>
       </article>
       <article class="feature-card">
         <div class="feature-icon">🔒</div>
@@ -82,14 +88,14 @@
             <span class="step-num">2</span>
             <div>
               <strong>Save your keywords</strong>
-              <p>Right-click any selected text on LinkedIn and choose "Add to Highlighter", or type keywords directly in the popup and pick a colour.</p>
+              <p>Right-click any selected text on any page and choose "Add to Highlighter", or type keywords directly in the popup and pick a colour.</p>
             </div>
           </li>
           <li class="step">
             <span class="step-num">3</span>
             <div>
-              <strong>Scan faster</strong>
-              <p>Open any LinkedIn Jobs page. Your terms are highlighted and previously processed cards are dimmed automatically.</p>
+              <strong>Scan faster everywhere</strong>
+              <p>Open any job page — your terms are highlighted instantly. On LinkedIn Jobs, previously processed cards are also dimmed and company stats appear inline.</p>
             </div>
           </li>
         </ol>
@@ -111,7 +117,7 @@
           <tbody>
             <tr>
               <td><code>contextMenus</code></td>
-              <td>Add selected text as a keyword via right-click on LinkedIn</td>
+              <td>Add selected text as a keyword via right-click on any page</td>
             </tr>
             <tr>
               <td><code>storage</code></td>
@@ -119,11 +125,11 @@
             </tr>
             <tr>
               <td><code>tabs</code></td>
-              <td>Let the popup identify the active LinkedIn tab</td>
+              <td>Let the popup identify the active tab and request page status</td>
             </tr>
             <tr>
-              <td><code>linkedin.com</code> host</td>
-              <td>Run the content script on LinkedIn pages — no other sites</td>
+              <td><code>http://*/*</code> and <code>https://*/*</code> host access</td>
+              <td>Run keyword highlighting on any website; LinkedIn-specific dimming and company stats remain scoped to LinkedIn Jobs</td>
             </tr>
           </tbody>
         </table>
@@ -158,7 +164,7 @@
       <a href="https://github.com/MadhushanAndawaththa/Job_Search"
          target="_blank" rel="noopener">GitHub</a>
     </div>
-    <p class="footer-copy">© 2026 Madhushan Andawaththa · Job Hunt Visualizer</p>
+    <p class="footer-copy">© 2026 Madhushan Andawaththa · Job Search Lens</p>
   </footer>
 
 </body>

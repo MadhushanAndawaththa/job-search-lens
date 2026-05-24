@@ -456,7 +456,7 @@ function renderKeywordLibrary(keywords) {
 
   keywordEmpty.textContent = keywordSearchQuery
     ? `No keywords match "${keywordSearchInput.value.trim()}".`
-    : 'No keywords yet. Add one above or right-click text on LinkedIn.';
+    : 'No keywords yet. Add one above or right-click text on a page.';
 }
 
 function updateMatchStatus(matchCount, activeMatchIndex) {
@@ -481,7 +481,7 @@ function updateStateSummary(stateCounts = {}) {
   stateCountSummary.textContent = `${viewed} viewed · ${saved} saved · ${applied} applied`;
 }
 
-async function getActiveLinkedInTab() {
+async function getActiveContentTab() {
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   if (!activeTab?.id) {
@@ -490,7 +490,7 @@ async function getActiveLinkedInTab() {
 
   const url = activeTab.url || '';
 
-  if (!/^https:\/\/www\.linkedin\.com\//i.test(url)) {
+  if (!/^https?:\/\//i.test(url)) {
     return null;
   }
 
@@ -498,7 +498,7 @@ async function getActiveLinkedInTab() {
 }
 
 async function navigateMatch(direction) {
-  const activeTab = await getActiveLinkedInTab();
+  const activeTab = await getActiveContentTab();
 
   if (!activeTab?.id) {
     updateMatchStatus(0, -1);
@@ -522,14 +522,14 @@ async function navigateMatch(direction) {
 }
 
 async function renderPageStatus() {
-  const activeTab = await getActiveLinkedInTab();
+  const activeTab = await getActiveContentTab();
 
   if (!activeTab?.id) {
     updateStateSummary();
     updateMatchStatus(0, -1);
     setPageStatus(
-      'Open LinkedIn',
-      'Open a LinkedIn jobs tab to use highlights, fading, and match navigation.',
+      'Open a page',
+      'Open any website to use highlights. Open LinkedIn Jobs for card fading and company stats.',
       'info',
     );
     return;
@@ -544,8 +544,8 @@ async function renderPageStatus() {
       updateStateSummary();
       updateMatchStatus(0, -1);
       setPageStatus(
-        'Reload LinkedIn',
-        'LinkedIn is open, but the page helper did not answer yet. Reload the tab or reopen this popup.',
+        'Reload page',
+        'The page helper did not answer yet. Reload the tab or reopen this popup.',
         'warning',
       );
       return;
@@ -570,11 +570,27 @@ async function renderPageStatus() {
     updateStateSummary(response.stateCounts);
     updateMatchStatus(response.matchCount, response.activeMatchIndex);
 
+    const currentMatch = response.matchCount
+      ? Math.max((response.activeMatchIndex ?? -1) + 1, 1)
+      : 0;
+    const matchText = response.matchCount
+      ? `${currentMatch} of ${response.matchCount} matches available.`
+      : 'No current keyword matches on the active page.';
+
     if (!response.isJobsPage) {
+      if (!response.keywordCount) {
+        setPageStatus(
+          'Ready for highlights',
+          `${response.isLinkedInPage ? 'Highlights work on this LinkedIn page.' : 'Highlights work on this page.'} Add a keyword to start highlighting text here. Open LinkedIn Jobs for card fading and company stats.`,
+          'info',
+        );
+        return;
+      }
+
       setPageStatus(
-        'LinkedIn detected',
-        'Open a Jobs page to use card fading and match navigation.',
-        'info',
+        response.matchCount ? 'Highlights ready' : 'Ready for highlights',
+        `${response.isLinkedInPage ? 'Highlights work on this LinkedIn page.' : 'Highlights work on this page.'} ${matchText} Open LinkedIn Jobs for card fading and company stats.`,
+        response.matchCount ? 'success' : 'info',
       );
       return;
     }
@@ -582,7 +598,7 @@ async function renderPageStatus() {
     if (response.paused) {
       setPageStatus(
         'Paused on this tab',
-        `Detected ${surfaceText}. Turn Pause off to resume highlights and dimming.`,
+        `Detected ${surfaceText}. Turn "Pause all" off to resume highlights and LinkedIn features.`,
         'warning',
       );
       return;
@@ -600,18 +616,11 @@ async function renderPageStatus() {
     if (!response.keywordCount) {
       setPageStatus(
         'Ready for highlights',
-        `Detected ${surfaceText}. Add a keyword to start highlighting job descriptions.`,
+        `Detected ${surfaceText}. Add a keyword to start highlighting this page.`,
         'info',
       );
       return;
     }
-
-    const currentMatch = response.matchCount
-      ? Math.max((response.activeMatchIndex ?? -1) + 1, 1)
-      : 0;
-    const matchText = response.matchCount
-      ? `${currentMatch} of ${response.matchCount} matches available.`
-      : 'No current keyword matches on the active page.';
 
     setPageStatus(
       'Ready on LinkedIn Jobs',
@@ -621,7 +630,7 @@ async function renderPageStatus() {
   } catch (error) {
     setPageStatus(
       'Site access needed',
-      'Cannot reach the LinkedIn tab. In Brave, open this extension\'s details, set Site access to On all sites or On www.linkedin.com, then reload the LinkedIn tab.',
+      'Cannot reach this tab. In Brave or Chrome, allow site access for this page or for all sites, then reload the tab.',
       'error',
     );
     updateStateSummary();

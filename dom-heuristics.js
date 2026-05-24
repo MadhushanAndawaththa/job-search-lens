@@ -257,18 +257,9 @@
   }
 
   const domHeuristics = {
-    JOB_LIST_SELECTORS,
-    JOB_CARD_QUERY_SELECTORS,
-    JOB_CARD_CONTAINER_SELECTORS,
-    JOB_CARD_LINK_SELECTORS,
     JOB_LIST_ANCESTOR_SELECTORS,
-    matchesAnySelector,
-    isLikelyJobCard,
-    getVisualJobCardElement,
     getJobCardElement,
     findJobCardCandidates,
-    hasJobCards,
-    findListLikeAncestor,
     findMultiCardAncestor,
     findJobListContainer,
   };

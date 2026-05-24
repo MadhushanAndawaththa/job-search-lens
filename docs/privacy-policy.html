@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Privacy Policy — Job Hunt Visualizer</title>
+  <title>Privacy Policy — Job Search Lens</title>
   <link rel="icon" href="../assets/icons/icon32.png">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -12,7 +12,7 @@
   <header class="site-nav">
     <a class="nav-brand" href="index.html">
       <img src="../assets/icons/icon32.png" alt="">
-      Job Hunt Visualizer
+      Job Search Lens
     </a>
     <nav class="nav-links">
       <a href="privacy-policy.html">Privacy</a>
@@ -33,10 +33,10 @@
     </div>
 
     <div class="prose">
-      <p>Job Hunt Visualizer is a local-only Chrome extension for LinkedIn Jobs. This policy explains what the extension accesses, how that information is used, and what is not collected or shared.</p>
+      <p>Job Search Lens is a local-only Chrome extension for job searching. This policy explains what the extension accesses, how that information is used, and what is not collected or shared.</p>
 
       <h2>What the extension does</h2>
-      <p>The extension highlights saved keywords on LinkedIn job pages and passively dims job cards that LinkedIn itself labels as Viewed, Saved, or Applied.</p>
+      <p>The extension highlights saved keywords on any website you browse. On LinkedIn Jobs, it also passively dims job cards that LinkedIn itself labels as Viewed, Saved, or Applied, and shows inline company size and follower counts near job titles.</p>
 
       <h2>What data is stored</h2>
       <ul>
@@ -55,20 +55,17 @@
         <li>No remote code is executed.</li>
       </ul>
 
-      <h2>How LinkedIn page content is used</h2>
-      <p>The extension reads LinkedIn job page content locally inside the browser to:</p>
-      <ul>
-        <li>find text matches for your saved keywords, and</li>
-        <li>detect LinkedIn’s own Viewed, Saved, and Applied labels already rendered on the page.</li>
-      </ul>
-      <p>This processing is on-device only. The extension does not send LinkedIn page content, browsing history, or job metadata to any external endpoint.</p>
+      <h2>How page content is used</h2>
+      <p>The extension reads page content locally inside the browser to find text matches for your saved keywords. This runs on any website where the extension has access. On LinkedIn Jobs it additionally detects LinkedIn’s own Viewed, Saved, and Applied labels already rendered on the page, and reads company size and follower-count text that LinkedIn renders inline.
+      </p>
+      <p>This processing is on-device only. The extension does not send page content, browsing history, or any metadata to any external endpoint.</p>
 
       <h2>Permissions</h2>
       <ul>
-        <li><strong>contextMenus</strong> — add selected LinkedIn text as a keyword via right-click.</li>
+        <li><strong>contextMenus</strong> — add selected text as a keyword via right-click on any page.</li>
         <li><strong>storage</strong> — persist your keywords and settings locally in the browser.</li>
-        <li><strong>tabs</strong> — let the popup communicate with the active LinkedIn tab.</li>
-        <li><strong>https://www.linkedin.com/*</strong> — restrict the content script to LinkedIn pages only.</li>
+        <li><strong>tabs</strong> — let the popup communicate with the active tab.</li>
+        <li><strong>http://*/*</strong> and <strong>https://*/*</strong> — run keyword highlighting on any website; LinkedIn-specific dimming and company stats remain scoped to LinkedIn Jobs only.</li>
       </ul>
 
       <h2>Data sharing</h2>
@@ -90,7 +87,7 @@
       <a href="https://github.com/MadhushanAndawaththa/Job_Search"
          target="_blank" rel="noopener">GitHub</a>
     </div>
-    <p class="footer-copy">© 2026 Madhushan Andawaththa · Job Hunt Visualizer</p>
+    <p class="footer-copy">© 2026 Madhushan Andawaththa · Job Search Lens</p>
   </footer>
 
 </body>

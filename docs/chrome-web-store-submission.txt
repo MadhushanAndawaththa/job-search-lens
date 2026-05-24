@@ -1,39 +1,41 @@
-JOB HUNT VISUALIZER
+JOB SEARCH LENS
 Chrome Web Store submission notes
 
 Single-purpose statement
-Job Hunt Visualizer helps users review LinkedIn Jobs more efficiently by highlighting saved keywords in job details and passively dimming job cards that LinkedIn already labels as Viewed, Saved, or Applied.
+Job Search Lens highlights saved keywords on any website you browse and adds LinkedIn Jobs-specific tools for dimming processed job cards and showing inline company stats.
 
 Short description
-Highlight job-search keywords and dim viewed, saved, and applied LinkedIn jobs locally in your browser.
+Local-only Chrome extension that highlights keywords on any job site, with extra tools for LinkedIn Jobs.
 
 Detailed description
-Job Hunt Visualizer is a privacy-first Chrome extension built for LinkedIn Jobs.
+Job Search Lens started as a LinkedIn Jobs tool but keyword highlighting turned out to be useful everywhere — so it now runs on any website you browse.
 
-It highlights the keywords you care about inside job details and passively dims job cards already marked by LinkedIn as Viewed, Saved, or Applied. This makes it easier to scan large result sets without losing your place.
+Save the keywords that matter to you (technologies, roles, locations, companies) and the extension marks them inline on every page you open. When you visit LinkedIn Jobs, you also get card dimming for listings LinkedIn already labels as Viewed, Saved, or Applied, plus inline company size and follower counts next to job titles so you can judge company fit without opening a new tab.
 
 All settings stay local in the browser. The extension has no backend, no telemetry, no account system, and no remote code.
 
 Key features
-- Keyword highlighting inside LinkedIn job details
-- Right-click context menu to save selected text as a keyword
+- Keyword highlighting on any website (LinkedIn, Indeed, Glassdoor, company career pages, etc.)
+- Right-click context menu to save selected text as a keyword on any page
 - Per-keyword color palette
 - Sort, search, and export controls for the keyword library
-- Independent dim toggles for Viewed, Saved, and Applied states
+- Inline company size and LinkedIn follower count next to job titles (LinkedIn Jobs)
+- Independent dim toggles for Viewed, Saved, and Applied states (LinkedIn Jobs)
+- Match navigation with previous/next controls
 - Auto, Light, and Dark popup themes
 
 Permission justifications
 contextMenus
-Used only to add the selected LinkedIn text to the saved keyword list from the right-click menu.
+Used to add selected text from any page to the saved keyword list from the right-click menu.
 
 storage
 Used to store saved keywords, colors, theme preference, and dim-state settings locally in the browser.
 
 tabs
-Used by the popup to identify the active LinkedIn tab and request page status/match navigation from the content script.
+Used by the popup to identify the active tab and request page status and match navigation from the content script.
 
-https://www.linkedin.com/* host access
-Used to inject the content script only on LinkedIn pages where highlighting and dimming are needed.
+http://*/*  and  https://*/*  host access
+Used to run keyword highlighting on any website. LinkedIn-specific features (card dimming, company stats) are gated inside the content script and only activate on LinkedIn Jobs pages.
 
 Remote code declaration
 No, the extension does not use or execute remote code.

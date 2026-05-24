@@ -20,6 +20,9 @@
     '.jobs-details',
     '.jobs-box__html-content',
     '.jobs-description-content__text',
+    '[data-sdui-screen*="SemanticJobDetails"]',
+    '.job-details-jobs-unified-top-card__container--two-pane',
+    '.jobs-unified-top-card',
     '[data-job-detail-container]',
     '[data-view-name="job-details"]',
   ];
@@ -50,6 +53,19 @@
   const ACTIVE_MARK_CLASS_NAME = 'job-hunt-visualizer-mark-active';
   const JOB_STATE_PRIORITY = ['applied', 'saved', 'viewed'];
   const JOB_STATE_LABELS = ['viewed', 'saved', 'applied'];
+  const JOB_STATE_MATCH_PATTERNS = {
+    viewed: [/^viewed(?:\b.*)?$/i],
+    saved: [/^saved(?:\b.*)?$/i],
+    applied: [
+      /^applied(?:\b.*)?$/i,
+      /^application submitted(?:\b.*)?$/i,
+      /^already applied(?:\b.*)?$/i,
+    ],
+  };
+  const STATE_BADGE_ATTRIBUTE = 'data-jhv-state-badge';
+  const STATE_BADGE_ROW_ATTRIBUTE = 'data-jhv-state-badge-row';
+  const COMPANY_STATS_ATTRIBUTE = 'data-jhv-company-stats';
+  const COMPANY_STAT_ATTRIBUTE = 'data-jhv-company-stat';
 
   let keywords = [];
   let keywordPatterns = [];
@@ -95,6 +111,7 @@
 
       sendResponse({
         ok: true,
+        isLinkedInPage: isLinkedInPage(),
         isJobsPage: isJobsPage(),
         route: `${window.location.pathname}${window.location.search}`,
         hasListContainer: Boolean(listRoots.length || listContainer || findJobListContainer()),
@@ -203,7 +220,11 @@
       return;
     }
 
-    rootObserver = new MutationObserver(() => {
+    rootObserver = new MutationObserver((mutations) => {
+      if (!hasExternalMutations(mutations)) {
+        return;
+      }
+
       scheduleBindingRefresh();
     });
 
@@ -226,20 +247,13 @@
   }
 
   function refreshBindings() {
-    if (!isJobsPage()) {
-      clearGhostStyles();
-      clearAllHighlights();
-      disconnectSurfaceObservers();
-      listContainer = null;
-      listRoots = [];
-      detailContainer = null;
-      return;
-    }
-
-    const nextListContainer = findJobListContainer();
-    const nextDetailContainer = findJobDetailContainer();
+    const jobFeaturesEnabled = isJobsPage();
+    const nextListContainer = jobFeaturesEnabled ? findJobListContainer() : null;
+    const nextDetailContainer = jobFeaturesEnabled ? findJobDetailContainer() : null;
     fallbackHighlightRoot = findFallbackHighlightRoot();
-    listRoots = resolveListRoots(nextListContainer, fallbackHighlightRoot);
+    listRoots = jobFeaturesEnabled
+      ? resolveListRoots(nextListContainer, fallbackHighlightRoot)
+      : [];
 
     if (nextListContainer !== listContainer) {
       attachListSurface(nextListContainer);
@@ -252,10 +266,18 @@
     if (settings.paused) {
       clearGhostStyles();
       clearAllHighlights();
+      clearCompanyStats();
       return;
     }
 
-    applyGhostStyles();
+    if (jobFeaturesEnabled) {
+      renderCompanyStats();
+      applyGhostStyles();
+    } else {
+      clearGhostStyles();
+      clearCompanyStats();
+    }
+
     scheduleHighlight();
   }
 
@@ -272,11 +294,13 @@
       return;
     }
 
-    listObserver = new MutationObserver(() => {
-      if (!settings.paused) {
-        applyGhostStyles();
-        scheduleHighlight();
+    listObserver = new MutationObserver((mutations) => {
+      if (settings.paused || !hasExternalMutations(mutations)) {
+        return;
       }
+
+      applyGhostStyles();
+      scheduleHighlight();
     });
 
     listObserver.observe(listContainer, {
@@ -300,6 +324,7 @@
 
     if (detailContainer && detailContainer !== nextContainer) {
       clearHighlights(detailContainer);
+      clearCompanyStats(detailContainer);
     }
 
     detailContainer = nextContainer;
@@ -309,10 +334,12 @@
       return;
     }
 
-    detailObserver = new MutationObserver(() => {
-      if (!settings.paused) {
-        scheduleHighlight();
+    detailObserver = new MutationObserver((mutations) => {
+      if (settings.paused || !hasExternalMutations(mutations)) {
+        return;
       }
+
+      scheduleHighlight();
     });
 
     detailObserver.observe(detailContainer, {
@@ -338,6 +365,9 @@
 
   function applyGhostStyles() {
     const ghostRoots = getGhostRoots();
+    const renderedStates = new Map();
+
+    clearRenderedStateBadges(ghostRoots);
 
     if (ghostRoots.length === 0) {
       return;
@@ -381,7 +411,10 @@
       const primaryState = getPrimaryJobState(enabledStates);
 
       card.setAttribute(GHOST_DATA_ATTR, primaryState);
+      renderedStates.set(card, primaryState);
     }
+
+    renderStateBadges(renderedStates);
   }
 
   function countJobStates() {
@@ -409,6 +442,8 @@
 
   function clearGhostStyles() {
     const ghostRoots = getGhostRoots();
+
+    clearRenderedStateBadges(ghostRoots);
 
     if (ghostRoots.length === 0) {
       return;
@@ -794,6 +829,484 @@
     return `${rootSignature}::${keywordSignature}::${settings.paused}`;
   }
 
+  function hasExternalMutations(mutations) {
+    return mutations.some((mutation) => !isOwnedMutation(mutation));
+  }
+
+  function isOwnedMutation(mutation) {
+    if (!mutation) {
+      return false;
+    }
+
+    if (mutation.type === 'characterData') {
+      return isOwnedNode(mutation.target?.parentElement || null);
+    }
+
+    if (mutation.type === 'attributes') {
+      return isOwnedNode(mutation.target);
+    }
+
+    if (mutation.type !== 'childList') {
+      return false;
+    }
+
+    const changedNodes = [...mutation.addedNodes, ...mutation.removedNodes];
+
+    if (changedNodes.length === 0) {
+      return false;
+    }
+
+    return changedNodes.every((node) => isOwnedSubtree(node));
+  }
+
+  function isOwnedNode(node) {
+    if (!node) {
+      return false;
+    }
+
+    if (node.nodeType === Node.TEXT_NODE) {
+      return isOwnedNode(node.parentElement || null);
+    }
+
+    if (!(node instanceof Element)) {
+      return false;
+    }
+
+    const selector = getOwnedMutationSelector();
+    return node.matches(selector) || Boolean(node.closest(selector));
+  }
+
+  function isOwnedSubtree(node) {
+    if (!node) {
+      return false;
+    }
+
+    if (node.nodeType === Node.TEXT_NODE) {
+      return isOwnedNode(node.parentElement || null);
+    }
+
+    if (!(node instanceof Element)) {
+      return false;
+    }
+
+    const selector = getOwnedMutationSelector();
+    return node.matches(selector) || Boolean(node.querySelector(selector));
+  }
+
+  function getOwnedMutationSelector() {
+    return `mark[${MARK_ATTRIBUTE}], [${STATE_BADGE_ATTRIBUTE}], [${STATE_BADGE_ROW_ATTRIBUTE}], [${COMPANY_STATS_ATTRIBUTE}], [${COMPANY_STAT_ATTRIBUTE}]`;
+  }
+
+  function clearRenderedStateBadges(roots = getGhostRoots()) {
+    for (const root of roots) {
+      if (!root || typeof root.querySelectorAll !== 'function') {
+        continue;
+      }
+
+      for (const node of root.querySelectorAll(`[${STATE_BADGE_ROW_ATTRIBUTE}], [${STATE_BADGE_ATTRIBUTE}]`)) {
+        node.remove();
+      }
+    }
+  }
+
+  function renderStateBadges(stateMap) {
+    for (const [card, state] of stateMap.entries()) {
+      const placement = findStateBadgePlacement(card);
+
+      if (!(placement?.anchor instanceof Element)) {
+        continue;
+      }
+
+      const row = document.createElement('div');
+      row.setAttribute(STATE_BADGE_ROW_ATTRIBUTE, 'true');
+
+      const badge = document.createElement('span');
+      badge.setAttribute(STATE_BADGE_ATTRIBUTE, state);
+      badge.textContent = formatJobStateLabel(state);
+      row.append(badge);
+      placement.anchor.insertAdjacentElement(placement.position, row);
+    }
+  }
+
+  function findStateBadgePlacement(card) {
+    if (!(card instanceof Element)) {
+      return null;
+    }
+
+    const titleContainer = card.querySelector(
+      '.artdeco-entity-lockup__title, [class*="entity-lockup__title"], .job-card-list__title'
+    );
+
+    if (titleContainer instanceof Element) {
+      return {
+        anchor: titleContainer,
+        position: 'afterend',
+      };
+    }
+
+    const link = card.querySelector('.job-card-container__link, a[href*="/jobs/view/"], a[href*="/jobs/collections/"]');
+
+    if (link instanceof Element) {
+      const linkContainer = link.closest('p, h1, h2, h3, h4, div, li, section, article');
+
+      if (linkContainer instanceof Element && linkContainer !== card) {
+        return {
+          anchor: linkContainer,
+          position: 'afterend',
+        };
+      }
+
+      return {
+        anchor: link,
+        position: 'afterend',
+      };
+    }
+
+    const cardTitleText = findStateBadgeTitleTextAnchor(card);
+
+    if (cardTitleText instanceof Element) {
+      return {
+        anchor: cardTitleText,
+        position: 'afterend',
+      };
+    }
+
+    const content = card.querySelector('.artdeco-entity-lockup__content, [class*="entity-lockup__content"]');
+
+    if (content instanceof Element) {
+      const titleText = findStateBadgeTitleTextAnchor(content);
+
+      if (titleText instanceof Element) {
+        return {
+          anchor: titleText,
+          position: 'afterend',
+        };
+      }
+
+      return {
+        anchor: content,
+        position: 'afterbegin',
+      };
+    }
+
+    return {
+      anchor: card,
+      position: 'afterbegin',
+    };
+  }
+
+  function findStateBadgeTitleTextAnchor(root) {
+    const ignoredText = new Set([
+      'applied',
+      'viewed',
+      'saved',
+      'promoted',
+      'easy apply',
+    ]);
+
+    for (const candidate of root.querySelectorAll('h1, h2, h3, h4, p')) {
+      if (!(candidate instanceof Element)) {
+        continue;
+      }
+
+      if (candidate.closest(
+        '.job-card-container__footer, .job-card-container__footer-wrapper, .job-card-list__footer-wrapper, .job-card-list__insight, .job-card-list__actions-container, .job-card-container__metadata-wrapper, [data-jhv-state-badge-row]'
+      )) {
+        continue;
+      }
+
+      const normalized = normalizeInsightText(candidate.textContent);
+      const lowered = normalized.toLocaleLowerCase();
+
+      if (!normalized || ignoredText.has(lowered) || /^[·•]+$/.test(normalized)) {
+        continue;
+      }
+
+      return candidate;
+    }
+
+    return null;
+  }
+
+  function clearCompanyStats(root = document) {
+    if (!root?.querySelectorAll) {
+      return;
+    }
+
+    for (const node of root.querySelectorAll(`[${COMPANY_STATS_ATTRIBUTE}]`)) {
+      node.remove();
+    }
+  }
+
+  function renderCompanyStats() {
+    clearCompanyStats();
+
+    if (settings.paused) {
+      return;
+    }
+
+    const context = resolveCompanyStatsContext();
+
+    if (!context) {
+      return;
+    }
+
+    const container = document.createElement('div');
+    container.setAttribute(COMPANY_STATS_ATTRIBUTE, 'true');
+
+    for (const item of context.items) {
+      const stat = document.createElement('span');
+      stat.setAttribute(COMPANY_STAT_ATTRIBUTE, item.kind);
+      stat.textContent = item.text;
+      container.append(stat);
+    }
+
+    context.insertion.anchor.insertAdjacentElement(context.insertion.position, container);
+  }
+
+  function resolveCompanyStatsContext() {
+    for (const root of getCompanyStatsRoots()) {
+      if (!root?.querySelectorAll) {
+        continue;
+      }
+
+      const items = collectCompanyStats(root);
+
+      if (items.length === 0) {
+        continue;
+      }
+
+      const insertion = findCompanyStatsInsertion(root);
+
+      if (!(insertion?.anchor instanceof Element)) {
+        continue;
+      }
+
+      return {
+        items,
+        insertion,
+      };
+    }
+
+    return null;
+  }
+
+  function collectCompanyStats(root) {
+    const items = [];
+    const seen = new Set();
+
+    collectCompanyStatElements(root.querySelectorAll('.jobs-company__inline-information'), items, seen);
+
+    if (items.length > 0) {
+      return items;
+    }
+
+    const companySection = findSectionByHeadingText(root, 'about the company');
+
+    if (!companySection) {
+      return items;
+    }
+
+    collectCompanyStatElements(companySection.querySelectorAll('span, p, li, small, strong'), items, seen);
+
+    return items;
+  }
+
+  function collectCompanyStatElements(elements, items, seen) {
+    for (const element of elements) {
+      const normalized = normalizeInsightText(element.textContent);
+      const kind = getCompanyStatKind(normalized);
+
+      if (!kind) {
+        continue;
+      }
+
+      const key = `${kind}:${normalized.toLocaleLowerCase()}`;
+
+      if (seen.has(key)) {
+        continue;
+      }
+
+      seen.add(key);
+      items.push({
+        kind,
+        text: normalized,
+      });
+    }
+  }
+
+  function getCompanyStatKind(text) {
+    if (/employees?$/i.test(text)) {
+      return 'company-size';
+    }
+
+    if (/on\s+linkedin$/i.test(text)) {
+      return 'company-network';
+    }
+
+    return '';
+  }
+
+  function getCompanyStatsRoots() {
+    const roots = [];
+
+    const addRoot = (candidate) => {
+      if (!(candidate instanceof Element) || roots.includes(candidate)) {
+        return;
+      }
+
+      roots.push(candidate);
+    };
+
+    let current = detailContainer;
+
+    while (current instanceof Element) {
+      addRoot(current);
+      current = current.parentElement;
+    }
+
+    addRoot(fallbackHighlightRoot);
+    addRoot(findFallbackHighlightRoot());
+    addRoot(document.body);
+
+    return roots;
+  }
+
+  function findCompanyStatsInsertion(root) {
+    const titleRow = root.querySelector('.display-flex.justify-space-between.flex-wrap.mt2');
+
+    if (titleRow) {
+      return {
+        anchor: titleRow,
+        position: 'afterend',
+      };
+    }
+
+    const title = root.querySelector('.job-details-jobs-unified-top-card__job-title, h1');
+
+    if (title) {
+      return {
+        anchor: title,
+        position: 'afterend',
+      };
+    }
+
+    const jobTitleLink = root.querySelector('a[href*="/jobs/view/"]');
+
+    if (jobTitleLink instanceof Element) {
+      const titleBlock = jobTitleLink.closest('p, h1, h2, h3, h4');
+      const titleAnchor = getCompanyStatsTitleAnchor(titleBlock || jobTitleLink, root);
+
+      return {
+        anchor: titleAnchor,
+        position: 'afterend',
+      };
+    }
+
+    const firstHeading = root.querySelector('h2, h3');
+
+    if (firstHeading) {
+      return {
+        anchor: firstHeading,
+        position: 'beforebegin',
+      };
+    }
+
+    const firstChild = root.firstElementChild;
+
+    if (firstChild) {
+      return {
+        anchor: firstChild,
+        position: 'beforebegin',
+      };
+    }
+
+    return null;
+  }
+
+  function getCompanyStatsTitleAnchor(initialAnchor, root) {
+    let anchor = initialAnchor;
+
+    while (anchor instanceof Element && anchor.parentElement && anchor.parentElement !== root) {
+      const parent = anchor.parentElement;
+
+      if (parent.matches('[data-display-contents="true"]')) {
+        anchor = parent;
+        continue;
+      }
+
+      if (
+        parent.childElementCount === 1 &&
+        parent.firstElementChild === anchor &&
+        parent.nextElementSibling instanceof Element
+      ) {
+        anchor = parent;
+        continue;
+      }
+
+      break;
+    }
+
+    return anchor;
+  }
+
+  function findSectionByHeadingText(root, expectedText) {
+    const normalizedExpected = normalizeInsightText(expectedText).toLocaleLowerCase();
+
+    for (const heading of root.querySelectorAll('h1, h2, h3, h4')) {
+      if (normalizeInsightText(heading.textContent).toLocaleLowerCase() !== normalizedExpected) {
+        continue;
+      }
+
+      let candidate = heading.parentElement;
+
+      while (candidate instanceof Element) {
+        if (countCompanyStatKinds(candidate) >= 2) {
+          return candidate;
+        }
+
+        if (candidate === root || candidate === document.body) {
+          break;
+        }
+
+        candidate = candidate.parentElement;
+      }
+
+      return heading.parentElement;
+    }
+
+    return null;
+  }
+
+  function countCompanyStatKinds(root) {
+    const kinds = new Set();
+
+    for (const element of root.querySelectorAll('span, p, li, small, strong')) {
+      const kind = getCompanyStatKind(normalizeInsightText(element.textContent));
+
+      if (kind) {
+        kinds.add(kind);
+      }
+    }
+
+    return kinds.size;
+  }
+
+  function normalizeInsightText(text) {
+    return (text || '')
+      .replace(/\s+/g, ' ')
+      .replace(/[·•]+/g, ' ')
+      .trim();
+  }
+
+  function formatJobStateLabel(state) {
+    if (!state) {
+      return '';
+    }
+
+    return `${state.charAt(0).toUpperCase()}${state.slice(1)}`;
+  }
+
   function getHighlightRoots() {
     const roots = [];
 
@@ -822,12 +1335,28 @@
     return states[0] || 'viewed';
   }
 
+  function getMatchingJobState(text) {
+    const normalized = normalizeInsightText(text).toLocaleLowerCase();
+
+    if (!normalized) {
+      return '';
+    }
+
+    for (const state of JOB_STATE_LABELS) {
+      if (JOB_STATE_MATCH_PATTERNS[state].some((pattern) => pattern.test(normalized))) {
+        return state;
+      }
+    }
+
+    return '';
+  }
+
   function getStateBadgeElements(root, state) {
     const badges = [];
 
     // Fast path: specific LinkedIn footer selectors — stable and cheap.
     for (const candidate of root.querySelectorAll(JOB_STATE_BADGE_SELECTORS.join(', '))) {
-      if ((candidate.textContent || '').trim().toLocaleLowerCase() === state) {
+      if (getMatchingJobState(candidate.textContent) === state) {
         badges.push(candidate);
       }
     }
@@ -840,7 +1369,7 @@
     // cards so we still avoid a full-document inline-tag query.
     for (const card of findJobCardCandidates(root)) {
       for (const el of card.querySelectorAll('p, span, li, small, strong, mark')) {
-        if ((el.textContent || '').trim().toLocaleLowerCase() === state) {
+        if (getMatchingJobState(el.textContent) === state) {
           badges.push(el);
         }
       }
@@ -875,7 +1404,15 @@
     return stateMap;
   }
 
+  function isLinkedInPage() {
+    return /(^|\.)linkedin\.com$/i.test(window.location.hostname);
+  }
+
   function isJobsPage() {
+    if (!isLinkedInPage()) {
+      return false;
+    }
+
     return /^\/jobs(\/|$)/.test(window.location.pathname);
   }
 

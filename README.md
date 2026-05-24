@@ -1,15 +1,14 @@
-<h1 align="center">Job Hunt Visualizer</h1>
+<h1 align="center">Job Search Lens</h1>
 
 <p align="center">
-  A privacy-first Chrome extension for LinkedIn Jobs that highlights the keywords you care about
-  and passively dims job cards already marked by LinkedIn as Viewed, Saved, or Applied.
+  Local-only Chrome extension that highlights keywords on any job site and adds LinkedIn-specific tools for dimming and company stats.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.2.1-0f766e?style=flat-square" alt="Version 1.2.1" />
+  <img src="https://img.shields.io/badge/version-1.3.0-0f766e?style=flat-square" alt="Version 1.3.0" />
   <img src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?style=flat-square&logo=googlechrome&logoColor=white" alt="Chrome Manifest V3" />
   <img src="https://img.shields.io/badge/privacy-local--only-0F9D58?style=flat-square" alt="Local-only privacy" />
-  <img src="https://img.shields.io/badge/tests-15%20passing-brightgreen?style=flat-square" alt="15 tests passing" />
+  <img src="https://img.shields.io/badge/tests-31%20passing-brightgreen?style=flat-square" alt="31 tests passing" />
   <img src="https://img.shields.io/badge/license-MIT%20%2B%20Commons%20Clause-blue?style=flat-square" alt="MIT + Commons Clause" />
 </p>
 
@@ -26,26 +25,30 @@
 
 ## Overview
 
-Job Hunt Visualizer has one narrow purpose: make LinkedIn Jobs easier to scan without sending any browsing data to a backend.
+Job Search Lens makes job pages easier to scan without sending any browsing data to a backend.
 
-It does two things:
+It does three things:
 
-1. Highlights saved keywords inside job details.
+1. Highlights saved keywords on any website where the extension runs — LinkedIn, Indeed, Seek, Glassdoor, company career pages, or anywhere else.
 2. Passively dims job cards LinkedIn already labels as Viewed, Saved, or Applied.
+3. Shows company size and LinkedIn follower counts inline near job titles on LinkedIn, so you can judge company fit without opening a separate tab.
 
 All settings stay local in the browser through `chrome.storage.local`.
 
 ## Features
 
-- Highlight custom keywords in LinkedIn job details.
-- Save keywords from selected text through the context menu.
+**Works on any website**
+- Highlight custom keywords anywhere the extension runs — job boards, company career pages, aggregators.
+- Save keywords from selected text by right-clicking on any page.
 - Assign a color to each keyword with an inline palette.
 - Search, sort, and export the keyword library.
-- Dim Viewed, Saved, and Applied jobs independently.
 - Navigate between matches with previous and next controls.
 - Switch between Auto, Light, and Dark popup themes.
-- Handle LinkedIn SPA route changes and multiple results-list layouts.
-- Avoid page-wide DOM mutation strategies that can cause LinkedIn instability.
+
+**LinkedIn Jobs extras**
+- Dim Viewed, Saved, and Applied job cards independently.
+- Inline company size and LinkedIn follower count next to job titles — no extra tab needed.
+- Handles LinkedIn SPA route changes and multiple results-list layouts including the newer SDUI page variant.
 
 ## Installation
 
@@ -64,7 +67,7 @@ npm test
 2. Enable Developer mode.
 3. Click Load unpacked.
 4. Select this repository folder.
-5. Open `https://www.linkedin.com/jobs/` and use the popup or context menu.
+5. Open any website to use keyword highlights, or open `https://www.linkedin.com/jobs/` to use the full LinkedIn workflow.
 
 ## Permissions
 
@@ -72,14 +75,14 @@ The extension keeps its permission surface intentionally small.
 
 | Permission | Why it is needed |
 |---|---|
-| `contextMenus` | Adds the selection-based “Add to Highlighter” action on LinkedIn pages. |
+| `contextMenus` | Adds the selection-based “Add to Highlighter” action on webpages. |
 | `storage` | Stores keywords, colors, theme preference, and dim-state settings locally. |
-| `tabs` | Lets the popup identify the active LinkedIn tab and ask the content script for status and match navigation. |
-| `https://www.linkedin.com/*` host access | Restricts content-script execution to LinkedIn pages only. |
+| `tabs` | Lets the popup identify the active tab and ask the content script for status and match navigation. |
+| `http://*/*` and `https://*/*` host access | Lets keyword highlighting run on websites, while LinkedIn-specific dimming and stats remain scoped to LinkedIn Jobs. |
 
 ## Privacy
 
-Job Hunt Visualizer is designed to be publishable under a conservative, local-only privacy model.
+Job Search Lens is designed to be publishable under a conservative, local-only privacy model.
 
 - No telemetry
 - No analytics
@@ -89,7 +92,7 @@ Job Hunt Visualizer is designed to be publishable under a conservative, local-on
 - No cloud sync
 - No sale or sharing of personal data
 
-The extension reads LinkedIn page content only to highlight your saved terms and detect LinkedIn’s own Viewed, Saved, and Applied labels already rendered on the page. That processing stays local to the browser.
+The extension reads page content locally to highlight your saved terms. On LinkedIn Jobs, it also detects LinkedIn’s own Viewed, Saved, and Applied labels already rendered on the page. That processing stays local to the browser.
 
 For a store-ready policy document, see [docs/privacy-policy.html](docs/privacy-policy.html).
 
@@ -116,11 +119,12 @@ flowchart LR
     CS --> Shared
     CS --> Heuristics
     CS --> LinkedIn
+    CS --> Websites[Other Websites]
 ```
 
 ## Testing
 
-Automated coverage currently includes 15 passing tests across shared helpers and DOM-fixture heuristics.
+Automated coverage currently includes 31 passing tests across shared helpers, DOM heuristics, and scenario content-script regressions.
 
 ```bash
 npm test
@@ -136,6 +140,8 @@ Current coverage includes:
 - settings sanitization
 - scenario-based results-list detection heuristics
 - visual wrapper promotion for LinkedIn card variants
+- company stats extraction and insertion for classic, SDUI, and wrapped-title LinkedIn layouts
+- generic keyword highlighting on non-LinkedIn websites without any LinkedIn-specific mutations
 
 ## Publishing Resources
 
@@ -160,7 +166,7 @@ Job_Search/
 │   ├── icons/                  # Manifest and store icons
 │   └── store/                  # Promo tiles and listing graphics
 ├── background.js              # Context menu capture and local keyword storage
-├── content.js                 # LinkedIn DOM integration and highlight/dim orchestration
+├── content.js                 # Cross-site highlight orchestration and LinkedIn-specific dim/stats features
 ├── dom-heuristics.js          # Scenario-safe list/card detection helpers
 ├── docs/
 │   ├── index.html             # Homepage-style landing page
@@ -171,7 +177,7 @@ Job_Search/
 ├── popup.html                 # Popup UI markup and styling
 ├── popup.js                   # Popup logic and active-tab diagnostics
 ├── shared.js                  # Shared logic used across runtime surfaces
-├── styles.css                 # Highlight and dim styling injected into LinkedIn
+├── styles.css                 # Highlight and dim styling injected into pages
 ├── tests/
 │   ├── dom-heuristics.test.js
 │   ├── fixtures/
@@ -204,7 +210,8 @@ LinkedIn may change its markup or platform policies at any time, so selector mai
 
 | Version | Summary |
 |---|---|
-| 1.2.2 | Redesigned GitHub Pages product/privacy/support site, MIT + Commons Clause license, shared docs stylesheet |
+| 1.3.0 | Extended keyword highlighting to all websites (not LinkedIn-only); added inline company size and LinkedIn follower counts near job titles; added SDUI page support (scenario 13); improved title-anchor placement for wrapped-title SDUI layouts (scenario 15); updated popup status messaging |
+| 1.2.2 | Renamed the product to Job Search Lens, refreshed docs and store copy, added scenario 6-8 regression coverage, and prepared updated store assets |
 | 1.2.1 | Publish-prep metadata, icons, static policy/support pages, scenario 5 heuristics, and DOM fixture tests |
 | 1.2.0 | Color palette swatches, keyword export and sort, and multi-list root coverage |
 | 1.1.0 | Theme support, Saved and Applied dimming, and SPA-aware observers |

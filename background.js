@@ -22,8 +22,8 @@ chrome.runtime.onStartup.addListener(() => {
   createContextMenu();
 });
 
-// The context menu is the fastest way to turn selected LinkedIn text into a
-// highlight term without injecting any controls into the LinkedIn page itself.
+// The context menu is the fastest way to turn selected page text into a
+// highlight term without injecting any controls into the site itself.
 chrome.contextMenus.onClicked.addListener(async (info) => {
   if (info.menuItemId !== CONTEXT_MENU_ID) {
     return;
@@ -31,7 +31,7 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
 
   const pageUrl = info.pageUrl || info.frameUrl || '';
 
-  if (!/^https:\/\/www\.linkedin\.com\//i.test(pageUrl)) {
+  if (!/^https?:\/\//i.test(pageUrl)) {
     return;
   }
 
