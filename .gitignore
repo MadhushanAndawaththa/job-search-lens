@@ -6,3 +6,10 @@ Thumbs.db
 PLAN.md
 /senario*.md
 /senarion*.md
+.env
+.env.*
+*.env
+credentials.json
+*.pem
+*.key
+.credentials
