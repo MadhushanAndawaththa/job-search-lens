@@ -60,9 +60,10 @@ function Draw-CardMock {
     $bodyFont = New-Object System.Drawing.Font('Segoe UI', $bodyFS)
     $mutedBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.ColorTranslator]::FromHtml('#5B6B7D'))
     $textBrush = New-Object System.Drawing.SolidBrush ([System.Drawing.ColorTranslator]::FromHtml('#163042'))
-    $g.DrawString('Job Hunt Visualizer', $titleFont, $textBrush, ($x + ($w * 0.08)), ($y + ($h * 0.08)))
+    $g.DrawString('Job Search Lens', $titleFont, $textBrush, ($x + ($w * 0.08)), ($y + ($h * 0.08)))
     $g.DrawLine($linePen, ($x + ($w * 0.08)), ($y + ($h * 0.19)), ($x + ($w * 0.92)), ($y + ($h * 0.19)))
-    $g.DrawString('Highlight keywords on LinkedIn job details', $bodyFont, $mutedBrush, ($x + ($w * 0.08)), ($y + ($h * 0.24)))
+    $bodyRect = New-Object System.Drawing.RectangleF(($x + ($w * 0.08)), ($y + ($h * 0.24)), ($w * 0.74), ($h * 0.16))
+    $g.DrawString('Highlight keywords', $bodyFont, $mutedBrush, $bodyRect)
     $swatchColors = @('#FFE082', '#FFCC80', '#CE93D8', '#90CAF9', '#A5D6A7')
     for ($i = 0; $i -lt $swatchColors.Count; $i++) {
         $brush = New-Object System.Drawing.SolidBrush ([System.Drawing.ColorTranslator]::FromHtml($swatchColors[$i]))
@@ -151,9 +152,17 @@ function Write-Banner {
     $g.FillEllipse($orb1, -40.0, -40.0, ($w * 0.38), ($w * 0.38))
     $g.FillEllipse($orb2, ($w * 0.62), ($h * 0.08), ($w * 0.26), ($w * 0.26))
     $g.FillEllipse($orb2, ($w * 0.55), ($h * 0.58), ($w * 0.22), ($w * 0.22))
-    $titleFS = [float][Math]::Max([Math]::Round($h * 0.085), 22.0)
+    if ($w -lt 500) {
+        $titleFS = [float][Math]::Max([Math]::Round($h * 0.072), 18.0)
+    } else {
+        $titleFS = [float][Math]::Max([Math]::Round($h * 0.085), 22.0)
+    }
     $titleFont = New-Object System.Drawing.Font('Segoe UI', $titleFS, [System.Drawing.FontStyle]::Bold)
-    $subtitleFS = [float][Math]::Max([Math]::Round($h * 0.042), 12.0)
+    if ($w -lt 500) {
+        $subtitleFS = [float][Math]::Max([Math]::Round($h * 0.032), 10.0)
+    } else {
+        $subtitleFS = [float][Math]::Max([Math]::Round($h * 0.036), 11.0)
+    }
     $subtitleFont = New-Object System.Drawing.Font('Segoe UI', $subtitleFS)
     $pillFS = [float][Math]::Max([Math]::Round($h * 0.032), 10.0)
     $pillFont = New-Object System.Drawing.Font('Segoe UI', $pillFS, [System.Drawing.FontStyle]::Bold)
@@ -161,18 +170,30 @@ function Write-Banner {
     $softBrush = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(220, 239, 248, 255))
     $left = [float]($w * 0.07)
     $top = [float]($h * 0.12)
-    $textWidth = [float]($w * 0.43)
+    if ($w -lt 500) {
+        $textWidth = [float]($w * 0.48)
+    } else {
+        $textWidth = [float]($w * 0.44)
+    }
     $titleRect = New-Object System.Drawing.RectangleF($left, $top, $textWidth, ($h * 0.28))
-    $subtitleRect = New-Object System.Drawing.RectangleF($left, ($top + ($h * 0.26)), $textWidth, ($h * 0.16))
+    $subtitleRect = New-Object System.Drawing.RectangleF($left, ($top + ($h * 0.26)), $textWidth, ($h * 0.24))
     $g.DrawString($title, $titleFont, $whiteBrush, $titleRect)
     $g.DrawString($subtitle, $subtitleFont, $softBrush, $subtitleRect)
     $pillX = $left
     $pillY = $top + ($h * 0.52)
-    $dr1 = Draw-Pill -g $g -x $pillX -y $pillY -text 'Local-only' -font $pillFont -fillColor '#E6FFFB' -textColor '#115E59'
-    $pillX += $dr1 + 10.0
-    $dr2 = Draw-Pill -g $g -x $pillX -y $pillY -text 'Keyword highlights' -font $pillFont -fillColor '#DBEAFE' -textColor '#1D4ED8'
-    $pillX += $dr2 + 10.0
-    [void](Draw-Pill -g $g -x $pillX -y $pillY -text 'LinkedIn Jobs' -font $pillFont -fillColor '#FEF3C7' -textColor '#92400E')
+    $pillLabels = @(
+        @{ Text = 'Local-only'; Fill = '#E6FFFB'; Color = '#115E59' },
+        @{ Text = 'Highlights'; Fill = '#DBEAFE'; Color = '#1D4ED8' }
+    )
+
+    if ($w -ge 1400) {
+        $pillLabels += @{ Text = 'LinkedIn Jobs'; Fill = '#FEF3C7'; Color = '#92400E' }
+    }
+
+    foreach ($pill in $pillLabels) {
+        $pillWidth = Draw-Pill -g $g -x $pillX -y $pillY -text $pill.Text -font $pillFont -fillColor $pill.Fill -textColor $pill.Color
+        $pillX += $pillWidth + 10.0
+    }
     Draw-CardMock -g $g -x ($w * 0.58) -y ($h * 0.12) -w ($w * 0.30) -h ($h * 0.70)
     $bgBrush.Dispose()
     $orb1.Dispose()
@@ -194,6 +215,6 @@ if (-not (Test-Path $storeDir)) { New-Item -ItemType Directory -Force -Path $sto
 foreach ($size in 16,32,48,128) {
     Write-Icon -size $size -path (Join-Path $iconDir ("icon$size.png"))
 }
-Write-Banner -w 440 -h 280 -path (Join-Path $storeDir 'small-promo-440x280.png') -title 'Job Hunt Visualizer' -subtitle 'Highlight keywords and dim previously processed jobs.'
-Write-Banner -w 1400 -h 560 -path (Join-Path $storeDir 'marquee-1400x560.png') -title 'Scan LinkedIn Jobs Faster' -subtitle 'Highlight the terms you care about and de-emphasize jobs LinkedIn already marks as Viewed, Saved, or Applied.'
+Write-Banner -w 440 -h 280 -path (Join-Path $storeDir 'small-promo-440x280.png') -title 'Job Search Lens' -subtitle 'Highlight keywords. Fade processed jobs.'
+Write-Banner -w 1400 -h 560 -path (Join-Path $storeDir 'marquee-1400x560.png') -title 'Scan LinkedIn Jobs Faster' -subtitle 'Highlight important terms and fade jobs you already processed.'
 Write-Banner -w 1280 -h 800 -path (Join-Path $storeDir 'store-preview-1280x800.png') -title 'Less noise. Faster scans.' -subtitle 'Local-only highlights and state dimming.'
