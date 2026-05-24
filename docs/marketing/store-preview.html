@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Store Preview 1280×800</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1280px;
+      height: 800px;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      color: #0b1220;
+    }
+    body {
+      position: relative;
+      background:
+        radial-gradient(45% 60% at 8% 6%, rgba(250,204,21,0.18), transparent 65%),
+        radial-gradient(50% 60% at 100% 100%, rgba(10,102,194,0.18), transparent 65%),
+        linear-gradient(140deg, #f7f8fb 0%, #eef2f8 100%);
+      padding: 56px 72px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 28px;
+    }
+
+    /* Top brand strip */
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-row {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .brand-icon {
+      width: 48px; height: 48px; border-radius: 13px;
+      background: linear-gradient(135deg, #0b1220, #1b2440);
+      color: #facc15;
+      display: grid; place-items: center;
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 8px 22px rgba(11,18,32,0.18);
+    }
+    .brand-icon svg { width: 26px; height: 26px; }
+    .brand-name {
+      font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: #0b1220;
+    }
+    .brand-sub {
+      font-size: 13px; color: #5b6478; margin-top: 2px;
+    }
+    .top-right {
+      display: flex; gap: 8px;
+    }
+    .tag {
+      padding: 6px 14px; border-radius: 999px;
+      background: #ffffff; border: 1px solid #e5e7ec;
+      font-size: 12.5px; font-weight: 600; color: #5b6478;
+      box-shadow: 0 1px 2px rgba(11,18,32,0.04);
+    }
+    .tag.is-yellow { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+
+    /* Main grid: headline + 4 feature panels */
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr;
+      gap: 22px;
+    }
+
+    .headline-block {
+      grid-column: span 2;
+    }
+    h1 {
+      font-size: 58px; font-weight: 800; letter-spacing: -0.035em;
+      line-height: 1.02; color: #0b1220;
+      max-width: 920px;
+    }
+    h1 .hl {
+      background: linear-gradient(180deg, transparent 58%, #facc15 58% 92%, transparent 92%);
+      padding: 0 0.05em;
+    }
+    .lede {
+      margin-top: 14px;
+      font-size: 18px; color: #5b6478; line-height: 1.55;
+      max-width: 760px;
+    }
+
+    .panel {
+      background: #ffffff;
+      border: 1px solid #e5e7ec;
+      border-radius: 18px;
+      padding: 24px 26px;
+      box-shadow: 0 4px 16px rgba(11,18,32,0.06);
+      display: flex; flex-direction: column; gap: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .panel-head {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .badge-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 999px;
+      background: #f7f8fb; border: 1px solid #eef0f4;
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase; color: #5b6478;
+    }
+    .badge-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: #facc15; }
+    .badge-pill.linkedin .dot { background: #0a66c2; }
+    .badge-pill.privacy  .dot { background: #16a34a; }
+
+    .panel h2 {
+      font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
+      color: #0b1220; line-height: 1.2;
+    }
+    .panel p {
+      font-size: 14.5px; color: #5b6478; line-height: 1.55;
+    }
+
+    /* Highlight demo inside panel */
+    .demo-text {
+      margin-top: auto;
+      padding: 16px 18px;
+      background: #f7f8fb;
+      border: 1px solid #eef0f4;
+      border-radius: 12px;
+      font-size: 16px; line-height: 1.55; color: #1d2435;
+    }
+    .kw {
+      display: inline-block;
+      padding: 0 0.28em;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .kw.y { background: #ffe082; }
+    .kw.g { background: #a5d6a7; }
+    .kw.b { background: #81d4fa; }
+    .kw.p { background: #f8bbd0; }
+
+    /* Dim demo */
+    .dim-stack {
+      margin-top: auto;
+      display: flex; flex-direction: column; gap: 7px;
+    }
+    .dim-row {
+      display: flex; align-items: center; gap: 11px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #f7f8fb; border: 1px solid #eef0f4;
+      font-size: 13.5px; color: #1d2435; font-weight: 500;
+    }
+    .dim-row.is-viewed  { opacity: 0.45; filter: grayscale(0.5); box-shadow: inset 3px 0 0 #6b7280; }
+    .dim-row.is-saved   { opacity: 0.55; filter: grayscale(0.4); box-shadow: inset 3px 0 0 #0a66c2; background: rgba(10,102,194,0.05); }
+    .dim-row.is-applied { box-shadow: inset 3px 0 0 #16a34a; background: rgba(22,163,74,0.06); }
+    .dim-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dim-dot.viewed  { background: #6b7280; }
+    .dim-dot.saved   { background: #0a66c2; }
+    .dim-dot.applied { background: #16a34a; }
+
+    /* Company stats demo */
+    .stats-demo {
+      margin-top: auto;
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .stat {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 13px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      border: 1px solid rgba(71,85,105,0.16);
+      color: #334155;
+      font-size: 13px; font-weight: 600;
+    }
+    .stat svg { width: 13px; height: 13px; }
+
+    /* Privacy panel */
+    .privacy-panel {
+      background: linear-gradient(135deg, #0b1220 0%, #1a2238 100%);
+      color: #f1f3f8;
+      border-color: rgba(255,255,255,0.10);
+    }
+    .privacy-panel h2 { color: #ffffff; }
+    .privacy-panel p { color: rgba(255,255,255,0.72); }
+    .privacy-panel .badge-pill {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.82);
+    }
+    .privacy-panel .badge-pill .dot { background: #4ade80; }
+    .promise-grid {
+      margin-top: auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .promise {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 12px;
+      border-radius: 9px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      font-size: 13px; color: rgba(255,255,255,0.92); font-weight: 500;
+    }
+    .promise .check {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: rgba(22,163,74,0.20); color: #4ade80;
+      display: grid; place-items: center;
+      font-size: 10px; font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* Footer */
+    .foot {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 13px; color: #5b6478;
+    }
+    .foot .right { font-weight: 600; color: #0b1220; }
+    .foot a { color: inherit; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Top -->
+  <div class="top">
+    <div class="brand-row">
+      <span class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      </span>
+      <div>
+        <div class="brand-name">Job Search Lens</div>
+        <div class="brand-sub">Local-only Chrome extension · v1.3</div>
+      </div>
+    </div>
+    <div class="top-right">
+      <span class="tag is-yellow">Free</span>
+      <span class="tag">Chrome MV3</span>
+      <span class="tag">Open source</span>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <div class="headline-block">
+      <h1>Highlight what matters. <span class="hl">On every job site.</span></h1>
+      <p class="lede">Lightweight, inspectable utilities that make every job page easier to scan — without sending a single byte to a server.</p>
+    </div>
+
+    <!-- Panel 1 — Keyword highlights -->
+    <div class="panel">
+      <div class="panel-head">
+        <span class="badge-pill"><span class="dot"></span>Universal</span>
+      </div>
+      <h2>Keyword highlights everywhere</h2>
+      <p>Save your terms once. They light up inline on LinkedIn, Indeed, Glassdoor, Seek, company career pages — anywhere you browse.</p>
+      <div class="demo-text">
+        <span class="kw y">Python</span> backend engineer with <span class="kw g">Django</span>,
+        <span class="kw b">PostgreSQL</span>, and <span class="kw p">AWS</span> experience.
+      </div>
+    </div>
+
+    <!-- Panel 2 — Dim states -->
+    <div class="panel">
+      <div class="panel-head">
+        <span class="badge-pill linkedin"><span class="dot"></span>LinkedIn</span>
+      </div>
+      <h2>Dim what you've already done</h2>
+      <p>Independent toggles for Viewed, Saved, and Applied. Focus only on jobs you haven't processed yet.</p>
+      <div class="dim-stack">
+        <div class="dim-row is-viewed"><span class="dim-dot viewed"></span>Lead Platform Engineer · Acme Studio</div>
+        <div class="dim-row is-saved"><span class="dim-dot saved"></span>Staff Python Engineer · Northwind Labs</div>
+        <div class="dim-row is-applied"><span class="dim-dot applied"></span>Director of Engineering · Pinion</div>
+      </div>
+    </div>
+
+    <!-- Panel 3 — Company stats -->
+    <div class="panel">
+      <div class="panel-head">
+        <span class="badge-pill linkedin"><span class="dot"></span>LinkedIn</span>
+      </div>
+      <h2>Company size, inline</h2>
+      <p>Headcount and LinkedIn follower count appear next to the job title. Judge fit without opening a new tab.</p>
+      <div class="stats-demo">
+        <span class="stat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
+          201–500 employees
+        </span>
+        <span class="stat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+          34,210 followers on LinkedIn
+        </span>
+      </div>
+    </div>
+
+    <!-- Panel 4 — Privacy -->
+    <div class="panel privacy-panel">
+      <div class="panel-head">
+        <span class="badge-pill privacy"><span class="dot"></span>Privacy</span>
+      </div>
+      <h2>Local-only by construction</h2>
+      <p>Six promises we keep by simply not writing the code.</p>
+      <div class="promise-grid">
+        <div class="promise"><span class="check">✓</span>No telemetry</div>
+        <div class="promise"><span class="check">✓</span>No analytics</div>
+        <div class="promise"><span class="check">✓</span>No external API calls</div>
+        <div class="promise"><span class="check">✓</span>No remote code</div>
+        <div class="promise"><span class="check">✓</span>No accounts</div>
+        <div class="promise"><span class="check">✓</span>No cloud sync</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="foot">
+    <span>madhushanandawaththa.github.io/Job_Search</span>
+    <span class="right">Inspect every line of source on GitHub →</span>
+  </div>
+
+</body>
+</html>

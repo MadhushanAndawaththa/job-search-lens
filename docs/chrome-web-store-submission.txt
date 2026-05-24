@@ -1,44 +1,48 @@
 JOB SEARCH LENS
-Chrome Web Store submission notes
+Chrome Web Store submission notes (v1.3)
 
 Single-purpose statement
-Job Search Lens highlights saved keywords on any website you browse and adds LinkedIn Jobs-specific tools for dimming processed job cards and showing inline company stats.
+Job Search Lens highlights saved keywords on any website you browse, and adds LinkedIn Jobs-specific tools for dimming processed job cards and showing inline company stats.
 
-Short description
-Local-only Chrome extension that highlights keywords on any job site, with extra tools for LinkedIn Jobs.
+Short description (132 char max)
+Highlight your saved keywords on every job site. Plus LinkedIn extras: card dimming and inline company stats. Local-only.
 
 Detailed description
-Job Search Lens started as a LinkedIn Jobs tool but keyword highlighting turned out to be useful everywhere — so it now runs on any website you browse.
+Job Search Lens makes every job page easier to scan — without sending a single byte to a server.
 
-Save the keywords that matter to you (technologies, roles, locations, companies) and the extension marks them inline on every page you open. When you visit LinkedIn Jobs, you also get card dimming for listings LinkedIn already labels as Viewed, Saved, or Applied, plus inline company size and follower counts next to job titles so you can judge company fit without opening a new tab.
+Save the keywords that matter to you (technologies, roles, locations, companies) and the extension marks them inline on every page you open: LinkedIn, Indeed, Glassdoor, Seek, AngelList, Wellfound, company career pages, anywhere. When you visit LinkedIn Jobs, you also get:
 
-All settings stay local in the browser. The extension has no backend, no telemetry, no account system, and no remote code.
+• Card dimming for listings LinkedIn already labels as Viewed, Saved, or Applied — toggleable per state.
+• Inline company size and follower count next to job titles, so you can judge company fit without opening a new tab.
+
+Everything stays local in your browser. No backend, no telemetry, no account system, no remote code. Inspect every line of source on GitHub.
 
 Key features
-- Keyword highlighting on any website (LinkedIn, Indeed, Glassdoor, company career pages, etc.)
-- Right-click context menu to save selected text as a keyword on any page
+- Keyword highlights on any website
+- Right-click context menu to save selected text as a keyword
 - Per-keyword color palette
 - Sort, search, and export controls for the keyword library
-- Inline company size and LinkedIn follower count next to job titles (LinkedIn Jobs)
-- Independent dim toggles for Viewed, Saved, and Applied states (LinkedIn Jobs)
 - Match navigation with previous/next controls
+- Inline company size and LinkedIn follower count next to job titles (LinkedIn Jobs)
+- Independent dim toggles for Viewed, Saved, and Applied (LinkedIn Jobs)
 - Auto, Light, and Dark popup themes
 
 Permission justifications
+
 contextMenus
-Used to add selected text from any page to the saved keyword list from the right-click menu.
+Used to add selected text from any page to the saved keyword list via the right-click menu.
 
 storage
 Used to store saved keywords, colors, theme preference, and dim-state settings locally in the browser.
 
-tabs
-Used by the popup to identify the active tab and request page status and match navigation from the content script.
+activeTab
+Used by the popup to communicate with the active tab for status display and match navigation. The popup is the user-gesture surface that grants this permission, so it only applies while the popup is open.
 
-http://*/*  and  https://*/*  host access
+http://*/* and https://*/* (host access)
 Used to run keyword highlighting on any website. LinkedIn-specific features (card dimming, company stats) are gated inside the content script and only activate on LinkedIn Jobs pages.
 
 Remote code declaration
-No, the extension does not use or execute remote code.
+No. The extension does not use or execute remote code.
 
 Data-use declaration
 - No personal or sensitive user data is collected.
@@ -47,11 +51,18 @@ Data-use declaration
 - All processing happens locally in the browser.
 
 Publishing checklist
-1. Enable GitHub Pages from the docs/ folder if you want stable homepage/privacy/support URLs.
-2. Use docs/privacy-policy.html as the privacy policy content source.
-3. Use docs/support.html as the support page source.
-4. Upload assets/icons/icon128.png as the extension icon in the Chrome Web Store.
-5. Upload at least one real product screenshot before final submission.
-6. Upload assets/store/small-promo-440x280.png as the small promo tile.
-7. Upload assets/store/marquee-1400x560.png as the marquee promo tile if you want richer store presentation.
-8. Consider deferred publishing for the first submission so review can complete before public release.
+1. Enable GitHub Pages from the docs/ folder for stable homepage / privacy / support URLs:
+   - Homepage:   https://madhushanandawaththa.github.io/Job_Search/
+   - Privacy:    https://madhushanandawaththa.github.io/Job_Search/privacy-policy.html
+   - Support:    https://madhushanandawaththa.github.io/Job_Search/support.html
+2. Upload assets/icons/icon128.png as the extension icon.
+3. Upload assets/store/small-promo-440x280.png as the small promo tile.
+4. Upload assets/store/marquee-1400x560.png as the marquee promo tile.
+5. Upload assets/store/store-preview-1280x800.png as the first screenshot.
+6. (Optional) Add a real screenshot of the popup over a live LinkedIn Jobs page as a second screenshot for extra credibility.
+7. Consider deferred publishing for the first submission so review can complete before public release.
+
+To regenerate marketing images
+   python3 -m http.server 8765 &
+   /opt/plugins-venv/bin/python tools/render-store-assets.py
+   # ⇒ writes 440x280, 1400x560, 1280x800 PNGs to assets/store/

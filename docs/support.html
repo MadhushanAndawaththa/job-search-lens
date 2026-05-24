@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Support — Job Search Lens</title>
+  <meta name="theme-color" content="#0b1220">
   <link rel="icon" href="../assets/icons/icon32.png">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -15,6 +16,7 @@
       Job Search Lens
     </a>
     <nav class="nav-links">
+      <a href="index.html#features">Features</a>
       <a href="privacy-policy.html">Privacy</a>
       <a href="support.html">Support</a>
       <a class="nav-github" href="https://github.com/MadhushanAndawaththa/Job_Search"
@@ -29,6 +31,7 @@
   <main>
     <div class="page-hero">
       <h1>Support</h1>
+      <p class="page-date">Everything you need to install, troubleshoot, and report bugs.</p>
     </div>
 
     <div class="prose">
@@ -36,27 +39,43 @@
 
         <div class="support-block">
           <h2>Getting started</h2>
-          <p>Job Search Lens runs entirely inside Chrome, highlights saved keywords on any page, and adds fading plus company stats when you open LinkedIn Jobs. No sign-in required.</p>
+          <p>Job Search Lens runs entirely inside Chrome. Highlights work on any page; LinkedIn-specific tools (card dimming + company stats) light up automatically when you visit LinkedIn Jobs. No sign-in required.</p>
           <ol>
             <li>Open <code>chrome://extensions</code> and enable <strong>Developer mode</strong>.</li>
             <li>Click <strong>Load unpacked</strong> and select the project folder.</li>
             <li>Navigate to any page you want to scan, or open <a href="https://www.linkedin.com/jobs/" target="_blank" rel="noopener">linkedin.com/jobs</a> for the full LinkedIn workflow.</li>
-            <li>Open the extension popup, add a keyword, and reload the page if the site was already open.</li>
+            <li>Open the extension popup, add a keyword, and reload the page if it was already open.</li>
           </ol>
         </div>
 
         <div class="support-block">
           <h2>Troubleshooting</h2>
           <ul>
-            <li>If the popup shows <em>“Site access needed”</em>, enable extension access for the current site or for all sites in Chrome’s extension settings and reload the tab.</li>
-            <li>If keyword matches are missing, confirm the term is visible on the current page and that <strong>Pause all</strong> is off in the popup.</li>
-            <li>If dimming stops working after a LinkedIn update, check for a newer extension version before filing a bug.</li>
+            <li>If the popup shows <em>"Site access needed"</em>, enable extension access for the current site (or for all sites) in Chrome's extension settings, then reload the tab.</li>
+            <li>If keyword matches are missing, confirm the term is actually visible on the page and that <strong>Pause all</strong> is off in the popup.</li>
+            <li>If dimming stops working after a LinkedIn update, check for a newer extension version on GitHub before filing a bug — LinkedIn changes its DOM frequently.</li>
+            <li>If the popup looks broken or the wrong theme flashes briefly, hard-reload the popup (close and reopen). Theme is persisted in <code>localStorage</code>.</li>
+          </ul>
+        </div>
+
+        <div class="support-block">
+          <h2>Keyboard shortcuts</h2>
+          <ul>
+            <li><strong>Ctrl/Cmd + Enter</strong> inside the keyword input — submit and add the keyword.</li>
+            <li><strong>Escape</strong> while a color picker is open — close the popover and return focus to the swatch button.</li>
+            <li><strong>Right-click</strong> any selected text on any page — <em>Add "[text]" to Highlighter</em>.</li>
           </ul>
         </div>
 
         <div class="support-block">
           <h2>Report a bug or request a feature</h2>
-          <p>Use the <a href="https://github.com/MadhushanAndawaththa/Job_Search/issues" target="_blank" rel="noopener">GitHub issue tracker</a> to report bugs or suggest improvements. Include the Chrome version, extension version (shown in the popup footer), and a brief description of what you expected vs. what happened.</p>
+          <p>Use the <a href="https://github.com/MadhushanAndawaththa/Job_Search/issues" target="_blank" rel="noopener">GitHub issue tracker</a>. Please include:</p>
+          <ul>
+            <li>Chrome version and OS.</li>
+            <li>Extension version (shown in <code>chrome://extensions</code>).</li>
+            <li>The page or URL where the issue happened (or a description if it's private).</li>
+            <li>What you expected vs. what happened.</li>
+          </ul>
         </div>
 
       </div>
@@ -71,8 +90,7 @@
       <span class="footer-sep"></span>
       <a href="support.html">Support</a>
       <span class="footer-sep"></span>
-      <a href="https://github.com/MadhushanAndawaththa/Job_Search"
-         target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/MadhushanAndawaththa/Job_Search" target="_blank" rel="noopener">GitHub</a>
     </div>
     <p class="footer-copy">© 2026 Madhushan Andawaththa · Job Search Lens</p>
   </footer>

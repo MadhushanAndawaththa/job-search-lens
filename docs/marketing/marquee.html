@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Marquee 1400×560</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 1400px;
+      height: 560px;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      color: #f1f3f8;
+    }
+    body {
+      position: relative;
+      background:
+        radial-gradient(40% 60% at 12% 20%, rgba(250,204,21,0.20), transparent 60%),
+        radial-gradient(50% 70% at 88% 80%, rgba(10,102,194,0.40), transparent 60%),
+        radial-gradient(60% 60% at 60% 50%, rgba(11,18,32,0.0), transparent 70%),
+        linear-gradient(135deg, #0b1220 0%, #101a34 45%, #0a2540 100%);
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 32px;
+      padding: 60px 80px;
+      align-items: center;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      mask-image: radial-gradient(120% 80% at 50% 50%, #000 30%, transparent 80%);
+    }
+
+    /* ── Left column ──────────────────────────── */
+    .left {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 13px;
+      background: linear-gradient(135deg, #0b1220, #1b2440);
+      border: 1px solid rgba(255,255,255,0.14);
+      display: grid;
+      place-items: center;
+      color: #facc15;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.45);
+    }
+    .icon svg { width: 28px; height: 28px; }
+    .brand {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 7px 14px 7px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.82);
+      backdrop-filter: blur(8px);
+    }
+    .eyebrow .v {
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: #facc15;
+      color: #0b1220;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    h1 {
+      font-size: 72px;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.02;
+      color: #ffffff;
+      max-width: 580px;
+    }
+    h1 .hl {
+      background: linear-gradient(180deg, transparent 58%, #facc15 58% 92%, transparent 92%);
+      color: #0b1220;
+      padding: 0 0.05em;
+    }
+
+    .sub {
+      font-size: 19px;
+      line-height: 1.55;
+      color: rgba(255,255,255,0.72);
+      max-width: 540px;
+    }
+
+    .features {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .feat {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+    }
+    .feat .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #facc15;
+    }
+    .feat.linkedin .dot { background: #4ea1f0; }
+    .feat.privacy  .dot { background: #4ade80; }
+
+    /* ── Right column: mockup ─────────────────── */
+    .mockup-wrap {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .browser {
+      width: 580px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow:
+        0 40px 80px -20px rgba(0,0,0,0.55),
+        0 16px 40px -16px rgba(10,102,194,0.35);
+      overflow: hidden;
+      transform: rotate(-1.5deg);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #0b1220;
+    }
+    .browser-bar {
+      background: #f1f3f5;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #e5e7ec;
+    }
+    .dots { display: flex; gap: 6px; }
+    .dots span { width: 11px; height: 11px; border-radius: 50%; background: #d2d5dc; }
+    .dots span:nth-child(1) { background: #ff5f57; }
+    .dots span:nth-child(2) { background: #febc2e; }
+    .dots span:nth-child(3) { background: #28c840; }
+    .url {
+      flex: 1;
+      padding: 5px 14px;
+      background: #fff;
+      border: 1px solid #e5e7ec;
+      border-radius: 999px;
+      text-align: center;
+      font-size: 11.5px;
+      color: #5b6478;
+      max-width: 360px;
+      margin: 0 auto;
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+
+    .body { padding: 14px 18px 16px; }
+
+    .row {
+      display: flex;
+      gap: 13px;
+      padding: 12px 8px;
+      align-items: flex-start;
+    }
+    .row + .row { border-top: 1px solid #eef0f4; }
+
+    .row.dim {
+      opacity: 0.45;
+      filter: grayscale(0.55);
+      box-shadow: inset 3px 0 0 #6b7280;
+      background: rgba(107,114,128,0.04);
+    }
+    .row.saved {
+      box-shadow: inset 3px 0 0 #0a66c2;
+      background: rgba(10,102,194,0.05);
+      opacity: 0.55;
+    }
+
+    .logo {
+      width: 38px; height: 38px; border-radius: 7px;
+      background: linear-gradient(135deg, #0a66c2, #14437a);
+      color: #fff; font-size: 13px; font-weight: 700;
+      display: grid; place-items: center; flex-shrink: 0;
+    }
+    .logo.orange   { background: linear-gradient(135deg, #f97316, #c2410c); }
+    .logo.green    { background: linear-gradient(135deg, #16a34a, #15803d); }
+
+    .info { flex: 1; min-width: 0; }
+    .title { font-size: 14px; font-weight: 600; color: #0b1220; letter-spacing: -0.01em; margin-bottom: 3px; }
+    .company { font-size: 12.5px; color: #5b6478; margin-bottom: 5px; }
+    .meta { font-size: 11.5px; color: #8a91a3; }
+
+    .tag {
+      display: inline-block;
+      padding: 0 0.3em;
+      border-radius: 4px;
+      font-weight: 600;
+      color: #0b1220;
+    }
+    .tag.yellow { background: #ffe082; }
+    .tag.green  { background: #a5d6a7; }
+    .tag.blue   { background: #81d4fa; }
+    .tag.pink   { background: #f8bbd0; }
+
+    .badge {
+      display: inline-flex;
+      margin-top: 5px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .badge.viewed { background: rgba(107,114,128,0.18); color: #4b5563; }
+    .badge.saved  { background: rgba(10,102,194,0.18); color: #0a66c2; }
+
+    .stat-row {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px;
+    }
+    .stat {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      border: 1px solid rgba(71,85,105,0.16);
+      color: #334155;
+      font-size: 10.5px;
+      font-weight: 600;
+    }
+    .stat svg { width: 10px; height: 10px; }
+
+    /* Floating popup card */
+    .popup {
+      position: absolute;
+      right: -30px;
+      bottom: -30px;
+      width: 220px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow:
+        0 30px 60px -15px rgba(0,0,0,0.5),
+        0 8px 20px -8px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 14px;
+      transform: rotate(3deg);
+      color: #0b1220;
+    }
+    .popup-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .popup-title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #5b6478;
+    }
+    .popup-icon {
+      width: 22px; height: 22px; border-radius: 6px;
+      background: linear-gradient(135deg, #0b1220, #1b2440);
+      color: #facc15;
+      display: grid; place-items: center;
+    }
+    .popup-icon svg { width: 12px; height: 12px; }
+    .popup-input {
+      padding: 7px 10px;
+      border: 1px solid #e5e7ec;
+      border-radius: 8px;
+      font-size: 11px;
+      color: #8a91a3;
+      margin-bottom: 8px;
+    }
+    .kw {
+      display: flex; align-items: center; gap: 7px;
+      padding: 5px 4px;
+      font-size: 12px;
+      border-bottom: 1px solid #eef0f4;
+    }
+    .kw:last-child { border-bottom: none; }
+    .sw { width: 11px; height: 11px; border-radius: 3px; }
+    .term { flex: 1; color: #1d2435; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+  <!-- Left column -->
+  <div class="left">
+    <div class="brand-row">
+      <span class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"/>
+          <path d="m20 20-3.5-3.5"/>
+        </svg>
+      </span>
+      <span class="brand">Job Search Lens</span>
+    </div>
+
+    <span class="eyebrow">
+      <span class="v">v1.3</span>
+      Now works on every job site
+    </span>
+
+    <h1>Highlight<br>what&nbsp;matters.<br><span class="hl">On&nbsp;every job site.</span></h1>
+
+    <p class="sub">
+      Save your keywords. Job Search Lens marks them inline on LinkedIn,
+      Indeed, Glassdoor, and any company career page. Plus LinkedIn extras
+      to dim cards you've already processed.
+    </p>
+
+    <div class="features">
+      <span class="feat"><span class="dot"></span>Keyword highlights</span>
+      <span class="feat linkedin"><span class="dot"></span>LinkedIn card dimming</span>
+      <span class="feat linkedin"><span class="dot"></span>Inline company stats</span>
+      <span class="feat privacy"><span class="dot"></span>Local-only</span>
+    </div>
+  </div>
+
+  <!-- Right column: mockup -->
+  <div class="mockup-wrap">
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <div class="url">linkedin.com/jobs/search</div>
+      </div>
+      <div class="body">
+        <div class="row">
+          <div class="logo">Pn</div>
+          <div class="info">
+            <div class="title">Senior <span class="tag yellow">Python</span> Backend Engineer</div>
+            <div class="company">Pinion · Remote · United States</div>
+            <div class="meta"><span class="tag green">Django</span>, <span class="tag blue">PostgreSQL</span>, <span class="tag pink">AWS</span> · $160K – $210K</div>
+            <div class="stat-row">
+              <span class="stat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
+                201–500 employees
+              </span>
+              <span class="stat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+                34K followers
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row dim">
+          <div class="logo orange">Ac</div>
+          <div class="info">
+            <div class="title">Lead Platform Engineer</div>
+            <div class="company">Acme Studio · San Francisco</div>
+            <span class="badge viewed">Viewed</span>
+          </div>
+        </div>
+
+        <div class="row saved">
+          <div class="logo green">Nw</div>
+          <div class="info">
+            <div class="title">Staff <span class="tag yellow">Python</span> Engineer</div>
+            <div class="company">Northwind Labs · Berlin · Hybrid</div>
+            <span class="badge saved">Saved</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="popup">
+      <div class="popup-head">
+        <span class="popup-title">Highlights</span>
+        <span class="popup-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        </span>
+      </div>
+      <div class="popup-input">Add a keyword…</div>
+      <div class="kw"><span class="sw" style="background:#ffe082"></span><span class="term">Python</span></div>
+      <div class="kw"><span class="sw" style="background:#a5d6a7"></span><span class="term">Django</span></div>
+      <div class="kw"><span class="sw" style="background:#81d4fa"></span><span class="term">PostgreSQL</span></div>
+      <div class="kw"><span class="sw" style="background:#f8bbd0"></span><span class="term">AWS</span></div>
+    </aside>
+  </div>
+
+</body>
+</html>

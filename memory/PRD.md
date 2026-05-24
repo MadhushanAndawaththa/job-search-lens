@@ -1,63 +1,69 @@
 # Job Search Lens — PRD / Work Log
 
 ## Original Problem Statement
-> "this is a linkedin focused extension that has some function that work all sites. focus on all areas of improvements and Just identify and report. all suggestions are sound good should implement all but when it comes to these implement them if there is a better option" — (theme-init.js localStorage, background.js context menu).
+Initial: code review of a LinkedIn-focused Chrome extension with cross-site keyword highlighting; identify and fix all areas of improvement.
+Iteration 2: "improve the product page and related and come up with better marketing images."
 
 ## Product
 Local-only Chrome MV3 extension. Highlights saved keywords on any website; on LinkedIn Jobs it also dims viewed/saved/applied cards and injects company size + follower stats inline.
 
-## Architecture (unchanged)
+## Architecture
 - `manifest.json` — MV3, content script on http/https.
 - `background.js` — service worker, context-menu "Add to Highlighter".
 - `shared.js` — pure storage / keyword / regex helpers (Node+browser).
 - `dom-heuristics.js` — LinkedIn job list/card detection.
 - `content.js` — highlight engine + LinkedIn dim/stats orchestration.
 - `popup.html` + `popup.js` + `theme-init.js` — interactive UI.
+- `docs/` — GitHub Pages product site (index/privacy/support + marketing templates).
+- `tools/render-store-assets.py` — Playwright-based screenshotter for store images.
 
-## Work Completed — 2026-01 Review Pass
-Full audit + implementation of every actionable finding from the review.
+## Work Completed — 2026-01 Session 1 (Code Review Pass)
+- `tabs` → `activeTab`; `version_name`; explicit CSP.
+- URL polling gated to LinkedIn; `createHighlightSignature` replaced with O(1) `contentVersion` dirty-counter.
+- Removed dead `viewedJobs`/`coerceViewedJobs`/`pruneViewedJobs`.
+- Theme: localStorage only (chrome.storage drop).
+- Context menu: idempotent `create` (swallowed dup-id error), removed redundant `onInstalled`/`onStartup`.
+- Consolidated dual `onMessage` listeners.
+- Cached `OWNED_MUTATION_SELECTOR`.
+- A11y: Esc closes popover + focus return; aria labels; targeted form-palette toggle.
+- `splitKeywordTerms` accepts commas; surrogate-aware `buildLiteralRegex`.
+- SVG icons (no emoji) in styles.css; export-clipboard race fixed; setPageStatus diff.
+- CI workflow; README + permission table updated.
+- 30/30 tests, lint clean.
 
-### High-priority fixes
-- **`tabs` → `activeTab`** in manifest (smaller install warning).
-- **URL polling gated to LinkedIn** (`installNavigationHooks`): non-LinkedIn pages no longer run a 200 ms `setInterval` for the lifetime of the tab.
-- **`createHighlightSignature` replaced** with O(1) `contentVersion` dirty-counter bumped by mutation observers / storage listeners. Eliminates per-tick `textContent` allocation across the entire page.
-
-### Medium-priority fixes
-- Removed dead `viewedJobs` storage key, `coerceViewedJobs`, `pruneViewedJobs` (+ the corresponding test).
-- Theme: dropped `chrome.storage.local` writes/reads for theme. `localStorage` is now the single source of truth (kept for synchronous pre-paint read in `theme-init.js`). Drift removed without losing anti-FOUC behavior.
-- Consolidated the two `chrome.runtime.onMessage` listeners in `content.js` into one switch.
-- Cached `OWNED_MUTATION_SELECTOR` as a module constant.
-- Context menu: kept top-level `createContextMenu()` (needed for MV3 SW restarts) but removed `onInstalled` + `onStartup` duplicates and replaced destructive `remove`-then-`create` with idempotent `create` (swallowing the harmless duplicate-id `lastError`). Race eliminated.
-- Manifest: added `version_name`, explicit `content_security_policy`.
-
-### Accessibility
-- `Esc` now closes the open color popover and returns focus to the swatch button.
-- Color swatch buttons get `aria-haspopup`, `aria-expanded`, descriptive labels.
-- Color popovers expose `role="group"` with `aria-label`.
-- Keyword search input gets `aria-label`; keyword list gets `aria-label`.
-- Form palette no longer rebuilds entire DOM on each click — `aria-pressed` toggled in place.
-
-### Low-priority polish
-- `splitKeywordTerms` now accepts both newline- and comma-separated input.
-- `buildLiteralRegex` uses `Array.from(term)` so astral/emoji code points don't break the word-boundary check.
-- `findStateBadgeTitleTextAnchor`: `TITLE_ANCHOR_IGNORED_TEXT` lifted to module constant.
-- Export-clipboard race fixed (caches original label once, cancels prior timer on re-click).
-- `setPageStatus` now diffs and skips DOM writes when nothing changed — quieter for screen readers on the 1.5 s polling tick.
-- `styles.css`: replaced emoji `::before` content with inline SVG icons (consistent across OS / themes).
-- Updated outdated empty-state copy ("right-click text on LinkedIn" → "on a page").
-- Added GitHub Actions CI workflow (`.github/workflows/test.yml`).
-- README: updated permission table, test badge count (31 → 30).
+## Work Completed — 2026-01 Session 2 (Marketing + Product Page)
+- **docs/index.html** rebuilt from scratch:
+  - New asymmetric hero with version pill, bigger type scale, highlight underline matching extension behavior.
+  - Inline product mockup composite (browser frame + active highlighted job card + dimmed viewed/saved cards + floating popup with keyword list) — all HTML/CSS, no external image dependency.
+  - Feature grid with mini in-card demos (live keyword highlight strip, dim-state stack, company-stat pills, privacy line).
+  - 3-column step grid replacing flat list.
+  - Permissions table updated with `activeTab` (was `tabs`).
+  - Dark privacy strip with six "never" promises grid.
+  - Bold CTA closer with highlight underline on "same jobs."
+  - System dark-mode automatic via `prefers-color-scheme`.
+- **docs/privacy-policy.html + docs/support.html** — updated permissions (`tabs` → `activeTab`), updated date to Jan 2026, added "Keyboard shortcuts" support block, polish.
+- **docs/style.css** rewritten: layered backgrounds, dark mode tokens, hero mockup styles, feature card variants, permission table, dark privacy strip, prose pages.
+- **docs/chrome-web-store-submission.txt** — refreshed copy (LinkedIn-first → universal-first), updated permission justifications, regeneration steps.
+- **3 new marketing images** (browser-rendered for pixel-perfect sharp text):
+  - `small-promo-440x280.png` — dark, condensed, headline + brand + feature tags + CTA pill.
+  - `marquee-1400x560.png` — split asymmetric layout with full product mockup (browser + popup) on the right.
+  - `store-preview-1280x800.png` — light theme, 4-panel feature overview with live demos of each feature + dark privacy panel.
+- **tools/render-store-assets.py** — repeatable Playwright pipeline so the assets are regeneratable on every product update.
 
 ## Tests
-- `node --test --test-force-exit tests/` → **30 / 30 passing**, lint clean for content.js, popup.js, shared.js, background.js.
-- 1 test removed: `pruneViewedJobs` (dead code).
+30/30 passing. Lint clean.
 
-## Files Changed
-- `manifest.json`, `background.js`, `shared.js`, `content.js`, `popup.js`, `popup.html`, `styles.css`, `theme-init.js`, `tests/shared.test.js`, `README.md`, `.github/workflows/test.yml` (new).
+## Files Changed (Session 2)
+- `docs/index.html`, `docs/style.css`, `docs/privacy-policy.html`, `docs/support.html`, `docs/chrome-web-store-submission.txt`.
+- `docs/marketing/small-promo.html`, `docs/marketing/marquee.html`, `docs/marketing/store-preview.html` (new).
+- `tools/render-store-assets.py` (new).
+- `assets/store/small-promo-440x280.png`, `assets/store/marquee-1400x560.png`, `assets/store/store-preview-1280x800.png` (regenerated).
 
 ## Backlog / Future
-- P2: Optional `host_permissions` flow for users who want per-site grants (further reduces install friction).
-- P2: Add `_locales/en/messages.json` + `default_locale` to enable future i18n.
-- P2: Persist popup width/height preferences if extension grows beyond 380×580.
-- P3: Replace popup's 1.5 s polling diagnostics with content-script-pushed updates via `chrome.runtime.sendMessage` to popup.
-- P3: Differential re-highlight (only walk changed subtree from mutation records instead of all roots).
+- P2: Real annotated screenshot (popup over live LinkedIn) as a second store screenshot.
+- P2: Optional `host_permissions` flow for per-site grants.
+- P2: `_locales/en/messages.json` + `default_locale` for i18n.
+- P2: Open Graph image asset specifically sized for social shares (1200x630).
+- P3: Push-based popup diagnostics (replace 1.5 s polling).
+- P3: Differential re-highlight (only walk MutationRecord subtrees).
+- P3: "Keyword preset packs" (export/import JSON) — see prior enhancement note.

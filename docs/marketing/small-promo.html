@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Small Promo 440×280</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 440px;
+      height: 280px;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      color: #f1f3f8;
+    }
+    body {
+      position: relative;
+      background:
+        radial-gradient(60% 70% at 18% 10%, rgba(250,204,21,0.18), transparent 60%),
+        radial-gradient(70% 90% at 100% 100%, rgba(10,102,194,0.30), transparent 60%),
+        linear-gradient(150deg, #0b1220 0%, #0f1730 50%, #0a2540 100%);
+      padding: 26px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Subtle grid overlay for depth */
+    body::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 22px 22px;
+      pointer-events: none;
+      mask-image: radial-gradient(120% 80% at 50% 50%, #000 30%, transparent 80%);
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      z-index: 2;
+    }
+    .top .icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0b1220, #1b2440);
+      border: 1px solid rgba(255,255,255,0.12);
+      display: grid;
+      place-items: center;
+      color: #facc15;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    }
+    .top .icon svg { width: 18px; height: 18px; }
+    .brand {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+    }
+
+    .headline {
+      position: relative;
+      z-index: 2;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.028em;
+      line-height: 1.05;
+      color: #ffffff;
+      max-width: 360px;
+    }
+    .headline .hl {
+      background: linear-gradient(180deg, transparent 58%, #facc15 58% 92%, transparent 92%);
+      color: #0b1220;
+      padding: 0 0.08em;
+    }
+
+    .bottom {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .tag-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: rgba(255,255,255,0.88);
+      backdrop-filter: blur(6px);
+    }
+    .tag.is-yellow { background: rgba(250,204,21,0.18); border-color: rgba(250,204,21,0.4); color: #fde68a; }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #facc15;
+      color: #0b1220;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .cta svg { width: 10px; height: 10px; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <span class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/>
+        <path d="m20 20-3.5-3.5"/>
+      </svg>
+    </span>
+    <span class="brand">Job Search Lens</span>
+  </div>
+
+  <h1 class="headline">Highlight what matters.<br><span class="hl">On every job site.</span></h1>
+
+  <div class="bottom">
+    <div class="tag-row">
+      <span class="tag is-yellow">Highlights</span>
+      <span class="tag">LinkedIn extras</span>
+      <span class="tag">Local-only</span>
+    </div>
+    <span class="cta">
+      Free · Chrome MV3
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+    </span>
+  </div>
+</body>
+</html>
