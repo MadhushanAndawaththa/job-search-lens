@@ -71,12 +71,6 @@ test('extractJobId prefers data-job-id and falls back to href parsing', () => {
   assert.equal(shared.extractJobId('', 'https://www.linkedin.com/feed/'), '');
 });
 
-test('pruneViewedJobs keeps unique recent entries within the limit', () => {
-  const viewed = shared.pruneViewedJobs(['1', '2', '2', '3', '4'], 3);
-
-  assert.deepEqual(viewed, ['2', '3', '4']);
-});
-
 test('hydrateSettings sanitizes invalid values', () => {
   const settings = shared.hydrateSettings({
     paused: 'yes',

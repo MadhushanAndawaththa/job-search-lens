@@ -10,17 +10,13 @@ const {
   upsertKeyword,
 } = self.JobHuntVisualizerShared;
 
-// Recreate the menu whenever the worker spins up so unpacked reloads and
-// browser-specific service worker restarts do not leave it missing.
+// MV3 service workers spin down when idle and respawn on demand. Recreating
+// the menu at top-level guarantees it is present on every cold start. The
+// create call below is idempotent: if the menu already exists, the
+// "duplicate id" error from chrome.runtime.lastError is harmless and we
+// silently ignore it instead of doing a destructive remove-then-create cycle
+// (which races with click events fired during SW spin-up).
 createContextMenu();
-
-chrome.runtime.onInstalled.addListener(() => {
-  createContextMenu();
-});
-
-chrome.runtime.onStartup.addListener(() => {
-  createContextMenu();
-});
 
 // The context menu is the fastest way to turn selected page text into a
 // highlight term without injecting any controls into the site itself.
@@ -55,15 +51,18 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
 });
 
 function createContextMenu() {
-  chrome.contextMenus.remove(CONTEXT_MENU_ID, () => {
-    void chrome.runtime.lastError;
-
-    // The built-in %s placeholder keeps the label tied to the actual user
-    // selection without us needing any extra DOM work on the page.
-    chrome.contextMenus.create({
+  // The %s placeholder keeps the label tied to the actual user selection
+  // without any extra DOM work on the page.
+  chrome.contextMenus.create(
+    {
       id: CONTEXT_MENU_ID,
       title: 'Add "%s" to Highlighter',
       contexts: ['selection'],
-    });
-  });
+    },
+    () => {
+      // Reading lastError consumes the "duplicate id" warning that fires when
+      // the menu already exists from a previous SW lifetime.
+      void chrome.runtime.lastError;
+    },
+  );
 }

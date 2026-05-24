@@ -66,6 +66,20 @@
   const STATE_BADGE_ROW_ATTRIBUTE = 'data-jhv-state-badge-row';
   const COMPANY_STATS_ATTRIBUTE = 'data-jhv-company-stats';
   const COMPANY_STAT_ATTRIBUTE = 'data-jhv-company-stat';
+  // Cached once at module load — querying mutation targets is hot-path work
+  // and rebuilding the selector string on every call adds up on busy SPAs.
+  const OWNED_MUTATION_SELECTOR = `mark[${MARK_ATTRIBUTE}], [${STATE_BADGE_ATTRIBUTE}], [${STATE_BADGE_ROW_ATTRIBUTE}], [${COMPANY_STATS_ATTRIBUTE}], [${COMPANY_STAT_ATTRIBUTE}]`;
+  // Module-level constant so the title-anchor scan doesn't rebuild this set
+  // on every job card processed.
+  const TITLE_ANCHOR_IGNORED_TEXT = new Set([
+    'applied',
+    'viewed',
+    'saved',
+    'promoted',
+    'easy apply',
+  ]);
+  const URL_POLL_INTERVAL_MS = 200;
+  const LINKEDIN_PAGE = /(^|\.)linkedin\.com$/i.test(window.location.hostname);
 
   let keywords = [];
   let keywordPatterns = [];
@@ -80,9 +94,17 @@
   let rootObserver = null;
   let fallbackHighlightRoot = null;
   let storageListenerBound = false;
+  let messageListenerBound = false;
   let navigationHooksInstalled = false;
   let routeListenerBound = false;
-  let lastHighlightSignature = '';
+  // Cheap "dirty" counter: bumped whenever something that could affect
+  // highlighted output changes (storage, content mutations). The highlighter
+  // compares against the counter it last rendered with — O(1) instead of
+  // walking the entire page's textContent.
+  let contentVersion = 0;
+  let lastHighlightedVersion = -1;
+  let lastHighlightedKeywordSig = '';
+  let lastHighlightedPaused = null;
   let bindScheduled = false;
   let highlightScheduled = false;
   let lastKnownRoute = `${window.location.pathname}${window.location.search}`;
@@ -102,31 +124,46 @@
   }
 
   function bindMessageListener() {
+    if (messageListenerBound) {
+      return;
+    }
+
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      if (message?.type !== 'job-hunt-visualizer:ping') {
+      if (message?.type === 'job-hunt-visualizer:ping') {
+        const stateCounts = countJobStates();
+
+        sendResponse({
+          ok: true,
+          isLinkedInPage: isLinkedInPage(),
+          isJobsPage: isJobsPage(),
+          route: `${window.location.pathname}${window.location.search}`,
+          hasListContainer: Boolean(listRoots.length || listContainer || findJobListContainer()),
+          hasDetailContainer: Boolean(detailContainer || findJobDetailContainer()),
+          hasFallbackRoot: Boolean(findFallbackHighlightRoot()),
+          keywordCount: keywords.length,
+          viewedCount: stateCounts.viewed,
+          stateCounts,
+          matchCount: getHighlightMarks().length,
+          activeMatchIndex: getActiveMatchIndex(),
+          paused: settings.paused,
+        });
+
         return false;
       }
 
-      const stateCounts = countJobStates();
+      if (message?.type === 'job-hunt-visualizer:navigate-match') {
+        sendResponse({
+          ok: true,
+          ...navigateMatch(message.direction < 0 ? -1 : 1),
+        });
 
-      sendResponse({
-        ok: true,
-        isLinkedInPage: isLinkedInPage(),
-        isJobsPage: isJobsPage(),
-        route: `${window.location.pathname}${window.location.search}`,
-        hasListContainer: Boolean(listRoots.length || listContainer || findJobListContainer()),
-        hasDetailContainer: Boolean(detailContainer || findJobDetailContainer()),
-        hasFallbackRoot: Boolean(findFallbackHighlightRoot()),
-        keywordCount: keywords.length,
-        viewedCount: stateCounts.viewed,
-        stateCounts,
-        matchCount: getHighlightMarks().length,
-        activeMatchIndex: getActiveMatchIndex(),
-        paused: settings.paused,
-      });
+        return false;
+      }
 
       return false;
     });
+
+    messageListenerBound = true;
   }
 
   async function loadState() {
@@ -155,13 +192,13 @@
       if (changes[STORAGE_KEYS.keywords]) {
         keywords = coerceKeywords(changes[STORAGE_KEYS.keywords].newValue);
         keywordPatterns = buildKeywordPatterns(keywords);
-        lastHighlightSignature = '';
+        markContentDirty();
         scheduleHighlight();
       }
 
       if (changes[STORAGE_KEYS.settings]) {
         settings = hydrateSettings(changes[STORAGE_KEYS.settings].newValue);
-        lastHighlightSignature = '';
+        markContentDirty();
         refreshBindings();
       }
     });
@@ -187,19 +224,23 @@
       window.dispatchEvent(new Event(ROUTE_CHANGE_EVENT));
     };
 
-    // Avoid patching history.pushState / replaceState: LinkedIn fingerprints
-    // those methods via Function.prototype.toString and stops rendering when it
-    // detects they are no longer native. Poll the URL at a low frequency instead
-    // so SPA navigations are still caught without touching any native method.
-    let lastPollUrl = location.href;
-    setInterval(() => {
-      if (location.href !== lastPollUrl) {
-        lastPollUrl = location.href;
-        notify();
-      }
-    }, 200);
-
+    // popstate covers back/forward on every site.
     window.addEventListener('popstate', notify, { passive: true });
+
+    // URL polling is only needed on LinkedIn: LinkedIn uses pushState heavily
+    // for SPA navigation AND fingerprints history.pushState via
+    // Function.prototype.toString, so we cannot patch it. Outside LinkedIn we
+    // rely on popstate + storage events to avoid burning CPU on every site.
+    if (LINKEDIN_PAGE) {
+      let lastPollUrl = location.href;
+      setInterval(() => {
+        if (location.href !== lastPollUrl) {
+          lastPollUrl = location.href;
+          notify();
+        }
+      }, URL_POLL_INTERVAL_MS);
+    }
+
     navigationHooksInstalled = true;
   }
 
@@ -211,7 +252,7 @@
     }
 
     lastKnownRoute = nextRoute;
-    lastHighlightSignature = '';
+    markContentDirty();
     scheduleBindingRefresh();
   }
 
@@ -225,6 +266,7 @@
         return;
       }
 
+      markContentDirty();
       scheduleBindingRefresh();
     });
 
@@ -232,6 +274,10 @@
       childList: true,
       subtree: true,
     });
+  }
+
+  function markContentDirty() {
+    contentVersion += 1;
   }
 
   function scheduleBindingRefresh() {
@@ -299,6 +345,7 @@
         return;
       }
 
+      markContentDirty();
       applyGhostStyles();
       scheduleHighlight();
     });
@@ -328,7 +375,7 @@
     }
 
     detailContainer = nextContainer;
-    lastHighlightSignature = '';
+    markContentDirty();
 
     if (!detailContainer) {
       return;
@@ -339,6 +386,7 @@
         return;
       }
 
+      markContentDirty();
       scheduleHighlight();
     });
 
@@ -349,18 +397,6 @@
     });
 
     scheduleHighlight();
-  }
-
-  function disconnectSurfaceObservers() {
-    if (listObserver) {
-      listObserver.disconnect();
-      listObserver = null;
-    }
-
-    if (detailObserver) {
-      detailObserver.disconnect();
-      detailObserver = null;
-    }
   }
 
   function applyGhostStyles() {
@@ -563,13 +599,22 @@
     if (settings.paused || keywordPatterns.length === 0) {
       clearAllHighlights();
       currentMatchIndex = -1;
-      lastHighlightSignature = createHighlightSignature();
+      lastHighlightedVersion = contentVersion;
+      lastHighlightedKeywordSig = keywordSignature();
+      lastHighlightedPaused = settings.paused;
       return;
     }
 
-    const nextSignature = createHighlightSignature();
+    const nextKeywordSig = keywordSignature();
 
-    if (nextSignature === lastHighlightSignature) {
+    // Cheap O(1) cache check: skip work if nothing relevant changed since the
+    // last render. The version counter is bumped by mutation observers and
+    // storage listeners — no textContent allocations involved.
+    if (
+      contentVersion === lastHighlightedVersion
+      && nextKeywordSig === lastHighlightedKeywordSig
+      && settings.paused === lastHighlightedPaused
+    ) {
       return;
     }
 
@@ -585,7 +630,9 @@
 
     syncActiveMatch(false);
 
-    lastHighlightSignature = nextSignature;
+    lastHighlightedVersion = contentVersion;
+    lastHighlightedKeywordSig = nextKeywordSig;
+    lastHighlightedPaused = settings.paused;
   }
 
   // Walk plain text nodes only, then wrap our matches with extension-owned
@@ -817,16 +864,8 @@
     return true;
   }
 
-  function createHighlightSignature() {
-    const rootSignature = getHighlightRoots()
-      .map((root) => root.textContent || '')
-      .join('||');
-
-    const keywordSignature = keywords
-      .map((keyword) => `${keyword.normalized}:${keyword.color}`)
-      .join('|');
-
-    return `${rootSignature}::${keywordSignature}::${settings.paused}`;
+  function keywordSignature() {
+    return `${keywords.map((keyword) => `${keyword.normalized}:${keyword.color}`).join('|')}::${settings.paused}`;
   }
 
   function hasExternalMutations(mutations) {
@@ -872,8 +911,7 @@
       return false;
     }
 
-    const selector = getOwnedMutationSelector();
-    return node.matches(selector) || Boolean(node.closest(selector));
+    return node.matches(OWNED_MUTATION_SELECTOR) || Boolean(node.closest(OWNED_MUTATION_SELECTOR));
   }
 
   function isOwnedSubtree(node) {
@@ -889,12 +927,7 @@
       return false;
     }
 
-    const selector = getOwnedMutationSelector();
-    return node.matches(selector) || Boolean(node.querySelector(selector));
-  }
-
-  function getOwnedMutationSelector() {
-    return `mark[${MARK_ATTRIBUTE}], [${STATE_BADGE_ATTRIBUTE}], [${STATE_BADGE_ROW_ATTRIBUTE}], [${COMPANY_STATS_ATTRIBUTE}], [${COMPANY_STAT_ATTRIBUTE}]`;
+    return node.matches(OWNED_MUTATION_SELECTOR) || Boolean(node.querySelector(OWNED_MUTATION_SELECTOR));
   }
 
   function clearRenderedStateBadges(roots = getGhostRoots()) {
@@ -996,14 +1029,6 @@
   }
 
   function findStateBadgeTitleTextAnchor(root) {
-    const ignoredText = new Set([
-      'applied',
-      'viewed',
-      'saved',
-      'promoted',
-      'easy apply',
-    ]);
-
     for (const candidate of root.querySelectorAll('h1, h2, h3, h4, p')) {
       if (!(candidate instanceof Element)) {
         continue;
@@ -1018,7 +1043,7 @@
       const normalized = normalizeInsightText(candidate.textContent);
       const lowered = normalized.toLocaleLowerCase();
 
-      if (!normalized || ignoredText.has(lowered) || /^[·•]+$/.test(normalized)) {
+      if (!normalized || TITLE_ANCHOR_IGNORED_TEXT.has(lowered) || /^[·•]+$/.test(normalized)) {
         continue;
       }
 
@@ -1405,7 +1430,7 @@
   }
 
   function isLinkedInPage() {
-    return /(^|\.)linkedin\.com$/i.test(window.location.hostname);
+    return LINKEDIN_PAGE;
   }
 
   function isJobsPage() {
@@ -1439,17 +1464,4 @@
 
     return document.body || null;
   }
-
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message?.type !== 'job-hunt-visualizer:navigate-match') {
-      return false;
-    }
-
-    sendResponse({
-      ok: true,
-      ...navigateMatch(message.direction < 0 ? -1 : 1),
-    });
-
-    return false;
-  });
 })();

@@ -1,7 +1,6 @@
 (function bootstrapShared(globalScope) {
   const STORAGE_KEYS = {
     keywords: 'keywords',
-    viewedJobs: 'viewedJobs',
     settings: 'settings',
   };
 
@@ -42,8 +41,10 @@
 
     const seenTerms = new Set();
 
+    // Accept newline- and comma-separated lists so users can paste from either
+    // bullet lists or CSV-style sources without manual reformatting.
     return value
-      .split(/\r?\n/)
+      .split(/[\r\n,]+/)
       .map((entry) => normalizeTerm(entry))
       .filter(Boolean)
       .filter((entry) => {
@@ -128,22 +129,19 @@
       });
   }
 
-  function coerceViewedJobs(rawViewedJobs) {
-    if (!Array.isArray(rawViewedJobs)) {
-      return [];
-    }
-
-    return [...new Set(rawViewedJobs.filter((jobId) => typeof jobId === 'string' && jobId.trim()))];
-  }
-
   function escapeRegex(value) {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
   function buildLiteralRegex(term) {
     const escapedTerm = escapeRegex(term);
-    const startsWithAlphaNumeric = /[\p{L}\p{N}]/u.test(term[0]);
-    const endsWithAlphaNumeric = /[\p{L}\p{N}]/u.test(term[term.length - 1]);
+    // Use Array.from so surrogate pairs (emoji / astral characters) are
+    // treated as a single code point when checking word boundaries.
+    const codePoints = Array.from(term);
+    const firstCodePoint = codePoints[0] || '';
+    const lastCodePoint = codePoints[codePoints.length - 1] || '';
+    const startsWithAlphaNumeric = /[\p{L}\p{N}]/u.test(firstCodePoint);
+    const endsWithAlphaNumeric = /[\p{L}\p{N}]/u.test(lastCodePoint);
     const prefix = startsWithAlphaNumeric ? '(?<![\\p{L}\\p{N}])' : '';
     const suffix = endsWithAlphaNumeric ? '(?![\\p{L}\\p{N}])' : '';
     return new RegExp(`${prefix}${escapedTerm}${suffix}`, 'giu');
@@ -157,11 +155,6 @@
         color: sanitizeColor(entry.color) || pickColor(index, options.defaultColors),
         regex: buildLiteralRegex(entry.term),
       }));
-  }
-
-  function pruneViewedJobs(jobIds, limit, fallbackLimit = DEFAULT_SETTINGS.historyLimit) {
-    const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : fallbackLimit;
-    return coerceViewedJobs(jobIds).slice(-safeLimit);
   }
 
   function getContrastColor(hexColor) {
@@ -263,10 +256,8 @@
     splitKeywordTerms,
     sanitizeColor,
     coerceKeywords,
-    coerceViewedJobs,
     buildLiteralRegex,
     buildKeywordPatterns,
-    pruneViewedJobs,
     getContrastColor,
     extractJobId,
     hydrateSettings,

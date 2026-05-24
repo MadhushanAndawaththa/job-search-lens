@@ -13,6 +13,7 @@ const {
 
 // Curated highlight palette — pastels light enough to keep text readable.
 const PALETTE = ['#FFE082', '#FFCC80', '#EF9A9A', '#F48FB1', '#CE93D8', '#9FA8DA', '#90CAF9', '#80DEEA', '#A5D6A7', '#E6EE9C'];
+const THEME_STORAGE_KEY = 'jhv-theme';
 
 const keywordForm = document.getElementById('keywordForm');
 const keywordInput = document.getElementById('keywordInput');
@@ -35,6 +36,7 @@ const sortKeywordsButton = document.getElementById('sortKeywords');
 const exportKeywordsButton = document.getElementById('exportKeywords');
 const themeToggle = document.getElementById('themeToggle');
 const PAGE_STATUS_REFRESH_MS = 1500;
+const EXPORT_FEEDBACK_MS = 1500;
 
 let statusRefreshTimer = null;
 let statusRefreshInFlight = false;
@@ -42,9 +44,27 @@ let keywordSearchQuery = '';
 let keywordSortMode = 'default';
 let selectedColor = PALETTE[0];
 let cachedKeywords = [];
+let lastPageStatusTitle = '';
+let lastPageStatusMessage = '';
+let lastPageStatusTone = '';
+let exportOriginalLabel = '';
+let exportResetTimer = null;
 
 // ── Theme management ─────────────────────────────────────────────────────────────────────────────
+// localStorage is the single source of truth for theme: theme-init.js needs
+// synchronous access to apply the dark class before first paint (chrome.storage
+// is async and would cause a flash of the wrong theme). chrome.storage.local
+// is never used for theme so the two systems cannot drift.
 const THEMES = ['auto', 'light', 'dark'];
+
+function readTheme() {
+  try {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    return THEMES.includes(stored) ? stored : 'auto';
+  } catch {
+    return 'auto';
+  }
+}
 
 function applyTheme(theme) {
   const isDark =
@@ -54,26 +74,27 @@ function applyTheme(theme) {
   html.classList.toggle('dark', isDark);
   // data-theme drives the CSS ::before icon — no textContent change, no reflow.
   html.dataset.theme = theme;
-  // Cache in localStorage so theme-init.js picks it up before next paint.
-  localStorage.setItem('jhv-theme', theme);
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    // Private mode / storage disabled — popup still renders correctly,
+    // we just lose the persisted preference for next time.
+  }
 }
 
 function initTheme() {
-  // Restore stored preference and update button label.
-  chrome.storage.local.get({ theme: 'auto' }, ({ theme }) => applyTheme(theme));
+  applyTheme(readTheme());
 
   // Re-apply when the OS switches dark/light while the popup is open.
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    chrome.storage.local.get({ theme: 'auto' }, ({ theme }) => applyTheme(theme));
+    applyTheme(readTheme());
   });
 
   // Cycle: auto → light → dark → auto on click.
   themeToggle?.addEventListener('click', () => {
-    chrome.storage.local.get({ theme: 'auto' }, ({ theme }) => {
-      const next = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
-      chrome.storage.local.set({ theme: next });
-      applyTheme(next);
-    });
+    const current = readTheme();
+    const next = THEMES[(THEMES.indexOf(current) + 1) % THEMES.length];
+    applyTheme(next);
   });
 }
 
@@ -94,6 +115,7 @@ async function initializePopup() {
   sortKeywordsButton.addEventListener('click', handleSortToggle);
   exportKeywordsButton.addEventListener('click', handleExportKeywords);
   document.addEventListener('click', handleDocumentClick);
+  document.addEventListener('keydown', handleDocumentKeydown);
   pauseToggle.addEventListener('change', updatePauseState);
   dimViewedToggle.addEventListener('change', () => {
     void updateDimState('viewed', dimViewedToggle.checked);
@@ -210,10 +232,12 @@ async function handleListClick(event) {
     }
 
     const isOpen = popover.classList.contains('open');
-    document.querySelectorAll('.color-popover.open').forEach((p) => p.classList.remove('open'));
+    closeAllColorPopovers();
 
     if (!isOpen) {
       popover.classList.add('open');
+      // Focus the first swatch so keyboard users can navigate immediately.
+      popover.querySelector('.palette-swatch')?.focus();
     }
 
     return;
@@ -239,6 +263,7 @@ async function handleListClick(event) {
 
     if (editBtn) {
       editBtn.style.backgroundColor = color;
+      editBtn.focus();
     }
 
     wrap?.querySelector('.color-popover')?.classList.remove('open');
@@ -319,10 +344,14 @@ function createKeywordRow(keyword) {
   editBtn.setAttribute('data-action', 'toggle-color-popover');
   editBtn.setAttribute('data-keyword-id', keyword.id);
   editBtn.setAttribute('aria-label', `Change color for ${keyword.term}`);
+  editBtn.setAttribute('aria-haspopup', 'true');
+  editBtn.setAttribute('aria-expanded', 'false');
   editBtn.setAttribute('title', 'Change color');
 
   const popover = document.createElement('div');
   popover.className = 'color-popover';
+  popover.setAttribute('role', 'group');
+  popover.setAttribute('aria-label', `Pick a highlight color for ${keyword.term}`);
 
   for (const hex of PALETTE) {
     const btn = document.createElement('button');
@@ -337,7 +366,7 @@ function createKeywordRow(keyword) {
     btn.setAttribute('data-action', 'select-keyword-color');
     btn.setAttribute('data-keyword-id', keyword.id);
     btn.setAttribute('data-color', hex);
-    btn.setAttribute('aria-label', hex);
+    btn.setAttribute('aria-label', `Use color ${hex}`);
     popover.append(btn);
   }
 
@@ -349,6 +378,7 @@ function createKeywordRow(keyword) {
   removeButton.textContent = 'Remove';
   removeButton.setAttribute('data-action', 'remove-keyword');
   removeButton.setAttribute('data-keyword-id', keyword.id);
+  removeButton.setAttribute('aria-label', `Remove keyword ${keyword.term}`);
 
   pill.append(swatch, term);
   item.append(pill, wrap, removeButton);
@@ -365,7 +395,7 @@ function renderFormPalette() {
     btn.className = 'form-swatch';
     btn.style.backgroundColor = hex;
     btn.setAttribute('aria-pressed', String(hex === selectedColor));
-    btn.setAttribute('aria-label', hex);
+    btn.setAttribute('aria-label', `Use color ${hex}`);
     btn.setAttribute('data-color', hex);
     btn.setAttribute('title', hex);
     formColorPalette.append(btn);
@@ -379,12 +409,47 @@ function handleFormPaletteClick(event) {
     return;
   }
 
-  selectedColor = btn.getAttribute('data-color');
-  renderFormPalette();
+  const nextColor = btn.getAttribute('data-color');
+
+  if (nextColor === selectedColor) {
+    return;
+  }
+
+  selectedColor = nextColor;
+  // Targeted toggle: flip aria-pressed only on the two affected swatches
+  // instead of rebuilding the entire palette.
+  for (const swatch of formColorPalette.querySelectorAll('.form-swatch[data-color]')) {
+    swatch.setAttribute('aria-pressed', String(swatch.getAttribute('data-color') === selectedColor));
+  }
 }
 
 function handleDocumentClick() {
-  document.querySelectorAll('.color-popover.open').forEach((p) => p.classList.remove('open'));
+  closeAllColorPopovers();
+}
+
+function handleDocumentKeydown(event) {
+  if (event.key !== 'Escape') {
+    return;
+  }
+
+  const openPopover = document.querySelector('.color-popover.open');
+
+  if (!openPopover) {
+    return;
+  }
+
+  event.stopPropagation();
+  const editBtn = openPopover.closest('.swatch-edit-wrap')?.querySelector('.swatch-edit-btn');
+  closeAllColorPopovers();
+  editBtn?.focus();
+}
+
+function closeAllColorPopovers() {
+  document.querySelectorAll('.color-popover.open').forEach((popover) => {
+    popover.classList.remove('open');
+    const editBtn = popover.closest('.swatch-edit-wrap')?.querySelector('.swatch-edit-btn');
+    editBtn?.setAttribute('aria-expanded', 'false');
+  });
 }
 
 async function handleKeywordColorChange(keywordId, color) {
@@ -411,11 +476,20 @@ async function handleExportKeywords() {
 
   try {
     await navigator.clipboard.writeText(text);
-    const original = exportKeywordsButton.textContent;
+
+    // Cache the original label exactly once so rapid re-clicks cannot snapshot
+    // "Copied!" as the new "original" and freeze the label forever.
+    if (!exportResetTimer) {
+      exportOriginalLabel = exportKeywordsButton.textContent;
+    } else {
+      window.clearTimeout(exportResetTimer);
+    }
+
     exportKeywordsButton.textContent = 'Copied!';
-    setTimeout(() => {
-      exportKeywordsButton.textContent = original;
-    }, 1500);
+    exportResetTimer = window.setTimeout(() => {
+      exportKeywordsButton.textContent = exportOriginalLabel;
+      exportResetTimer = null;
+    }, EXPORT_FEEDBACK_MS);
   } catch {
     // Clipboard write failed silently — unlikely in an extension popup context.
   }
@@ -516,7 +590,7 @@ async function navigateMatch(direction) {
     }
 
     updateMatchStatus(response.matchCount, response.activeMatchIndex);
-  } catch (error) {
+  } catch {
     updateMatchStatus(0, -1);
   }
 }
@@ -627,7 +701,7 @@ async function renderPageStatus() {
       `Detected ${surfaceText}. ${matchText}`,
       'success',
     );
-  } catch (error) {
+  } catch {
     setPageStatus(
       'Site access needed',
       'Cannot reach this tab. In Brave or Chrome, allow site access for this page or for all sites, then reload the tab.',
@@ -639,6 +713,20 @@ async function renderPageStatus() {
 }
 
 function setPageStatus(title, message, tone = 'info') {
+  // Skip DOM writes (and resulting screen-reader announcements) when nothing
+  // changed since the last 1.5s tick.
+  if (
+    title === lastPageStatusTitle
+    && message === lastPageStatusMessage
+    && tone === lastPageStatusTone
+  ) {
+    return;
+  }
+
+  lastPageStatusTitle = title;
+  lastPageStatusMessage = message;
+  lastPageStatusTone = tone;
+
   pageStatus.replaceChildren();
   pageStatus.dataset.tone = tone;
 

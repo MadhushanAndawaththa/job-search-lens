@@ -99,10 +99,13 @@
   display: inline-flex !important;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px !important;
+  padding: 4px 10px 4px 28px !important;
   border-radius: 999px !important;
   border: 1px solid rgba(71, 85, 105, 0.16) !important;
-  background: rgba(241, 245, 249, 0.92) !important;
+  background-color: rgba(241, 245, 249, 0.92) !important;
+  background-repeat: no-repeat !important;
+  background-position: 9px center !important;
+  background-size: 14px 14px !important;
   color: #334155 !important;
   font-size: 12px !important;
   font-weight: 600 !important;
@@ -110,15 +113,11 @@
   white-space: nowrap;
 }
 
-[data-jhv-company-stat]::before {
-  font-size: 13px;
-  line-height: 1;
+/* Inline SVG icons (no font emoji) — render consistently across OS and themes. */
+[data-jhv-company-stat="company-size"] {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23334155' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M3 21h18'/><path d='M5 21V7l8-4v18'/><path d='M19 21V11l-6-4'/><path d='M9 9v.01'/><path d='M9 12v.01'/><path d='M9 15v.01'/><path d='M9 18v.01'/></svg>") !important;
 }
 
-[data-jhv-company-stat="company-size"]::before {
-  content: "🏢";
-}
-
-[data-jhv-company-stat="company-network"]::before {
-  content: "🔗";
+[data-jhv-company-stat="company-network"] {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23334155' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='9' cy='7' r='4'/><path d='M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2'/><circle cx='17' cy='7' r='3'/><path d='M21 21v-1a4 4 0 0 0-3-3.87'/></svg>") !important;
 }
