@@ -4,19 +4,19 @@ from playwright.sync_api import sync_playwright
 TARGETS = [
     {
         "url": "http://localhost:8765/docs/marketing/small-promo.html",
-        "out": "/app/assets/store/small-promo-440x280.png",
+        "out": "/app/docs/assets/store/small-promo-440x280.png",
         "w": 440,
         "h": 280,
     },
     {
         "url": "http://localhost:8765/docs/marketing/marquee.html",
-        "out": "/app/assets/store/marquee-1400x560.png",
+        "out": "/app/docs/assets/store/marquee-1400x560.png",
         "w": 1400,
         "h": 560,
     },
     {
         "url": "http://localhost:8765/docs/marketing/store-preview.html",
-        "out": "/app/assets/store/store-preview-1280x800.png",
+        "out": "/app/docs/assets/store/store-preview-1280x800.png",
         "w": 1280,
         "h": 800,
     },

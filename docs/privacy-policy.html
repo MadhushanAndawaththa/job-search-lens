@@ -5,26 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Privacy Policy — Job Search Lens</title>
   <meta name="theme-color" content="#0b1220">
-  <link rel="icon" href="../assets/icons/icon32.png">
+  <link rel="icon" href="assets/icons/icon32.png">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <header class="site-nav">
     <a class="nav-brand" href="index.html">
-      <img src="../assets/icons/icon32.png" alt="">
+      <img src="assets/icons/icon32.png" alt="">
       Job Search Lens
     </a>
     <nav class="nav-links">
       <a href="index.html#features">Features</a>
       <a href="privacy-policy.html">Privacy</a>
       <a href="support.html">Support</a>
-      <a class="nav-github" href="https://github.com/MadhushanAndawaththa/Job_Search"
-         target="_blank" rel="noopener" aria-label="Project on GitHub">
-        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-        </svg>
-      </a>
     </nav>
   </header>
 
@@ -35,10 +29,10 @@
     </div>
 
     <div class="prose">
-      <p>Job Search Lens is a local-only Chrome extension. This page explains what the extension accesses, how that information is used, and what is <strong>not</strong> collected or shared.</p>
+      <p>Job Search Lens is a local-only Chrome extension built for LinkedIn Jobs. This page explains what the extension accesses, how that information is used, and what is <strong>not</strong> collected or shared.</p>
 
       <h2>What the extension does</h2>
-      <p>It highlights saved keywords on any website you browse. On LinkedIn Jobs, it also passively dims job cards that LinkedIn itself labels as Viewed, Saved, or Applied, and shows inline company size and follower counts near job titles.</p>
+      <p>On LinkedIn Jobs, Job Search Lens passively dims job cards that LinkedIn itself labels as Viewed, Saved, or Applied, and shows inline company size and follower counts near job titles. It also highlights any keywords you've saved — on LinkedIn pages and, as a portable bonus, on every other website you visit.</p>
 
       <h2>What data is stored</h2>
       <ul>
@@ -58,7 +52,7 @@
       </ul>
 
       <h2>How page content is used</h2>
-      <p>The extension reads page content locally inside the browser to find text matches for your saved keywords. This runs on any website where the extension has access. On LinkedIn Jobs it additionally detects LinkedIn's own Viewed, Saved, and Applied labels already rendered on the page, and reads company size and follower-count text that LinkedIn renders inline.</p>
+      <p>On LinkedIn Jobs, the extension reads the Viewed, Saved, and Applied labels LinkedIn already renders on each card, plus the company size and follower-count text LinkedIn renders inline. On any other website, the extension reads page text locally to find matches for the keywords you've saved.</p>
       <p>This processing is on-device only. The extension does not send page content, browsing history, or any metadata to any external endpoint.</p>
 
       <h2>Permissions</h2>
@@ -66,7 +60,7 @@
         <li><strong>contextMenus</strong> — add selected text as a keyword via right-click on any page.</li>
         <li><strong>storage</strong> — persist your keywords and settings locally in the browser.</li>
         <li><strong>activeTab</strong> — let the popup talk to the currently active tab for status and match navigation when you open the popup.</li>
-        <li><strong>http://*/*</strong> and <strong>https://*/*</strong> — run keyword highlighting on any website. LinkedIn-specific dimming and company stats remain scoped to LinkedIn Jobs.</li>
+        <li><strong>http://*/*</strong> and <strong>https://*/*</strong> — required for keyword highlighting to work on every site you visit. LinkedIn-specific dimming and company stats remain scoped to LinkedIn Jobs.</li>
       </ul>
 
       <h2>Data sharing</h2>
@@ -76,7 +70,7 @@
       <p>The extension package shipped to the Chrome Web Store contains only the JavaScript, CSS, and image files needed to run locally. You can inspect everything that runs in your browser via <code>chrome://extensions</code> → <em>Inspect views</em>. There is no remote loader, no analytics SDK, and no network call to a developer-controlled server.</p>
 
       <h2>Contact</h2>
-      <p>For support or privacy questions, visit the <a href="support.html">support page</a> or open an issue on the <a href="https://github.com/MadhushanAndawaththa/Job_Search/issues" target="_blank" rel="noopener">GitHub issue tracker</a>.</p>
+      <p>For support or privacy questions, visit the <a href="support.html">support page</a> or open an issue on the <a href="https://github.com/MadhushanAndawaththa/job-search_lens/issues" target="_blank" rel="noopener">issue tracker</a>.</p>
     </div>
   </main>
 
@@ -88,7 +82,7 @@
       <span class="footer-sep"></span>
       <a href="support.html">Support</a>
       <span class="footer-sep"></span>
-      <a href="https://github.com/MadhushanAndawaththa/Job_Search" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/MadhushanAndawaththa/job-search_lens/issues" target="_blank" rel="noopener">Report a bug</a>
     </div>
     <p class="footer-copy">© 2026 Madhushan Andawaththa · Job Search Lens</p>
   </footer>

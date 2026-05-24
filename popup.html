@@ -627,6 +627,62 @@
         outline: 2px solid var(--blue);
         outline-offset: 2px;
       }
+
+      /* ── Popup footer ── */
+      .popup-footer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 4px 10px;
+        padding: 12px 16px 16px;
+        border-top: 1px solid var(--border);
+        background: var(--bg-soft);
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .popup-footer-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--muted);
+        text-decoration: none;
+        font-weight: 500;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: background-color 120ms ease, color 120ms ease;
+      }
+      .popup-footer-link:hover,
+      .popup-footer-link:focus-visible {
+        color: var(--ink);
+        background-color: var(--surface-hover, rgba(0, 0, 0, 0.04));
+        outline: none;
+      }
+      html.dark .popup-footer-link:hover,
+      html.dark .popup-footer-link:focus-visible {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+      .popup-footer-link svg {
+        opacity: 0.7;
+      }
+      .popup-footer-sep {
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: var(--border);
+        flex-shrink: 0;
+      }
+      .popup-footer-version {
+        margin-left: auto;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--muted);
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        letter-spacing: 0.02em;
+      }
     </style>
     <!-- Sync theme class before first paint (external to satisfy MV3 CSP) -->
     <script src="theme-init.js"></script>
@@ -639,7 +695,7 @@
         <div class="header-row">
           <div class="header-text">
             <h1>Job Search Lens</h1>
-            <p>Highlight your keywords on any page. On LinkedIn Jobs, also fades listings you've already reviewed.</p>
+            <p>Built for LinkedIn Jobs. Dims processed cards, shows company size inline, and highlights your saved keywords on LinkedIn — and anywhere else you browse.</p>
           </div>
           <button id="themeToggle" class="btn-theme" type="button" aria-label="Switch color theme" title="Switch theme: auto / light / dark"></button>
           <label class="pill-toggle" title="Pause all highlights and LinkedIn features on this tab">
@@ -744,6 +800,19 @@
       </div>
 
     </div>
+
+    <footer class="popup-footer" role="contentinfo">
+      <a class="popup-footer-link" href="https://madhushanandawaththa.github.io/job-search_lens/" target="_blank" rel="noopener" data-testid="popup-footer-website-link" title="Open the Job Search Lens website">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18"/></svg>
+        Website
+      </a>
+      <span class="popup-footer-sep"></span>
+      <a class="popup-footer-link" href="https://madhushanandawaththa.github.io/job-search_lens/support.html" target="_blank" rel="noopener" data-testid="popup-footer-help-link">Help</a>
+      <span class="popup-footer-sep"></span>
+      <a class="popup-footer-link" href="https://madhushanandawaththa.github.io/job-search_lens/privacy-policy.html" target="_blank" rel="noopener" data-testid="popup-footer-privacy-link">Privacy</a>
+      <span class="popup-footer-version" data-testid="popup-footer-version">v1.3</span>
+    </footer>
+
     <script src="shared.js"></script>
     <script src="popup.js"></script>
   </body>
