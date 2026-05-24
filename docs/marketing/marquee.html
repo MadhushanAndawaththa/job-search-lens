@@ -105,9 +105,13 @@
       max-width: 580px;
     }
     h1 .hl {
-      background: linear-gradient(180deg, transparent 58%, #facc15 58% 92%, transparent 92%);
+      /* Full-coverage yellow so the dark text reads cleanly on dark backgrounds. */
+      background: #facc15;
       color: #0b1220;
-      padding: 0 0.05em;
+      padding: 0.04em 0.14em 0.06em;
+      border-radius: 6px;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
     }
 
     .sub {

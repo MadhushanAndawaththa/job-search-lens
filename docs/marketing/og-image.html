@@ -58,9 +58,13 @@
       color: #fff;
     }
     h1 .hl {
-      background: linear-gradient(180deg, transparent 58%, #facc15 58% 92%, transparent 92%);
+      /* Full-coverage yellow so the dark text reads cleanly on dark backgrounds. */
+      background: #facc15;
       color: #0b1220;
-      padding: 0 0.05em;
+      padding: 0.04em 0.14em 0.06em;
+      border-radius: 8px;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
     }
     .sub {
       margin-top: 22px;
@@ -99,7 +103,7 @@
     <span class="tag"><span class="dot"></span>Keyword highlights</span>
     <span class="tag linkedin"><span class="dot"></span>LinkedIn card dimming</span>
     <span class="tag linkedin"><span class="dot"></span>Inline company stats</span>
-    <span class="tag privacy"><span class="dot"></span>Local-only · Open source</span>
+    <span class="tag privacy"><span class="dot"></span>Local-only · Privacy-first</span>
   </div>
 </body>
 </html>

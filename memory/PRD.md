@@ -67,6 +67,18 @@ Local-only Chrome MV3 extension. Highlights saved keywords on any website; on Li
 - **Pre-flight audit** — verified no `console.log`/`debugger`/`TODO` in shipped code; manifest validates; all 30 tests still pass.
 - **tools/render-launch-assets.py** — Playwright pipeline for the popup composite + OG image.
 
+## Work Completed — 2026-01 Session 4 (Contrast Fix + De-OSS Messaging)
+- **Dark-bg headline contrast fix** — The `.hl` highlight on dark images (marquee, small-promo, og-image) used a half-height yellow strip behind dark text, which made the top half of the text read dark-on-dark. Switched to full-coverage yellow background with rounded corners and `box-decoration-break: clone` so the dark text reads cleanly on any background. Light-bg pages (docs/index.html hero + CTA closer, store-preview) keep the elegant half-highlight underline.
+- **Removed all "open source" claims** from public-facing surfaces:
+  - `docs/index.html`: `Free · Open source · Local-only · MV3` → `Free · Privacy-first · Local-only · Chrome MV3`; CTA buttons point at Chrome Web Store (placeholder URL) instead of GitHub repo; "Inspect every line of source on GitHub" rewritten to focus on local-only / inspectable via `chrome://extensions`; nav + footer aria-labels changed to "Project on GitHub" (neutral); MIT + Commons Clause line removed from footer copyright.
+  - `docs/privacy-policy.html`: "Open source" heading replaced with "How we keep this promise" explaining the local-only architecture.
+  - `docs/marketing/store-preview.html`: "Open source" tag → "Maintained"; footer line updated.
+  - `docs/marketing/og-image.html`: tag updated to "Local-only · Privacy-first".
+  - `docs/chrome-web-store-submission.txt` + `docs/go-live.md`: detailed description copy updated.
+- **Re-rendered all 5 marketing assets** with the new copy and contrast at exact pixel dimensions.
+- **Updated `tools/render-store-assets.py`** to include the 2x→1x resize + optimize step so future regenerations don't need manual cleanup.
+- **Verified by visual analysis** — both marquee and small-promo confirmed: "On every job site" clearly readable with strong contrast, no "Open source" badge anywhere.
+
 ## Backlog / Future
 - P2: Real annotated screenshot (popup over live LinkedIn) as a second store screenshot.
 - P2: Optional `host_permissions` flow for per-site grants.

@@ -24,6 +24,7 @@ TARGETS = [
 
 
 def main():
+    from PIL import Image
     with sync_playwright() as p:
         browser = p.chromium.launch(
             args=["--no-sandbox", "--disable-dev-shm-usage"],
@@ -42,6 +43,11 @@ def main():
                 clip={"x": 0, "y": 0, "width": t["w"], "height": t["h"]},
                 omit_background=False,
             )
+            # Downscale 2x → 1x for Chrome Web Store exact-dimension requirement.
+            im = Image.open(t["out"])
+            if im.size != (t["w"], t["h"]):
+                im = im.resize((t["w"], t["h"]), Image.LANCZOS)
+                im.save(t["out"], optimize=True)
             print(f"wrote {t['out']} ({t['w']}x{t['h']})")
             context.close()
         browser.close()

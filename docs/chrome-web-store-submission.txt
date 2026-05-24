@@ -15,7 +15,7 @@ Save the keywords that matter to you (technologies, roles, locations, companies)
 • Card dimming for listings LinkedIn already labels as Viewed, Saved, or Applied — toggleable per state.
 • Inline company size and follower count next to job titles, so you can judge company fit without opening a new tab.
 
-Everything stays local in your browser. No backend, no telemetry, no account system, no remote code. Inspect every line of source on GitHub.
+Everything stays local in your browser. No backend, no telemetry, no account system, no remote code. Every file that ships in the extension package is inspectable via chrome://extensions.
 
 Key features
 - Keyword highlights on any website

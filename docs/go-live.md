@@ -107,7 +107,7 @@ PRIVACY
 • No telemetry, analytics, or tracking pixels
 • No accounts, no sign-in, no cloud sync
 • No remote code execution
-• Open source under MIT + Commons Clause — every line auditable on GitHub
+• Every file that ships in the extension package is inspectable via chrome://extensions
 ```
 
 ### Assets (upload order)
@@ -226,7 +226,7 @@ Reply to the review email with the change. Resubmissions usually go through with
 
 Low-pressure places where your audience actually hangs out:
 
-- **r/ChromeExtensions** — must be open-source and free (you're both).
+- **r/ChromeExtensions** — free extensions land well there (you're free, no signup).
 - **r/cscareerquestions** and **r/jobs** — share as "I made this, free, no signup" not "buy my thing".
 - **Hacker News Show HN** — only post if you can be online to answer for the first 90 minutes.
 - **Indie Hackers** — Friday product launch thread.
