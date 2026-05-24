@@ -1,48 +1,11 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const path = require('node:path');
 
-const { JSDOM } = require('jsdom');
-
-function getScenarioPath(name) {
-  return path.join(__dirname, '..', `${name}.md`);
-}
-
-function loadScenarioDom(name) {
-  const html = fs.readFileSync(getScenarioPath(name), 'utf8');
-
-  return new JSDOM(`<!doctype html><html><body>${html}</body></html>`, {
-    url: 'https://www.linkedin.com/jobs/search/?keywords=software',
-    pretendToBeVisual: true,
-    runScripts: 'outside-only',
-  });
-}
-
-function loadScript(dom, relativePath) {
-  const script = fs.readFileSync(path.join(__dirname, '..', relativePath), 'utf8');
-  dom.window.eval(script);
-}
-
-function createChromeMock() {
-  return {
-    storage: {
-      local: {
-        async get() {
-          return {};
-        },
-      },
-      onChanged: {
-        addListener() {},
-      },
-    },
-    runtime: {
-      onMessage: {
-        addListener() {},
-      },
-    },
-  };
-}
+const {
+  bootstrapContentDom,
+  loadScenarioDom,
+  loadScript,
+} = require('./scenario-test-utils.js');
 
 function countStates(document) {
   return [...document.querySelectorAll('[data-jhv-state]')].reduce((counts, card) => {
@@ -75,17 +38,9 @@ test('scenario6 resolves the real results list and outer card wrapper', () => {
 });
 
 test('scenario6 applies dim states through the full content script path', async () => {
-  const dom = loadScenarioDom('senario6');
+  const { dom, cleanupIntervals } = await bootstrapContentDom(loadScenarioDom('senario6'));
 
   try {
-    dom.window.chrome = createChromeMock();
-
-    loadScript(dom, 'shared.js');
-    loadScript(dom, 'dom-heuristics.js');
-    loadScript(dom, 'content.js');
-
-    await new Promise((resolve) => dom.window.setTimeout(resolve, 50));
-
     const { document } = dom.window;
     const stateCounts = countStates(document);
     const firstBadgeWrapper = document.querySelector('.job-card-container__footer-job-state')
@@ -98,7 +53,7 @@ test('scenario6 applies dim states through the full content script path', async 
     });
     assert.equal(firstBadgeWrapper?.getAttribute('data-jhv-state'), 'viewed');
   } finally {
-    dom.window.close();
+    cleanupIntervals();
   }
 });
 
@@ -121,17 +76,9 @@ test('scenario7 resolves the real results list and outer card wrapper', () => {
 });
 
 test('scenario7 applies dim states through the full content script path', async () => {
-  const dom = loadScenarioDom('senario7');
+  const { dom, cleanupIntervals } = await bootstrapContentDom(loadScenarioDom('senario7'));
 
   try {
-    dom.window.chrome = createChromeMock();
-
-    loadScript(dom, 'shared.js');
-    loadScript(dom, 'dom-heuristics.js');
-    loadScript(dom, 'content.js');
-
-    await new Promise((resolve) => dom.window.setTimeout(resolve, 50));
-
     const { document } = dom.window;
     const stateCounts = countStates(document);
     const firstBadgeWrapper = document.querySelector('.job-card-container__footer-job-state')
@@ -144,7 +91,7 @@ test('scenario7 applies dim states through the full content script path', async 
     });
     assert.equal(firstBadgeWrapper?.getAttribute('data-jhv-state'), 'viewed');
   } finally {
-    dom.window.close();
+    cleanupIntervals();
   }
 });
 
@@ -167,17 +114,9 @@ test('scenario8 resolves the plain results list and outer card wrapper', () => {
 });
 
 test('scenario8 applies viewed dim states through the full content script path', async () => {
-  const dom = loadScenarioDom('senario8');
+  const { dom, cleanupIntervals } = await bootstrapContentDom(loadScenarioDom('senario8'));
 
   try {
-    dom.window.chrome = createChromeMock();
-
-    loadScript(dom, 'shared.js');
-    loadScript(dom, 'dom-heuristics.js');
-    loadScript(dom, 'content.js');
-
-    await new Promise((resolve) => dom.window.setTimeout(resolve, 50));
-
     const { document } = dom.window;
     const stateCounts = countStates(document);
     const firstBadgeWrapper = document.querySelector('.job-card-container__footer-job-state')
@@ -189,6 +128,6 @@ test('scenario8 applies viewed dim states through the full content script path',
     });
     assert.equal(firstBadgeWrapper?.getAttribute('data-jhv-state'), 'viewed');
   } finally {
-    dom.window.close();
+    cleanupIntervals();
   }
 });

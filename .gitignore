@@ -4,5 +4,5 @@ coverage/
 Thumbs.db
 .DS_Store
 PLAN.md
-senario*.md
-senarion*.md
+/senario*.md
+/senarion*.md
