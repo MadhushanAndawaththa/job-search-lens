@@ -4,9 +4,16 @@
     settings: 'settings',
   };
 
+  const LINKEDIN_HOST_PATTERNS = ['https://www.linkedin.com/*'];
+  const OPTIONAL_SITE_ACCESS_PATTERNS = ['http://*/*', 'https://*/*'];
+  const OPTIONAL_CONTENT_SCRIPT_ID = 'job-hunt-visualizer-global-sites';
+  const CONTENT_SCRIPT_FILES = ['shared.js', 'dom-heuristics.js', 'content.js'];
+  const CONTENT_STYLE_FILES = ['styles.css'];
+
   const DEFAULT_SETTINGS = {
     paused: false,
     historyLimit: 2000,
+    highlightAllSites: false,
     dimStates: {
       viewed: true,
       saved: true,
@@ -190,6 +197,7 @@
       ...nextSettings,
       paused: Boolean(nextSettings.paused),
       historyLimit,
+      highlightAllSites: Boolean(nextSettings.highlightAllSites),
       dimStates: {
         viewed: 'viewed' in nextDimStates ? Boolean(nextDimStates.viewed) : DEFAULT_SETTINGS.dimStates.viewed,
         saved: 'saved' in nextDimStates ? Boolean(nextDimStates.saved) : DEFAULT_SETTINGS.dimStates.saved,
@@ -250,6 +258,11 @@
 
   const shared = {
     STORAGE_KEYS,
+    LINKEDIN_HOST_PATTERNS,
+    OPTIONAL_SITE_ACCESS_PATTERNS,
+    OPTIONAL_CONTENT_SCRIPT_ID,
+    CONTENT_SCRIPT_FILES,
+    CONTENT_STYLE_FILES,
     DEFAULT_SETTINGS,
     DEFAULT_COLORS,
     normalizeTerm,

@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Job Search Lens — Built for LinkedIn Jobs</title>
-  <meta name="description" content="Chrome extension built for LinkedIn Jobs. Dim viewed, saved, and applied cards. See company size inline. Highlight saved keywords on LinkedIn — and any other site you browse. Local-only.">
+  <meta name="description" content="Chrome extension built for LinkedIn Jobs. Dim viewed, saved, and applied cards. See company size inline. Optionally highlight saved keywords on other sites. Local-only.">
   <meta name="theme-color" content="#0b1220">
   <meta property="og:title" content="Job Search Lens — Built for LinkedIn Jobs">
-  <meta property="og:description" content="Dim cards you've already processed. See company size inline. Highlight saved keywords on LinkedIn — and anywhere else you browse.">
+  <meta property="og:description" content="Dim cards you've already processed. See company size inline. Highlight saved keywords on LinkedIn, with optional all-site access beyond it.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://madhushanandawaththa.github.io/jslens/">
   <meta property="og:image" content="assets/store/og-image-1200x630.png">
@@ -39,13 +39,13 @@
     <section class="hero">
       <span class="hero-eyebrow">
         <span class="version-pill">v1.3</span>
-        Built for LinkedIn Jobs · highlights work everywhere else
+        Built for LinkedIn Jobs · optional highlights elsewhere
       </span>
       <h1>Stop re-reading the<br><span class="hl">same LinkedIn jobs.</span></h1>
       <p class="hero-sub">
         Job Search Lens dims cards LinkedIn already labels Viewed, Saved, or Applied,
         adds inline company size and LinkedIn member counts, and highlights your saved
-        keywords. On LinkedIn first — and on every other site you browse.
+        keywords. On LinkedIn first — and, if you turn it on, on every other site you browse.
       </p>
       <div class="hero-actions">
         <a class="btn-primary" href="https://chrome.google.com/webstore/category/extensions"
@@ -163,9 +163,9 @@
           </article>
 
           <article class="feature-card">
-            <span class="feature-pill is-universal"><span class="dot"></span>LinkedIn + everywhere</span>
+            <span class="feature-pill is-universal"><span class="dot"></span>LinkedIn + optional elsewhere</span>
             <h2>Keyword highlights</h2>
-            <p>Save the terms that matter (techs, roles, locations). They light up on LinkedIn — and as a bonus, on Indeed, Glassdoor, Seek, and any other site you browse. Right-click selected text to add instantly.</p>
+            <p>Save the terms that matter (techs, roles, locations). They light up on LinkedIn by default — and, if you turn on all-site access in the popup, on Indeed, Glassdoor, Seek, and other sites you browse. Right-click selected text to add instantly.</p>
             <div class="mini-highlight-row">
               <span class="job-tag tag-yellow">Python</span> backend engineer with
               <span class="job-tag tag-green">Django</span> and
@@ -209,9 +209,9 @@
               or right-click any text on the page.</p>
           </li>
           <li class="step">
-            <strong>Keep your keywords with you</strong>
-            <p>Your highlight terms also light up on Indeed, Glassdoor, Seek, and any other site —
-              so the same vocabulary follows you around the web.</p>
+            <strong>Turn on cross-site highlights if you want them</strong>
+            <p>Use the popup's <em>Highlight on all websites</em> toggle once, and your highlight terms
+              also light up on Indeed, Glassdoor, Seek, and other sites you browse.</p>
           </li>
         </ol>
       </div>
@@ -223,7 +223,7 @@
         <p class="section-label">Permissions</p>
         <h2 class="section-title">Small, justified, inspectable.</h2>
         <p class="section-lede">Every permission is here because a specific feature needs it.
-          Nothing speculative.</p>
+          Non-LinkedIn site access is optional and requested from the popup only if you turn it on.</p>
 
         <table class="perm-table">
           <thead>
@@ -233,7 +233,10 @@
             <tr><td><code>contextMenus</code></td><td>Add selected text as a keyword via right-click on any page.</td></tr>
             <tr><td><code>storage</code></td><td>Save keywords, colors, and dim-state settings locally in the browser.</td></tr>
             <tr><td><code>activeTab</code></td><td>Let the popup talk to the active tab for status and match navigation.</td></tr>
-            <tr><td><code>http://*/*</code> <br><code>https://*/*</code></td><td>Required for keyword highlighting to work on every site. LinkedIn-specific dimming and stats remain scoped to LinkedIn Jobs.</td></tr>
+            <tr><td><code>permissions</code></td><td>Let the popup request or remove optional all-site access when you use the cross-site toggle.</td></tr>
+            <tr><td><code>scripting</code></td><td>Register the optional non-LinkedIn page helper after you turn on all-site highlighting.</td></tr>
+            <tr><td><code>https://www.linkedin.com/*</code></td><td>Let LinkedIn Jobs dimming, company stats, and keyword highlighting run automatically on LinkedIn.</td></tr>
+            <tr><td><code>http://*/*</code> <br><code>https://*/*</code> <br><small>(optional)</small></td><td>Requested only if you turn on <em>Highlight on all websites</em>, so saved keywords can highlight automatically on non-LinkedIn pages.</td></tr>
           </tbody>
         </table>
       </div>

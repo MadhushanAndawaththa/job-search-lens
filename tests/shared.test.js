@@ -75,6 +75,7 @@ test('hydrateSettings sanitizes invalid values', () => {
   const settings = shared.hydrateSettings({
     paused: 'yes',
     historyLimit: -1,
+    highlightAllSites: 'enabled',
     dimStates: {
       viewed: false,
       saved: 0,
@@ -84,6 +85,7 @@ test('hydrateSettings sanitizes invalid values', () => {
 
   assert.equal(settings.paused, true);
   assert.equal(settings.historyLimit, 2000);
+  assert.equal(settings.highlightAllSites, true);
   assert.deepEqual(settings.dimStates, {
     viewed: false,
     saved: false,

@@ -458,6 +458,28 @@
 
       .dim-row:hover { background: var(--gray-50); }
 
+      .site-access-row {
+        align-items: flex-start;
+      }
+
+      .site-access-copy {
+        display: grid;
+        gap: 3px;
+        min-width: 0;
+      }
+
+      .site-access-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--gray-800);
+      }
+
+      .site-access-note {
+        font-size: 12px;
+        line-height: 1.45;
+        color: var(--text-soft);
+      }
+
       .dim-dot {
         width: 8px;
         height: 8px;
@@ -778,8 +800,16 @@
       <div class="card stack">
         <div class="section-head">
           <span class="section-label">Behavior</span>
-          <span class="section-meta">Choose what fades on LinkedIn</span>
+          <span class="section-meta">LinkedIn always works. Other sites are optional.</span>
         </div>
+
+        <label class="dim-row site-access-row">
+          <input id="highlightAllSitesToggle" type="checkbox" />
+          <span class="site-access-copy">
+            <span class="site-access-title">Highlight on all websites</span>
+            <span id="siteAccessHint" class="site-access-note">LinkedIn works automatically. Turn this on only if you want saved keywords highlighted on other sites too.</span>
+          </span>
+        </label>
 
         <div class="dim-group">
           <label class="dim-row">

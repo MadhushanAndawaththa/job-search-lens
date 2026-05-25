@@ -31,7 +31,7 @@ It does three things:
 
 1. Highlights saved keywords on any website where the extension runs — LinkedIn, Indeed, Seek, Glassdoor, company career pages, or anywhere else.
 2. Passively dims job cards LinkedIn already labels as Viewed, Saved, or Applied.
-3. Shows company size and LinkedIn follower counts inline near job titles on LinkedIn, so you can judge company fit without opening a separate tab.
+3. Shows company size and LinkedIn employee counts inline near job titles on LinkedIn, so you can judge company fit without opening a separate tab.
 
 All settings stay local in the browser through `chrome.storage.local`.
 
@@ -47,7 +47,7 @@ All settings stay local in the browser through `chrome.storage.local`.
 
 **LinkedIn Jobs extras**
 - Dim Viewed, Saved, and Applied job cards independently.
-- Inline company size and LinkedIn follower count next to job titles — no extra tab needed.
+- Inline company size and LinkedIn employee count next to job titles — no extra tab needed.
 - Handles LinkedIn SPA route changes and multiple results-list layouts including the newer SDUI page variant.
 
 ## Installation
@@ -67,7 +67,8 @@ npm test
 2. Enable Developer mode.
 3. Click Load unpacked.
 4. Select this repository folder.
-5. Open any website to use keyword highlights, or open `https://www.linkedin.com/jobs/` to use the full LinkedIn workflow.
+5. Open `https://www.linkedin.com/jobs/` to use the full LinkedIn workflow.
+6. If you also want keyword highlights on non-LinkedIn pages, turn on `Highlight on all websites` in the popup once.
 
 ## Permissions
 
@@ -78,7 +79,10 @@ The extension keeps its permission surface intentionally small.
 | `contextMenus` | Adds the selection-based “Add to Highlighter” action on webpages. |
 | `storage` | Stores keywords, colors, and dim-state settings locally. |
 | `activeTab` | Lets the popup identify the active tab and ask the content script for status and match navigation when the user opens the popup. |
-| `http://*/*` and `https://*/*` host access | Lets keyword highlighting run on websites, while LinkedIn-specific dimming and stats remain scoped to LinkedIn Jobs. |
+| `permissions` | Lets the popup request or remove optional all-site access when the user toggles cross-site highlighting. |
+| `scripting` | Registers and injects the optional non-LinkedIn page helper after the user enables all-site highlighting. |
+| `https://www.linkedin.com/*` host access | Lets LinkedIn Jobs dimming, company stats, and keyword highlighting run automatically on LinkedIn. |
+| `http://*/*` and `https://*/*` optional host access | Requested only if the user turns on `Highlight on all websites`, so keyword highlights can run automatically on non-LinkedIn pages. |
 
 ## Privacy
 
@@ -92,7 +96,7 @@ Job Search Lens is designed to be publishable under a conservative, local-only p
 - No cloud sync
 - No sale or sharing of personal data
 
-The extension reads page content locally to highlight your saved terms. On LinkedIn Jobs, it also detects LinkedIn’s own Viewed, Saved, and Applied labels already rendered on the page. That processing stays local to the browser.
+The extension reads page content locally to highlight your saved terms. On LinkedIn Jobs, it also detects LinkedIn’s own Viewed, Saved, and Applied labels already rendered on the page. On non-LinkedIn sites, it only reads page text after the user enables optional all-site access from the popup. That processing stays local to the browser.
 
 For a store-ready policy document, see [docs/privacy-policy.html](docs/privacy-policy.html).
 
@@ -210,7 +214,7 @@ LinkedIn may change its markup or platform policies at any time, so selector mai
 
 | Version | Summary |
 |---|---|
-| 1.3.0 | Extended keyword highlighting to all websites (not LinkedIn-only); added inline company size and LinkedIn follower counts near job titles; added SDUI page support (scenario 13); improved title-anchor placement for wrapped-title SDUI layouts (scenario 15); updated popup status messaging |
+| 1.3.0 | Added optional all-site highlighting from the popup while keeping LinkedIn automatic by default; added inline company size and LinkedIn employee counts near job titles; added SDUI page support (scenario 13); improved title-anchor placement for wrapped-title SDUI layouts (scenario 15); updated popup status messaging |
 | 1.2.2 | Renamed the product to Job Search Lens, refreshed docs and store copy, added scenario 6-8 regression coverage, and prepared updated store assets |
 | 1.2.1 | Publish-prep metadata, icons, static policy/support pages, scenario 5 heuristics, and DOM fixture tests |
 | 1.2.0 | Color palette swatches, keyword export and sort, and multi-list root coverage |

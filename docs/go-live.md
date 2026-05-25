@@ -10,7 +10,7 @@ Estimated end-to-end time: **30–60 min hands-on**, plus **1–7 days waiting f
 
 - [x] Code reviewed, lint clean, 30/30 tests passing.
 - [x] No `console.log`, no `debugger`, no `TODO`s left in shipped code.
-- [x] Manifest V3 with minimal permissions (`contextMenus`, `storage`, `activeTab` + host access).
+- [x] Manifest V3 with minimal permissions (`contextMenus`, `storage`, `activeTab`, `permissions`, `scripting`, LinkedIn host access, plus optional all-site access).
 - [x] Production `.zip` built at `dist/job-search-lens-v1.3.0.zip` (~40 KB, 15 files, no dev assets).
 - [x] Popup now has a footer with `Website · Help · Privacy · v1.3` links pointing at the product site.
 - [x] Five Web Store images generated at exact dimensions in `docs/assets/store/`:
@@ -112,7 +112,7 @@ If they 404, fix this before moving on — Step 5 needs the privacy URL to be li
 | Field | Value |
 |---|---|
 | **Name** | Job Search Lens |
-| **Summary** (short, 132 char) | Built for LinkedIn Jobs: dim viewed/saved/applied cards, see company size inline, highlight saved keywords. Works on every site. |
+| **Summary** (short, 132 char) | Built for LinkedIn Jobs: dim viewed/saved/applied cards, see company size inline, optionally highlight saved keywords elsewhere. |
 | **Category** | Productivity |
 | **Language** | English |
 
@@ -123,14 +123,14 @@ Job Search Lens is built for LinkedIn Jobs.
 
 LinkedIn already knows which jobs you've Viewed, Saved, or Applied to — it just refuses to let you hide them. Job Search Lens fades those cards automatically, with independent toggles per state. It also shows company size and LinkedIn employee count inline next to each job title, so you can judge company fit before you ever open the listing.
 
-The keyword highlighter is the bonus: save the terms that matter to you (technologies, roles, locations, companies) and they light up on LinkedIn — and as a portable bonus, on Indeed, Glassdoor, Seek, Wellfound, company career pages, and any other website you browse.
+The keyword highlighter is the bonus: save the terms that matter to you (technologies, roles, locations, companies) and they light up on LinkedIn. If you turn on optional all-site access in the popup, they also work on Indeed, Glassdoor, Seek, Wellfound, company career pages, and any other website you browse.
 
 Everything stays local in your browser. No backend, no telemetry, no account system, no remote code. Every file that ships in the extension package is inspectable via chrome://extensions.
 
 KEY FEATURES
 • LinkedIn Jobs card dimming for Viewed, Saved, and Applied — toggleable per state
 • Inline company size and LinkedIn employee count next to job titles on LinkedIn Jobs
-• Keyword highlights that work on LinkedIn and every other site
+• Keyword highlights on LinkedIn by default, with optional all-site access from the popup
 • Right-click context menu to save selected text as a keyword
 • Per-keyword color palette
 • Sort, search, and export controls for the keyword library
@@ -168,7 +168,7 @@ PRIVACY
 ### Single purpose
 
 ```
-Job Search Lens is built for LinkedIn Jobs. On linkedin.com/jobs it dims listings already labeled Viewed, Saved, or Applied, and shows inline company size and employee counts. Its keyword highlighter also works on every other website so saved terms travel with the user.
+Job Search Lens is built for LinkedIn Jobs. On linkedin.com/jobs it dims listings already labeled Viewed, Saved, or Applied, and shows inline company size and employee counts. Its keyword highlighter works on LinkedIn by default and can be enabled on other websites from the popup.
 ```
 
 ### Permission justifications
@@ -176,9 +176,12 @@ Job Search Lens is built for LinkedIn Jobs. On linkedin.com/jobs it dims listing
 | Permission | Justification (paste exactly) |
 |---|---|
 | `contextMenus` | Adds a right-click "Add to Highlighter" menu item so users can save selected text from any page as a highlight keyword without opening the popup. |
-| `storage` | Stores the user's saved keywords, color choices, theme preference, and dim-state toggles locally in chrome.storage.local. Nothing is transmitted off the device. |
+| `storage` | Stores the user's saved keywords, color choices, theme preference, dim-state toggles, and all-site-highlighting preference locally in chrome.storage.local. Nothing is transmitted off the device. |
 | `activeTab` | When the user opens the popup, the popup queries the active tab to display status (job-list / job-detail surfaces detected, match count) and to send navigate-match commands. Permission is only granted while the popup is open via user gesture. |
-| `host_permissions` (`http://*/*` and `https://*/*`) | The content script needs to read text on every page the user opens so saved keywords highlight everywhere, not just on LinkedIn. LinkedIn-specific features (card dimming, company stats) are gated inside the content script and only activate on linkedin.com/jobs URLs. |
+| `permissions` | Lets the popup request or remove optional all-site access when the user turns `Highlight on all websites` on or off. |
+| `scripting` | Registers and injects the optional non-LinkedIn page helper after the user enables all-site highlighting, so highlights start working on future pages automatically. |
+| `host_permissions` (`https://www.linkedin.com/*`) | Required so LinkedIn Jobs dimming, company stats, and keyword highlighting work automatically on LinkedIn. |
+| `optional_host_permissions` (`http://*/*` and `https://*/*`) | Only requested if the user turns on `Highlight on all websites` in the popup. Used so keyword highlights can run automatically on non-LinkedIn pages. |
 
 ### Remote code
 

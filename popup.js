@@ -2,6 +2,7 @@
 // passive styling changes and user-driven click tracking.
 const {
   STORAGE_KEYS,
+  OPTIONAL_SITE_ACCESS_PATTERNS,
   coerceKeywords,
   splitKeywordTerms,
   sanitizeColor,
@@ -27,6 +28,8 @@ const pageStatus = document.getElementById('pageStatus');
 const prevMatchButton = document.getElementById('prevMatch');
 const nextMatchButton = document.getElementById('nextMatch');
 const matchStatus = document.getElementById('matchStatus');
+const highlightAllSitesToggle = document.getElementById('highlightAllSitesToggle');
+const siteAccessHint = document.getElementById('siteAccessHint');
 const dimViewedToggle = document.getElementById('dimViewedToggle');
 const dimSavedToggle = document.getElementById('dimSavedToggle');
 const dimAppliedToggle = document.getElementById('dimAppliedToggle');
@@ -47,6 +50,7 @@ let cachedKeywords = [];
 let lastPageStatusTitle = '';
 let lastPageStatusMessage = '';
 let lastPageStatusTone = '';
+let siteAccessToggleInFlight = false;
 let exportOriginalLabel = '';
 let exportResetTimer = null;
 
@@ -117,6 +121,7 @@ async function initializePopup() {
   document.addEventListener('click', handleDocumentClick);
   document.addEventListener('keydown', handleDocumentKeydown);
   pauseToggle.addEventListener('change', updatePauseState);
+  highlightAllSitesToggle.addEventListener('change', handleHighlightAllSitesToggleChange);
   dimViewedToggle.addEventListener('change', () => {
     void updateDimState('viewed', dimViewedToggle.checked);
   });
@@ -165,7 +170,75 @@ async function render() {
   keywordCount.textContent = `${keywords.length} highlight${keywords.length === 1 ? '' : 's'}`;
   renderKeywordLibrary(keywords);
 
-  await renderPageStatus();
+  const highlightAllSitesEnabled = await renderHighlightAllSitesState(settings);
+  await renderPageStatus(highlightAllSitesEnabled);
+}
+
+async function renderHighlightAllSitesState(settings) {
+  const hasOptionalSiteAccess = await chrome.permissions.contains({
+    origins: OPTIONAL_SITE_ACCESS_PATTERNS,
+  });
+  const highlightAllSitesEnabled = Boolean(settings.highlightAllSites && hasOptionalSiteAccess);
+
+  highlightAllSitesToggle.checked = highlightAllSitesEnabled;
+  highlightAllSitesToggle.disabled = siteAccessToggleInFlight;
+  siteAccessHint.textContent = highlightAllSitesEnabled
+    ? 'On. Saved keywords also highlight automatically on non-LinkedIn sites. All processing stays local in your browser.'
+    : 'Off. LinkedIn works automatically. Turn this on only if you want saved keywords highlighted on other sites too.';
+
+  return highlightAllSitesEnabled;
+}
+
+async function handleHighlightAllSitesToggleChange() {
+  if (siteAccessToggleInFlight) {
+    return;
+  }
+
+  const nextEnabled = highlightAllSitesToggle.checked;
+  siteAccessToggleInFlight = true;
+
+  try {
+    if (nextEnabled) {
+      const granted = await chrome.permissions.request({
+        origins: OPTIONAL_SITE_ACCESS_PATTERNS,
+      });
+
+      if (!granted) {
+        await setHighlightAllSitesEnabled(false);
+        return;
+      }
+
+      await setHighlightAllSitesEnabled(true);
+    } else {
+      await chrome.permissions.remove({
+        origins: OPTIONAL_SITE_ACCESS_PATTERNS,
+      });
+      await setHighlightAllSitesEnabled(false);
+    }
+
+    const activeTab = nextEnabled ? await getActiveContentTab() : null;
+
+    await chrome.runtime.sendMessage({
+      type: 'job-hunt-visualizer:sync-site-access',
+      tabId: activeTab?.id ?? null,
+      url: activeTab?.url || '',
+    });
+  } finally {
+    siteAccessToggleInFlight = false;
+    await render();
+  }
+}
+
+async function setHighlightAllSitesEnabled(enabled) {
+  const stored = await chrome.storage.local.get([STORAGE_KEYS.settings]);
+  const settings = hydrateSettings(stored[STORAGE_KEYS.settings]);
+
+  await chrome.storage.local.set({
+    [STORAGE_KEYS.settings]: {
+      ...settings,
+      highlightAllSites: Boolean(enabled),
+    },
+  });
 }
 
 async function handleAddKeyword(event) {
@@ -597,6 +670,9 @@ async function navigateMatch(direction) {
 
 async function renderPageStatus() {
   const activeTab = await getActiveContentTab();
+  const highlightAllSitesEnabled = arguments.length > 0
+    ? Boolean(arguments[0])
+    : await chrome.permissions.contains({ origins: OPTIONAL_SITE_ACCESS_PATTERNS });
 
   if (!activeTab?.id) {
     updateStateSummary();
@@ -604,6 +680,19 @@ async function renderPageStatus() {
     setPageStatus(
       'Open a page',
       'Open any website to use highlights. Open LinkedIn Jobs for card fading and company stats.',
+      'info',
+    );
+    return;
+  }
+
+  const activeTabIsLinkedIn = isLinkedInUrl(activeTab.url || '');
+
+  if (!activeTabIsLinkedIn && !highlightAllSitesEnabled) {
+    updateStateSummary();
+    updateMatchStatus(0, -1);
+    setPageStatus(
+      'LinkedIn-only mode',
+      'LinkedIn Jobs works automatically. Turn on "Highlight on all websites" below to highlight this page too.',
       'info',
     );
     return;
@@ -702,13 +791,31 @@ async function renderPageStatus() {
       'success',
     );
   } catch {
-    setPageStatus(
-      'Site access needed',
-      'Cannot reach this tab. In Brave or Chrome, allow site access for this page or for all sites, then reload the tab.',
-      'error',
-    );
     updateStateSummary();
     updateMatchStatus(0, -1);
+
+    if (!activeTabIsLinkedIn && highlightAllSitesEnabled) {
+      setPageStatus(
+        'Reload this page',
+        'All-site highlighting is on, but this tab has not loaded the helper yet. Reload the page once and the popup should connect.',
+        'warning',
+      );
+      return;
+    }
+
+    setPageStatus(
+      'Reload page',
+      'The page helper did not answer yet. Reload the tab or reopen this popup.',
+      'warning',
+    );
+  }
+}
+
+function isLinkedInUrl(url = '') {
+  try {
+    return /(^|\.)linkedin\.com$/i.test(new URL(url).hostname);
+  } catch {
+    return false;
   }
 }
 

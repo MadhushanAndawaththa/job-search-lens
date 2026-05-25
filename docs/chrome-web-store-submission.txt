@@ -2,24 +2,24 @@ JOB SEARCH LENS
 Chrome Web Store submission notes (v1.3)
 
 Single-purpose statement
-Job Search Lens is built for LinkedIn Jobs. On linkedin.com/jobs it dims listings already labeled Viewed, Saved, or Applied, and shows inline company size and employee counts. Its keyword highlighter also works on every other website so saved terms travel with the user.
+Job Search Lens is built for LinkedIn Jobs. On linkedin.com/jobs it dims listings already labeled Viewed, Saved, or Applied, and shows inline company size and employee counts. Its keyword highlighter works on LinkedIn by default and can be enabled on other websites from the popup.
 
 Short description (132 char max)
-Built for LinkedIn Jobs: dim viewed/saved/applied cards, see company size inline, highlight saved keywords. Works on every site.
+Built for LinkedIn Jobs: dim viewed/saved/applied cards, see company size inline, optionally highlight saved keywords elsewhere.
 
 Detailed description
 Job Search Lens is built for LinkedIn Jobs.
 
 LinkedIn already knows which jobs you've Viewed, Saved, or Applied to — it just refuses to let you hide them. Job Search Lens fades those cards automatically, with independent toggles per state. It also shows company size and LinkedIn employee count inline next to each job title, so you can judge company fit before you ever open the listing.
 
-The keyword highlighter is the bonus: save the terms that matter to you (technologies, roles, locations, companies) and they light up on LinkedIn — and as a portable bonus, on Indeed, Glassdoor, Seek, Wellfound, company career pages, and any other website you browse.
+The keyword highlighter is the bonus: save the terms that matter to you (technologies, roles, locations, companies) and they light up on LinkedIn. If you turn on optional all-site access in the popup, they also work on Indeed, Glassdoor, Seek, Wellfound, company career pages, and any other website you browse.
 
 Everything stays local in your browser. No backend, no telemetry, no account system, no remote code. Every file that ships in the extension package is inspectable via chrome://extensions.
 
 KEY FEATURES
 • LinkedIn Jobs card dimming for Viewed, Saved, and Applied — toggleable per state
 • Inline company size and LinkedIn employee count next to job titles on LinkedIn Jobs
-• Keyword highlights that work on LinkedIn and every other site
+• Keyword highlights on LinkedIn by default, with optional all-site access from the popup
 • Right-click context menu to save selected text as a keyword
 • Per-keyword color palette
 • Sort, search, and export controls for the keyword library

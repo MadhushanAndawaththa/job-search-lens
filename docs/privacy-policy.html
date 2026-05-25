@@ -32,13 +32,13 @@
       <p>Job Search Lens is a local-only Chrome extension built for LinkedIn Jobs. This page explains what the extension accesses, how that information is used, and what is <strong>not</strong> collected or shared.</p>
 
       <h2>What the extension does</h2>
-      <p>On LinkedIn Jobs, Job Search Lens passively dims job cards that LinkedIn itself labels as Viewed, Saved, or Applied, and shows inline company size and follower counts near job titles. It also highlights any keywords you've saved — on LinkedIn pages and, as a portable bonus, on every other website you visit.</p>
+      <p>On LinkedIn Jobs, Job Search Lens passively dims job cards that LinkedIn itself labels as Viewed, Saved, or Applied, and shows inline company size and employee counts near job titles. It also highlights any keywords you've saved — on LinkedIn by default, and on other websites only if you turn on optional all-site access in the popup.</p>
 
       <h2>What data is stored</h2>
       <ul>
         <li>Keywords you save.</li>
         <li>Color choices for those keywords.</li>
-        <li>Extension settings such as pause state, dim-state toggles, and theme preference.</li>
+        <li>Extension settings such as pause state, dim-state toggles, theme preference, and whether optional all-site highlighting is enabled.</li>
       </ul>
       <p>These values are stored locally in <code>chrome.storage.local</code> on your device and are never transmitted anywhere.</p>
 
@@ -52,7 +52,7 @@
       </ul>
 
       <h2>How page content is used</h2>
-      <p>On LinkedIn Jobs, the extension reads the Viewed, Saved, and Applied labels LinkedIn already renders on each card, plus the company size and follower-count text LinkedIn renders inline. On any other website, the extension reads page text locally to find matches for the keywords you've saved.</p>
+      <p>On LinkedIn Jobs, the extension reads the Viewed, Saved, and Applied labels LinkedIn already renders on each card, plus the company size and employee-count text LinkedIn renders inline. On any other website, after you turn on optional all-site access, the extension reads page text locally to find matches for the keywords you've saved.</p>
       <p>This processing is on-device only. The extension does not send page content, browsing history, or any metadata to any external endpoint.</p>
 
       <h2>Permissions</h2>
@@ -60,7 +60,10 @@
         <li><strong>contextMenus</strong> — add selected text as a keyword via right-click on any page.</li>
         <li><strong>storage</strong> — persist your keywords and settings locally in the browser.</li>
         <li><strong>activeTab</strong> — let the popup talk to the currently active tab for status and match navigation when you open the popup.</li>
-        <li><strong>http://*/*</strong> and <strong>https://*/*</strong> — required for keyword highlighting to work on every site you visit. LinkedIn-specific dimming and company stats remain scoped to LinkedIn Jobs.</li>
+        <li><strong>permissions</strong> — let the popup request or remove optional all-site access when you use the cross-site toggle.</li>
+        <li><strong>scripting</strong> — register the optional non-LinkedIn page helper after you turn on all-site highlighting.</li>
+        <li><strong>https://www.linkedin.com/*</strong> — required so LinkedIn Jobs features run automatically on LinkedIn.</li>
+        <li><strong>http://*/*</strong> and <strong>https://*/*</strong> — requested only if you turn on <em>Highlight on all websites</em>, so keyword highlights can run automatically on non-LinkedIn pages.</li>
       </ul>
 
       <h2>Data sharing</h2>

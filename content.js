@@ -1,4 +1,10 @@
 (() => {
+  if (globalThis.JobHuntVisualizerContentLoaded) {
+    return;
+  }
+
+  globalThis.JobHuntVisualizerContentLoaded = true;
+
   const {
     STORAGE_KEYS,
     DEFAULT_SETTINGS,
@@ -294,9 +300,10 @@
 
   function refreshBindings() {
     const jobFeaturesEnabled = isJobsPage();
+    const highlightEnabled = canHighlightCurrentPage();
     const nextListContainer = jobFeaturesEnabled ? findJobListContainer() : null;
     const nextDetailContainer = jobFeaturesEnabled ? findJobDetailContainer() : null;
-    fallbackHighlightRoot = findFallbackHighlightRoot();
+    fallbackHighlightRoot = highlightEnabled ? findFallbackHighlightRoot() : null;
     listRoots = jobFeaturesEnabled
       ? resolveListRoots(nextListContainer, fallbackHighlightRoot)
       : [];
@@ -316,6 +323,13 @@
       return;
     }
 
+    if (!highlightEnabled) {
+      clearGhostStyles();
+      clearAllHighlights();
+      clearCompanyStats();
+      return;
+    }
+
     if (jobFeaturesEnabled) {
       renderCompanyStats();
       applyGhostStyles();
@@ -325,6 +339,10 @@
     }
 
     scheduleHighlight();
+  }
+
+  function canHighlightCurrentPage() {
+    return isLinkedInPage() || settings.highlightAllSites;
   }
 
   // Observe only the job list surface for new cards and attribute changes.

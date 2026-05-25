@@ -73,7 +73,7 @@ async function bootstrapHtml(html, storageData, url) {
   };
 }
 
-test('generic webpages still highlight saved keywords without LinkedIn-only job mutations', async () => {
+test('generic webpages highlight saved keywords when optional all-site access is enabled', async () => {
   const { dom, cleanupIntervals } = await bootstrapHtml(
     '<main><article><p>Python backend engineer with Node.js experience wanted.</p></article></main>',
     {
@@ -81,7 +81,9 @@ test('generic webpages still highlight saved keywords without LinkedIn-only job 
         { term: 'Python', color: '#F8BBD0' },
         { term: 'Node.js', color: '#90CAF9' },
       ],
-      settings: {},
+      settings: {
+        highlightAllSites: true,
+      },
     },
     'https://example.com/jobs/backend-engineer'
   );
@@ -92,6 +94,31 @@ test('generic webpages still highlight saved keywords without LinkedIn-only job 
       .map((node) => node.textContent.trim());
 
     assert.deepEqual(marks, ['Python', 'Node.js']);
+    assert.equal(document.querySelector('[data-jhv-state]'), null);
+    assert.equal(document.querySelector('[data-jhv-state-badge]'), null);
+    assert.equal(document.querySelector('[data-jhv-company-stats]'), null);
+  } finally {
+    cleanupIntervals();
+  }
+});
+
+test('generic webpages stay untouched until all-site highlighting is enabled', async () => {
+  const { dom, cleanupIntervals } = await bootstrapHtml(
+    '<main><article><p>Python backend engineer with Node.js experience wanted.</p></article></main>',
+    {
+      keywords: [
+        { term: 'Python', color: '#F8BBD0' },
+      ],
+      settings: {},
+    },
+    'https://example.com/jobs/backend-engineer'
+  );
+
+  try {
+    const { document } = dom.window;
+    const marks = document.querySelectorAll('mark[data-job-hunt-mark]');
+
+    assert.equal(marks.length, 0);
     assert.equal(document.querySelector('[data-jhv-state]'), null);
     assert.equal(document.querySelector('[data-jhv-state-badge]'), null);
     assert.equal(document.querySelector('[data-jhv-company-stats]'), null);
