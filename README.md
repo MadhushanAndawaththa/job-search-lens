@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/version-1.3.0-0f766e?style=flat-square" alt="Version 1.3.0" />
   <img src="https://img.shields.io/badge/Chrome-Manifest%20V3-4285F4?style=flat-square&logo=googlechrome&logoColor=white" alt="Chrome Manifest V3" />
   <img src="https://img.shields.io/badge/privacy-local--only-0F9D58?style=flat-square" alt="Local-only privacy" />
-  <img src="https://img.shields.io/badge/tests-30%20passing-brightgreen?style=flat-square" alt="30 tests passing" />
+  <img src="https://img.shields.io/badge/tests-31%20passing-brightgreen?style=flat-square" alt="31 tests passing" />
   <img src="https://img.shields.io/badge/license-MIT%20%2B%20Commons%20Clause-blue?style=flat-square" alt="MIT + Commons Clause" />
 </p>
 
@@ -128,7 +128,7 @@ flowchart LR
 
 ## Testing
 
-Automated coverage currently includes 30 passing tests across shared helpers, DOM heuristics, and scenario content-script regressions.
+Automated coverage currently includes 31 passing tests across shared helpers, DOM heuristics, and scenario content-script regressions.
 
 ```bash
 npm test

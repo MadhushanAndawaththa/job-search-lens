@@ -261,9 +261,7 @@ Low-pressure places:
    ```
 5. Rebuild the zip:
    ```bash
-   cd /app && zip -r dist/job-search-lens-vX.Y.Z.zip \
-     manifest.json background.js content.js dom-heuristics.js shared.js \
-     popup.html popup.js theme-init.js styles.css assets/icons LICENSE
+   npm run build:zip
    ```
 6. Copy any changes from the source repo's `docs/` folder to the public website repo's root.
 
