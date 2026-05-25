@@ -79,6 +79,24 @@ Local-only Chrome MV3 extension. Highlights saved keywords on any website; on Li
 - **Updated `tools/render-store-assets.py`** to include the 2x→1x resize + optimize step so future regenerations don't need manual cleanup.
 - **Verified by visual analysis** — both marquee and small-promo confirmed: "On every job site" clearly readable with strong contrast, no "Open source" badge anywhere.
 
+## Work Completed — 2026-01 Session 5 (LinkedIn-First Pivot + Popup Footer + Repo Split)
+- **LinkedIn-first branding** across every public surface:
+  - Hero headline: "Stop re-reading the same LinkedIn jobs."
+  - Eyebrow: "Built for LinkedIn Jobs · highlights work everywhere else".
+  - Feature grid reordered: **Card dimming** (LinkedIn, flagship/wide) → **Company stats** (LinkedIn) → **Keyword highlights** (everywhere bonus) → **Privacy** (wide closer).
+  - Marketing image copy + tag order flipped to LinkedIn-first on `marquee.html`, `small-promo.html`, `og-image.html`, `store-preview.html`.
+  - Detailed Web Store description, single-purpose statement, and short summary all rewritten to lead with LinkedIn dimming + company stats, with the highlighter framed as a portable bonus.
+- **Popup footer** added with `Website · Help · Privacy · v1.3` links to `https://madhushanandawaththa.github.io/job-search_lens/...`. CSS for the footer added to the popup inline stylesheet (light + dark theme aware, hover states, focus rings, version pill).
+- **Repo split prep** — current repo will go **private**, new public repo at `https://github.com/MadhushanAndawaththa/job-search_lens` will host the product website + issues tracker:
+  - All `github.com/MadhushanAndawaththa/Job_Search` URLs in public-facing pages updated to `job-search_lens`.
+  - `manifest.json` `homepage_url` updated.
+  - All asset paths in `docs/*.html` converted from `../assets/...` → `assets/...` so `docs/*` is a self-contained drop-in for the new public repo's root.
+  - Marketing assets + extension icons copied into `docs/assets/store/` and `docs/assets/icons/` so the whole docs folder transplants cleanly.
+  - Render scripts (`tools/render-*.py`) updated to write to the new path.
+  - `go-live.md` rewritten with explicit two-repo strategy and updated copy-paste flow.
+- **Updated copy in popup header** — now reads LinkedIn-first.
+- **Production zip rebuilt** at `dist/job-search-lens-v1.3.0.zip` (44 KB) with the updated manifest `homepage_url`.
+
 ## Backlog / Future
 - P2: Real annotated screenshot (popup over live LinkedIn) as a second store screenshot.
 - P2: Optional `host_permissions` flow for per-site grants.

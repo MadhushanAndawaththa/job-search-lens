@@ -10,7 +10,7 @@ TARGETS = [
     # popup.html is fixed at 380x580 — we render it at 2x then scale.
     {
         "url": "http://localhost:8765/popup.html",
-        "out": "/app/assets/store/popup-screenshot-1280x800.png",
+        "out": "/app/docs/assets/store/popup-screenshot-1280x800.png",
         "viewport_w": 1280,
         "viewport_h": 800,
         "final_w": 1280,
@@ -20,7 +20,7 @@ TARGETS = [
     # Open Graph image (1200x630)
     {
         "url": "http://localhost:8765/docs/marketing/og-image.html",
-        "out": "/app/assets/store/og-image-1200x630.png",
+        "out": "/app/docs/assets/store/og-image-1200x630.png",
         "viewport_w": 1200,
         "viewport_h": 630,
         "final_w": 1200,
@@ -101,12 +101,12 @@ def render_popup_composite(browser, t):
             <span class="brand">Job Search Lens</span>
           </div>
           <h1>This is the<br>actual popup.<br><span class="hl">No mockup.</span></h1>
-          <p class="lede">Add keywords, pick colors, toggle Viewed&nbsp;/&nbsp;Saved&nbsp;/&nbsp;Applied dimming, navigate matches. Everything stays local.</p>
+          <p class="lede">Add keywords, pick colors, toggle Viewed&nbsp;/&nbsp;Saved&nbsp;/&nbsp;Applied dimming, and jump straight to the product website from the footer. Everything stays local.</p>
           <div class="tags">
             <span class="tag y">Free</span>
             <span class="tag">Chrome MV3</span>
             <span class="tag">Local-only</span>
-            <span class="tag">Open source</span>
+            <span class="tag">Built for LinkedIn</span>
           </div>
         </div>
         <div class="stage">

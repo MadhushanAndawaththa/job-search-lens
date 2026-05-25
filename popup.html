@@ -68,8 +68,8 @@
            No vw/vh units: those can shift after the popup window itself resizes. */
         width: 380px;
         min-width: 380px;
-        height: 580px;
-        min-height: 580px;
+        height: 660px;
+        min-height: 660px;
         overflow: hidden;
         background: var(--bg);
       }
@@ -77,7 +77,8 @@
       body {
         width: 100%;
         height: 100%;
-        padding: 16px;
+        display: flex;
+        flex-direction: column;
         overflow: hidden;
         color: var(--text);
         font-size: 14px;
@@ -86,14 +87,14 @@
 
       /* ── Layout ── */
       .app {
+        flex: 1;
         display: grid;
         gap: 12px;
         width: 100%;
-        height: 100%;
         min-height: 0;
         overflow-x: hidden;
         overflow-y: auto;
-        padding-right: 2px;
+        padding: 16px 14px 16px 16px;
         scrollbar-gutter: stable;
         contain: layout paint;
       }
@@ -627,6 +628,138 @@
         outline: 2px solid var(--blue);
         outline-offset: 2px;
       }
+
+      /* ── Popup footer ── */
+      .popup-footer {
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        gap: 6px;
+        padding: 12px 14px 14px;
+        border-top: 1px solid var(--border);
+        background: var(--bg);
+        font-size: 12px;
+        color: var(--text-soft);
+      }
+      .popup-footer-row {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 2px 6px;
+      }
+      .popup-footer-row.is-credit {
+        justify-content: space-between;
+        font-size: 11.5px;
+      }
+      .popup-footer-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--text-soft);
+        text-decoration: none;
+        font-weight: 500;
+        padding: 4px 7px;
+        border-radius: 6px;
+        transition: background-color 120ms ease, color 120ms ease;
+      }
+      .popup-footer-link:hover,
+      .popup-footer-link:focus-visible {
+        color: var(--text);
+        background-color: rgba(0, 0, 0, 0.04);
+        outline: none;
+      }
+      .popup-footer-link.is-rate {
+        color: var(--text);
+        font-weight: 600;
+      }
+      .popup-footer-link.is-rate .rate-star {
+        color: #f59e0b;
+        line-height: 1;
+        font-size: 13px;
+      }
+      .popup-footer-link.is-rate:hover,
+      .popup-footer-link.is-rate:focus-visible {
+        background-color: rgba(245, 158, 11, 0.12);
+      }
+      html.dark .popup-footer-link:hover,
+      html.dark .popup-footer-link:focus-visible {
+        background-color: rgba(255, 255, 255, 0.06);
+      }
+      html.dark .popup-footer-link.is-rate:hover,
+      html.dark .popup-footer-link.is-rate:focus-visible {
+        background-color: rgba(245, 158, 11, 0.18);
+      }
+      .popup-footer-link svg {
+        opacity: 0.75;
+      }
+      .popup-footer-sep {
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: var(--border);
+        flex-shrink: 0;
+      }
+      .popup-builder {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--text-soft);
+        text-decoration: none;
+        padding: 4px 7px 4px 4px;
+        margin-left: -4px;
+        border-radius: 6px;
+        transition: background-color 120ms ease, color 120ms ease;
+      }
+      .popup-builder:hover,
+      .popup-builder:focus-visible {
+        color: var(--text);
+        background-color: rgba(0, 102, 194, 0.08);
+        outline: none;
+      }
+      html.dark .popup-builder:hover,
+      html.dark .popup-builder:focus-visible {
+        background-color: rgba(95, 168, 245, 0.12);
+      }
+      .popup-builder-avatar {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0a66c2, #14437a);
+        color: #fff;
+        font-size: 9px;
+        font-weight: 700;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        letter-spacing: 0.02em;
+      }
+      .popup-builder-label {
+        opacity: 0.78;
+        font-weight: 500;
+      }
+      .popup-builder-name {
+        font-weight: 600;
+        color: var(--text);
+        opacity: 0.95;
+      }
+      .popup-builder svg {
+        opacity: 0.85;
+        color: #0a66c2;
+      }
+      html.dark .popup-builder svg {
+        color: #5fa8f5;
+      }
+      .popup-footer-version {
+        font-size: 10.5px;
+        font-weight: 600;
+        color: var(--text-soft);
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        letter-spacing: 0.04em;
+        flex-shrink: 0;
+      }
     </style>
     <!-- Sync theme class before first paint (external to satisfy MV3 CSP) -->
     <script src="theme-init.js"></script>
@@ -639,7 +772,7 @@
         <div class="header-row">
           <div class="header-text">
             <h1>Job Search Lens</h1>
-            <p>Highlight your keywords on any page. On LinkedIn Jobs, also fades listings you've already reviewed.</p>
+            <p>Built for LinkedIn Jobs. Dims processed cards, shows company size inline, and highlights your saved keywords on LinkedIn — and anywhere else you browse.</p>
           </div>
           <button id="themeToggle" class="btn-theme" type="button" aria-label="Switch color theme" title="Switch theme: auto / light / dark"></button>
           <label class="pill-toggle" title="Pause all highlights and LinkedIn features on this tab">
@@ -744,6 +877,45 @@
       </div>
 
     </div>
+
+    <footer class="popup-footer" role="contentinfo">
+      <!-- Row 1: primary product links -->
+      <div class="popup-footer-row">
+        <a class="popup-footer-link" href="https://madhushanandawaththa.github.io/job-search_lens/" target="_blank" rel="noopener" data-testid="popup-footer-website-link" title="Open the Job Search Lens website">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18"/></svg>
+          Website
+        </a>
+        <span class="popup-footer-sep"></span>
+        <a class="popup-footer-link" href="https://madhushanandawaththa.github.io/job-search_lens/support.html" target="_blank" rel="noopener" data-testid="popup-footer-help-link">Help</a>
+        <span class="popup-footer-sep"></span>
+        <a class="popup-footer-link" href="https://madhushanandawaththa.github.io/job-search_lens/privacy-policy.html" target="_blank" rel="noopener" data-testid="popup-footer-privacy-link">Privacy</a>
+        <span class="popup-footer-sep"></span>
+        <!--
+          Rate link: replace the href with the real Chrome Web Store detail URL
+          (e.g. https://chrome.google.com/webstore/detail/<extension-id>/reviews)
+          after the extension is approved. Until then it lands on the Chrome
+          Web Store homepage so no broken link ever ships.
+        -->
+        <a class="popup-footer-link is-rate" href="https://chrome.google.com/webstore/category/extensions" target="_blank" rel="noopener" data-testid="popup-footer-rate-link" title="Rate Job Search Lens on the Chrome Web Store">
+          <span class="rate-star" aria-hidden="true">★</span>
+          Rate
+        </a>
+      </div>
+
+      <!-- Row 2: builder credit + version -->
+      <div class="popup-footer-row is-credit">
+        <a class="popup-builder" href="https://linkedin.com/in/thiwankamadhushan" target="_blank" rel="noopener" data-testid="popup-footer-builder-link" title="Madhushan Andawaththa on LinkedIn">
+          <span class="popup-builder-avatar" aria-hidden="true">M</span>
+          <span class="popup-builder-label">Built by</span>
+          <span class="popup-builder-name">Madhushan Andawaththa</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.95v5.66H9.36V9h3.41v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43A2.06 2.06 0 1 1 5.34 3.3a2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/>
+          </svg>
+        </a>
+        <span class="popup-footer-version" data-testid="popup-footer-version">v1.3</span>
+      </div>
+    </footer>
+
     <script src="shared.js"></script>
     <script src="popup.js"></script>
   </body>

@@ -2,67 +2,50 @@ JOB SEARCH LENS
 Chrome Web Store submission notes (v1.3)
 
 Single-purpose statement
-Job Search Lens highlights saved keywords on any website you browse, and adds LinkedIn Jobs-specific tools for dimming processed job cards and showing inline company stats.
+Job Search Lens is built for LinkedIn Jobs. On linkedin.com/jobs it dims listings already labeled Viewed, Saved, or Applied, and shows inline company size and follower counts. Its keyword highlighter also works on every other website so saved terms travel with the user.
 
 Short description (132 char max)
-Highlight your saved keywords on every job site. Plus LinkedIn extras: card dimming and inline company stats. Local-only.
+Built for LinkedIn Jobs: dim viewed/saved/applied cards, see company size inline, highlight saved keywords. Works on every site.
 
 Detailed description
-Job Search Lens makes every job page easier to scan — without sending a single byte to a server.
+Job Search Lens is built for LinkedIn Jobs.
 
-Save the keywords that matter to you (technologies, roles, locations, companies) and the extension marks them inline on every page you open: LinkedIn, Indeed, Glassdoor, Seek, AngelList, Wellfound, company career pages, anywhere. When you visit LinkedIn Jobs, you also get:
+LinkedIn already knows which jobs you've Viewed, Saved, or Applied to — it just refuses to let you hide them. Job Search Lens fades those cards automatically, with independent toggles per state. It also shows company size and LinkedIn follower count inline next to each job title, so you can judge company fit before you ever open the listing.
 
-• Card dimming for listings LinkedIn already labels as Viewed, Saved, or Applied — toggleable per state.
-• Inline company size and follower count next to job titles, so you can judge company fit without opening a new tab.
+The keyword highlighter is the bonus: save the terms that matter to you (technologies, roles, locations, companies) and they light up on LinkedIn — and as a portable bonus, on Indeed, Glassdoor, Seek, Wellfound, company career pages, and any other website you browse.
 
 Everything stays local in your browser. No backend, no telemetry, no account system, no remote code. Every file that ships in the extension package is inspectable via chrome://extensions.
 
-Key features
-- Keyword highlights on any website
-- Right-click context menu to save selected text as a keyword
-- Per-keyword color palette
-- Sort, search, and export controls for the keyword library
-- Match navigation with previous/next controls
-- Inline company size and LinkedIn follower count next to job titles (LinkedIn Jobs)
-- Independent dim toggles for Viewed, Saved, and Applied (LinkedIn Jobs)
-- Auto, Light, and Dark popup themes
+KEY FEATURES
+• LinkedIn Jobs card dimming for Viewed, Saved, and Applied — toggleable per state
+• Inline company size and LinkedIn follower count next to job titles on LinkedIn Jobs
+• Keyword highlights that work on LinkedIn and every other site
+• Right-click context menu to save selected text as a keyword
+• Per-keyword color palette
+• Sort, search, and export controls for the keyword library
+• Match navigation with previous/next controls
+• Auto, Light, and Dark popup themes
 
-Permission justifications
-
-contextMenus
-Used to add selected text from any page to the saved keyword list via the right-click menu.
-
-storage
-Used to store saved keywords, colors, theme preference, and dim-state settings locally in the browser.
-
-activeTab
-Used by the popup to communicate with the active tab for status display and match navigation. The popup is the user-gesture surface that grants this permission, so it only applies while the popup is open.
-
-http://*/* and https://*/* (host access)
-Used to run keyword highlighting on any website. LinkedIn-specific features (card dimming, company stats) are gated inside the content script and only activate on LinkedIn Jobs pages.
-
-Remote code declaration
-No. The extension does not use or execute remote code.
-
-Data-use declaration
-- No personal or sensitive user data is collected.
-- No browsing data is transmitted to external servers.
-- No analytics or advertising SDKs are used.
-- All processing happens locally in the browser.
+PRIVACY
+• No telemetry, analytics, or tracking pixels
+• No accounts, no sign-in, no cloud sync
+• No remote code execution
+• Every file that ships in the extension package is inspectable via chrome://extensions
 
 Publishing checklist
-1. Enable GitHub Pages from the docs/ folder for stable homepage / privacy / support URLs:
-   - Homepage:   https://madhushanandawaththa.github.io/Job_Search/
-   - Privacy:    https://madhushanandawaththa.github.io/Job_Search/privacy-policy.html
-   - Support:    https://madhushanandawaththa.github.io/Job_Search/support.html
-2. Upload assets/icons/icon128.png as the extension icon.
-3. Upload assets/store/small-promo-440x280.png as the small promo tile.
-4. Upload assets/store/marquee-1400x560.png as the marquee promo tile.
-5. Upload assets/store/store-preview-1280x800.png as the first screenshot.
-6. (Optional) Add a real screenshot of the popup over a live LinkedIn Jobs page as a second screenshot for extra credibility.
+1. The website lives in the public repo at https://github.com/MadhushanAndawaththa/job-search_lens — push the contents of docs/ to the root of that repo, then enable GitHub Pages from the main branch:
+   - Homepage:   https://madhushanandawaththa.github.io/job-search_lens/
+   - Privacy:    https://madhushanandawaththa.github.io/job-search_lens/privacy-policy.html
+   - Support:    https://madhushanandawaththa.github.io/job-search_lens/support.html
+2. Upload docs/assets/icons/icon128.png as the extension icon (already in the .zip).
+3. Upload docs/assets/store/small-promo-440x280.png as the small promo tile.
+4. Upload docs/assets/store/marquee-1400x560.png as the marquee promo tile.
+5. Upload docs/assets/store/store-preview-1280x800.png as the first screenshot.
+6. Upload docs/assets/store/popup-screenshot-1280x800.png as the second screenshot.
 7. Consider deferred publishing for the first submission so review can complete before public release.
 
 To regenerate marketing images
    python3 -m http.server 8765 &
    /opt/plugins-venv/bin/python tools/render-store-assets.py
-   # ⇒ writes 440x280, 1400x560, 1280x800 PNGs to assets/store/
+   /opt/plugins-venv/bin/python tools/render-launch-assets.py
+   # ⇒ writes 440x280, 1400x560, 1280x800, popup, og PNGs to docs/assets/store/

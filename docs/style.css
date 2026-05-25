@@ -920,6 +920,35 @@ a { color: inherit; }
 }
 .author-link:hover { color: var(--accent); }
 
+.author-link svg {
+  color: #0a66c2;
+}
+
+.author-meta {
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.author-meta-link {
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 120ms, border-color 120ms;
+}
+.author-meta-link:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink-soft);
+}
+.author-meta-sep {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
 /* ────────────────────────────────────────────────────────────────
    Footer
    ──────────────────────────────────────────────────────────────── */
