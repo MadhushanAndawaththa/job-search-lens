@@ -33,10 +33,10 @@ PRIVACY
 • Every file that ships in the extension package is inspectable via chrome://extensions
 
 Publishing checklist
-1. The website lives in the public repo at https://github.com/MadhushanAndawaththa/job-search_lens — push the contents of docs/ to the root of that repo, then enable GitHub Pages from the main branch:
-   - Homepage:   https://madhushanandawaththa.github.io/job-search_lens/
-   - Privacy:    https://madhushanandawaththa.github.io/job-search_lens/privacy-policy.html
-   - Support:    https://madhushanandawaththa.github.io/job-search_lens/support.html
+1. The website lives in the public repo at https://github.com/MadhushanAndawaththa/jslens — push the contents of docs/ to the root of that repo, then enable GitHub Pages from the main branch:
+   - Homepage:   https://madhushanandawaththa.github.io/jslens/
+   - Privacy:    https://madhushanandawaththa.github.io/jslens/privacy-policy.html
+   - Support:    https://madhushanandawaththa.github.io/jslens/support.html
 2. Upload docs/assets/icons/icon128.png as the extension icon (already in the .zip).
 3. Upload docs/assets/store/small-promo-440x280.png as the small promo tile.
 4. Upload docs/assets/store/marquee-1400x560.png as the marquee promo tile.

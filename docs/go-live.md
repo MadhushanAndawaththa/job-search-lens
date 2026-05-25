@@ -31,7 +31,7 @@ You have two repos:
 | Repo | Visibility | Contents | Purpose |
 |---|---|---|---|
 | `Job_Search` (current) | **Private** | The actual extension source — manifest, popup, content scripts, tests, dist zips | Code stays private |
-| `job-search_lens` (new) | **Public** | Just the product website (`docs/` folder contents) + an issues tracker | Required because Chrome Web Store needs a publicly reachable privacy policy URL, and users need somewhere to file bugs |
+| `jslens` (new) | **Public** | Just the product website (`docs/` folder contents) + an issues tracker | Required because Chrome Web Store needs a publicly reachable privacy policy URL, and users need somewhere to file bugs |
 
 ---
 
@@ -48,10 +48,10 @@ git push origin main
 
 ### 1b. Create the public website repo
 
-1. Create a **new public repo** on GitHub: `MadhushanAndawaththa/job-search_lens`.
+1. Create a **new public repo** on GitHub: `MadhushanAndawaththa/jslens`.
 2. Locally, copy the **contents of `docs/`** (everything inside it, including the `assets/` and `marketing/` subfolders) to the root of the new repo:
    ```bash
-   # From a fresh clone of job-search_lens:
+   # From a fresh clone of jslens:
    cp -r /path/to/Job_Search/docs/* .
    git add -A
    git commit -m "Initial product website"
@@ -77,9 +77,9 @@ git push origin main
 2. Source: **Deploy from a branch** → Branch: `main` → Folder: `/ (root)`.
 3. Save and wait ~2 minutes.
 4. Verify these URLs return 200 in a fresh tab:
-   - `https://madhushanandawaththa.github.io/job-search_lens/`
-   - `https://madhushanandawaththa.github.io/job-search_lens/privacy-policy.html`
-   - `https://madhushanandawaththa.github.io/job-search_lens/support.html`
+   - `https://madhushanandawaththa.github.io/jslens/`
+   - `https://madhushanandawaththa.github.io/jslens/privacy-policy.html`
+   - `https://madhushanandawaththa.github.io/jslens/support.html`
 
 If they 404, fix this before moving on — Step 5 needs the privacy URL to be live.
 
@@ -158,8 +158,8 @@ PRIVACY
 
 | Field | Value |
 |---|---|
-| Homepage URL | `https://madhushanandawaththa.github.io/job-search_lens/` |
-| Support URL | `https://madhushanandawaththa.github.io/job-search_lens/support.html` |
+| Homepage URL | `https://madhushanandawaththa.github.io/jslens/` |
+| Support URL | `https://madhushanandawaththa.github.io/jslens/support.html` |
 
 ---
 
@@ -191,7 +191,7 @@ Check **"No user data is collected"**.
 ### Privacy policy URL
 
 ```
-https://madhushanandawaththa.github.io/job-search_lens/privacy-policy.html
+https://madhushanandawaththa.github.io/jslens/privacy-policy.html
 ```
 
 Tick the certification checkbox.
@@ -222,7 +222,7 @@ Tick the certification checkbox.
 ## STEP 8 — Day-1 (after Google approves)
 
 1. Copy the public Web Store URL (`https://chrome.google.com/webstore/detail/<extension-id>`).
-2. In the **public website repo (`job-search_lens`)**, search-and-replace the placeholder Web Store URL (`https://chrome.google.com/webstore/category/extensions`) with the real listing URL across:
+2. In the **public website repo (`jslens`)**, search-and-replace the placeholder Web Store URL (`https://chrome.google.com/webstore/category/extensions`) with the real listing URL across:
    - `index.html` (two CTA buttons)
 3. Commit + push — your "Get the extension" CTAs now go straight to the live listing.
 4. Tag the release on the **source repo**:
