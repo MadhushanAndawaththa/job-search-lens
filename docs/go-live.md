@@ -121,7 +121,7 @@ If they 404, fix this before moving on — Step 5 needs the privacy URL to be li
 ```
 Job Search Lens is built for LinkedIn Jobs.
 
-LinkedIn already knows which jobs you've Viewed, Saved, or Applied to — it just refuses to let you hide them. Job Search Lens fades those cards automatically, with independent toggles per state. It also shows company size and LinkedIn follower count inline next to each job title, so you can judge company fit before you ever open the listing.
+LinkedIn already knows which jobs you've Viewed, Saved, or Applied to — it just refuses to let you hide them. Job Search Lens fades those cards automatically, with independent toggles per state. It also shows company size and LinkedIn employee count inline next to each job title, so you can judge company fit before you ever open the listing.
 
 The keyword highlighter is the bonus: save the terms that matter to you (technologies, roles, locations, companies) and they light up on LinkedIn — and as a portable bonus, on Indeed, Glassdoor, Seek, Wellfound, company career pages, and any other website you browse.
 
@@ -129,7 +129,7 @@ Everything stays local in your browser. No backend, no telemetry, no account sys
 
 KEY FEATURES
 • LinkedIn Jobs card dimming for Viewed, Saved, and Applied — toggleable per state
-• Inline company size and LinkedIn follower count next to job titles on LinkedIn Jobs
+• Inline company size and LinkedIn employee count next to job titles on LinkedIn Jobs
 • Keyword highlights that work on LinkedIn and every other site
 • Right-click context menu to save selected text as a keyword
 • Per-keyword color palette
@@ -168,7 +168,7 @@ PRIVACY
 ### Single purpose
 
 ```
-Job Search Lens is built for LinkedIn Jobs. On linkedin.com/jobs it dims listings already labeled Viewed, Saved, or Applied, and shows inline company size and follower counts. Its keyword highlighter also works on every other website so saved terms travel with the user.
+Job Search Lens is built for LinkedIn Jobs. On linkedin.com/jobs it dims listings already labeled Viewed, Saved, or Applied, and shows inline company size and employee counts. Its keyword highlighter also works on every other website so saved terms travel with the user.
 ```
 
 ### Permission justifications
