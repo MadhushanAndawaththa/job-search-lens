@@ -458,14 +458,39 @@
 
       .dim-row:hover { background: var(--gray-50); }
 
+      /* ── Site-access row (Highlight on all websites) ── */
       .site-access-row {
-        align-items: flex-start;
+        align-items: center;
+        background: var(--blue-tint);
+        border-color: rgba(26,115,232,.25);
+      }
+
+      html.dark .site-access-row {
+        background: rgba(26,115,232,.12);
+        border-color: rgba(26,115,232,.3);
+      }
+
+      .site-access-row:hover {
+        background: #d4e4fc;
+      }
+
+      html.dark .site-access-row:hover {
+        background: rgba(26,115,232,.2);
+      }
+
+      .site-access-icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        color: var(--blue);
+        opacity: 0.85;
       }
 
       .site-access-copy {
         display: grid;
-        gap: 3px;
+        gap: 2px;
         min-width: 0;
+        flex: 1;
       }
 
       .site-access-title {
@@ -474,11 +499,66 @@
         color: var(--gray-800);
       }
 
+      html.dark .site-access-title { color: var(--gray-900); }
+
       .site-access-note {
-        font-size: 12px;
-        line-height: 1.45;
+        font-size: 11.5px;
+        line-height: 1.4;
         color: var(--text-soft);
       }
+
+      /* ── Toggle switch (used for site-access row) ── */
+      .toggle-switch {
+        position: relative;
+        width: 34px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        position: absolute;
+      }
+
+      .toggle-track {
+        position: absolute;
+        inset: 0;
+        border-radius: 999px;
+        background: var(--gray-400);
+        transition: background 150ms ease;
+        cursor: pointer;
+      }
+
+      .toggle-track::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,.25);
+        transition: transform 150ms ease;
+      }
+
+      .toggle-switch input:checked + .toggle-track {
+        background: var(--blue);
+      }
+
+      .toggle-switch input:checked + .toggle-track::after {
+        transform: translateX(14px);
+      }
+
+      .toggle-switch input:focus-visible + .toggle-track {
+        outline: 2px solid var(--blue);
+        outline-offset: 2px;
+      }
+
+      html.dark .toggle-track { background: var(--gray-500); }
+      html.dark .toggle-switch input:checked + .toggle-track { background: var(--blue); }
 
       .dim-dot {
         width: 8px;
@@ -796,20 +876,37 @@
         <p class="match-hint">Jump between highlighted keywords on the page.</p>
       </div>
 
-      <!-- Behavior -->
+      <!-- Settings (Sites + Behavior) -->
       <div class="card stack">
+
         <div class="section-head">
-          <span class="section-label">Behavior</span>
-          <span class="section-meta">LinkedIn always works. Other sites are optional.</span>
+          <span class="section-label">Sites</span>
+          <span class="section-meta">LinkedIn always works</span>
         </div>
 
         <label class="dim-row site-access-row">
-          <input id="highlightAllSitesToggle" type="checkbox" />
+          <!-- Globe icon -->
+          <svg class="site-access-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="10" cy="10" r="8.25" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M10 1.75C10 1.75 7.5 5.5 7.5 10s2.5 8.25 2.5 8.25M10 1.75C10 1.75 12.5 5.5 12.5 10s-2.5 8.25-2.5 8.25M1.75 10h16.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
           <span class="site-access-copy">
             <span class="site-access-title">Highlight on all websites</span>
             <span id="siteAccessHint" class="site-access-note">LinkedIn works automatically. Turn this on only if you want saved keywords highlighted on other sites too.</span>
           </span>
+          <!-- Toggle switch -->
+          <span class="toggle-switch">
+            <input id="highlightAllSitesToggle" type="checkbox" />
+            <span class="toggle-track"></span>
+          </span>
         </label>
+
+        <div class="divider"></div>
+
+        <div class="section-head">
+          <span class="section-label">Behavior</span>
+          <span class="section-meta">Choose what fades on LinkedIn</span>
+        </div>
 
         <div class="dim-group">
           <label class="dim-row">
@@ -828,6 +925,7 @@
             Applied
           </label>
         </div>
+
       </div>
 
       <!-- Keyword library -->

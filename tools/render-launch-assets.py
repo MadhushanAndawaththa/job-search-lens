@@ -6,8 +6,19 @@
 from playwright.sync_api import sync_playwright
 
 TARGETS = [
+    # Dark-mode popup screenshot used as a static asset inside og-image.html.
+    # Must render first so the PNG exists when og-image.html loads it.
+    {
+        "url": "http://localhost:8765/popup.html",
+        "out": "/app/docs/assets/store/popup-dark-preview.png",
+        "viewport_w": 380,
+        "viewport_h": 660,
+        "final_w": 380,
+        "final_h": 660,
+        "kind": "popup-dark",
+    },
     # Real popup UI rendered from popup.html.
-    # popup.html is fixed at 380x580 — we render it at 2x then scale.
+    # popup.html is fixed at 380x660 — we render it at 2x then scale.
     {
         "url": "http://localhost:8765/popup.html",
         "out": "/app/docs/assets/store/popup-screenshot-1280x800.png",
@@ -30,6 +41,23 @@ TARGETS = [
 ]
 
 
+def render_popup_dark(browser, t):
+    """Render popup.html in dark mode as a static PNG — used by og-image.html."""
+    context = browser.new_context(
+        viewport={"width": t["viewport_w"], "height": t["viewport_h"]},
+        device_scale_factor=2,
+        color_scheme="dark",
+    )
+    page = context.new_page()
+    page.goto(t["url"], wait_until="networkidle")
+    page.wait_for_timeout(1000)
+    page.screenshot(
+        path=t["out"],
+        clip={"x": 0, "y": 0, "width": t["viewport_w"], "height": t["viewport_h"]},
+    )
+    context.close()
+
+
 def render_raw(browser, t):
     context = browser.new_context(
         viewport={"width": t["viewport_w"], "height": t["viewport_h"]},
@@ -48,7 +76,7 @@ def render_raw(browser, t):
 def render_popup_composite(browser, t):
     """Render the actual popup.html on a soft branded canvas so the resulting
     1280x800 screenshot reads as a real product shot, not a webpage."""
-    # Inline composite page: load popup.html in an iframe sized to 380x580
+    # Inline composite page: load popup.html in an iframe sized to 380x660
     # over a friendly gradient backdrop. Saves a real, faithful product image.
     composite = """<!doctype html><html><head><meta charset="utf-8"><style>
         html, body { margin:0; padding:0; width:1280px; height:800px; overflow:hidden;
@@ -62,7 +90,7 @@ def render_popup_composite(browser, t):
           display: grid;
           grid-template-columns: 1.0fr 1.05fr;
           align-items: center;
-          padding: 60px 76px;
+          padding: 30px 76px;
           color: #0b1220;
         }
         .left { padding-right: 24px; }
@@ -83,12 +111,12 @@ def render_popup_composite(browser, t):
         .frame { position: relative;
           border-radius: 28px;
           background: linear-gradient(160deg, #ffffff 0%, #f3f6fb 100%);
-          padding: 24px;
+          padding: 16px;
           box-shadow: 0 40px 80px -20px rgba(11,18,32,0.30), 0 16px 32px -16px rgba(11,18,32,0.15);
           border: 1px solid #e5e7ec;
         }
         .frame iframe {
-          width: 380px; height: 580px; border: 1px solid #e5e7ec; border-radius: 16px;
+          width: 380px; height: 660px; border: 1px solid #e5e7ec; border-radius: 16px;
           background: #fff; display:block; box-shadow: 0 6px 18px rgba(11,18,32,0.10);
         }
         .caption { margin-top: 14px; text-align: center; font-size: 12.5px; color: #5b6478; font-weight: 500; }
@@ -112,7 +140,7 @@ def render_popup_composite(browser, t):
         <div class="stage">
           <div>
             <div class="frame"><iframe src="http://localhost:8765/popup.html" loading="eager"></iframe></div>
-            <p class="caption">The real popup at native size · 380×580</p>
+            <p class="caption">The real popup at native size · 380×660</p>
           </div>
         </div>
       </body></html>"""
@@ -138,7 +166,9 @@ def main():
     with sync_playwright() as p:
         browser = p.chromium.launch(args=["--no-sandbox", "--disable-dev-shm-usage"])
         for t in TARGETS:
-            if t["kind"] == "popup-composite":
+            if t["kind"] == "popup-dark":
+                render_popup_dark(browser, t)
+            elif t["kind"] == "popup-composite":
                 render_popup_composite(browser, t)
             else:
                 render_raw(browser, t)

@@ -5,105 +5,162 @@
   <title>OG Image 1200×630</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     html, body {
       width: 1200px;
       height: 630px;
       overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
-      color: #f1f3f8;
     }
+
     body {
-      position: relative;
-      background:
-        radial-gradient(40% 60% at 10% 15%, rgba(250,204,21,0.20), transparent 65%),
-        radial-gradient(50% 70% at 90% 85%, rgba(10,102,194,0.40), transparent 65%),
-        linear-gradient(135deg, #0b1220 0%, #101a34 45%, #0a2540 100%);
-      padding: 72px 84px;
+      background: #fff;
+      display: grid;
+      grid-template-columns: 660px 540px;
+      grid-template-rows: 630px;
+      overflow: hidden;
+    }
+
+    /* ── LEFT ── */
+    .left {
+      height: 630px;
+      overflow: hidden;
+      padding: 52px 48px 52px 68px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: center;
+      gap: 22px;
+      background: #fff;
     }
-    body::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-      background-size: 36px 36px;
-      pointer-events: none;
-      mask-image: radial-gradient(120% 80% at 50% 50%, #000 30%, transparent 80%);
+
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: #0f172a;
+      display: grid; place-items: center;
+      color: #facc15; flex-shrink: 0;
     }
-    .top, .bottom, .mid { position: relative; z-index: 2; }
-    .brand {
-      display: flex; align-items: center; gap: 14px;
+    .brand-icon svg { width: 18px; height: 18px; }
+    .brand-name {
+      font-size: 13px; font-weight: 600; color: #94a3b8;
+      letter-spacing: 0.06em; text-transform: uppercase;
     }
-    .icon {
-      width: 56px; height: 56px; border-radius: 14px;
-      background: linear-gradient(135deg, #0b1220, #1b2440);
-      border: 1px solid rgba(255,255,255,0.14);
-      display: grid; place-items: center; color: #facc15;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+
+    /*
+      Two block-level spans — no inline background to bleed across lines.
+      "Stop re-reading"    ≈ 15 chars @ 52px → ~430 px  (fits in 544 px col)
+      "the same listings." ≈ 18 chars @ 52px → ~520 px  (fits)
+    */
+    .headline { display: flex; flex-direction: column; }
+    .h1 {
+      font-size: 52px; font-weight: 800;
+      letter-spacing: -0.038em; line-height: 1.0;
+      color: #0f172a;
     }
-    .icon svg { width: 30px; height: 30px; }
-    .name {
-      font-size: 24px; font-weight: 700; letter-spacing: -0.01em; color: #fff;
+    .h2 {
+      font-size: 52px; font-weight: 800;
+      letter-spacing: -0.038em; line-height: 1.08;
+      color: #ca8a04;
     }
-    h1 {
-      font-size: 92px;
-      font-weight: 800;
-      letter-spacing: -0.038em;
-      line-height: 1.0;
-      color: #fff;
-    }
-    h1 .hl {
-      /* Full-coverage yellow so the dark text reads cleanly on dark backgrounds. */
-      background: #facc15;
-      color: #0b1220;
-      padding: 0.04em 0.14em 0.06em;
-      border-radius: 8px;
-      box-decoration-break: clone;
-      -webkit-box-decoration-break: clone;
-    }
+
     .sub {
-      margin-top: 22px;
-      font-size: 22px;
-      color: rgba(255,255,255,0.74);
-      line-height: 1.45;
-      max-width: 900px;
+      font-size: 17px; color: #475569; line-height: 1.55; max-width: 520px;
     }
-    .tag-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .tag {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 9px 16px; border-radius: 999px;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-      font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.92);
-      backdrop-filter: blur(8px);
+
+    .feats { display: flex; flex-direction: column; gap: 9px; }
+    .feat {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 16px; font-weight: 600; color: #0f172a;
     }
-    .tag .dot { width: 9px; height: 9px; border-radius: 50%; background: #facc15; }
-    .tag.linkedin .dot { background: #4ea1f0; }
-    .tag.privacy  .dot { background: #4ade80; }
+    .dot-y {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #facc15; flex-shrink: 0;
+    }
+
+    .meta {
+      font-size: 12px; color: #94a3b8; font-weight: 500;
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+
+    /* ── RIGHT ── */
+    .right {
+      height: 630px;
+      overflow: hidden;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .device {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(15,23,42,0.10),
+        0 24px 64px rgba(15,23,42,0.22);
+      width: 270px;
+    }
+    .device-bar {
+      height: 28px; background: #0f172a;
+      display: flex; align-items: center;
+      padding: 0 10px; gap: 5px;
+    }
+    .mac-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    .popup-clip {
+      width: 270px; height: 469px; overflow: hidden;
+    }
+    .popup-img {
+      display: block; width: 270px; height: 469px;
+      object-fit: cover; object-position: top center;
+    }
   </style>
 </head>
 <body>
-  <div class="top brand">
-    <span class="icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-    </span>
-    <span class="name">Job Search Lens</span>
+
+  <div class="left">
+    <div class="brand">
+      <span class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+        </svg>
+      </span>
+      <span class="brand-name">Job Search Lens</span>
+    </div>
+
+    <div class="headline">
+      <span class="h1">Stop re-reading</span>
+      <span class="h2">the same listings.</span>
+    </div>
+
+    <p class="sub">Dims the LinkedIn job cards you've already viewed, saved, or applied to — so your eye lands on what's actually new.</p>
+
+    <div class="feats">
+      <div class="feat"><span class="dot-y"></span>Viewed, saved &amp; applied cards faded automatically</div>
+      <div class="feat"><span class="dot-y"></span>Keyword highlighting across any job description</div>
+      <div class="feat"><span class="dot-y"></span>Company size &amp; type shown inline on LinkedIn</div>
+      <div class="feat"><span class="dot-y"></span>All local — no account, no data leaves your browser</div>
+    </div>
+
+    <div class="meta">Free · Chrome Extension · No tracking</div>
   </div>
 
-  <div class="mid">
-    <h1>Stop re-reading the<br><span class="hl">same LinkedIn jobs.</span></h1>
-    <p class="sub">Built for LinkedIn Jobs. Dims viewed/saved/applied cards, shows company size inline, and highlights your saved keywords — on LinkedIn, and on other sites if you turn it on.</p>
+  <div class="right">
+    <div class="device">
+      <div class="device-bar">
+        <span class="mac-dot" style="background:#ff5f57"></span>
+        <span class="mac-dot" style="background:#ffbd2e"></span>
+        <span class="mac-dot" style="background:#28c840"></span>
+      </div>
+      <div class="popup-clip">
+        <img class="popup-img"
+             src="http://localhost:8765/docs/assets/store/popup-dark-preview.png"
+             alt="Job Search Lens popup" />
+      </div>
+    </div>
   </div>
 
-  <div class="bottom tag-row">
-    <span class="tag linkedin"><span class="dot"></span>LinkedIn card dimming</span>
-    <span class="tag linkedin"><span class="dot"></span>Inline company stats</span>
-    <span class="tag"><span class="dot"></span>Optional cross-site highlights</span>
-    <span class="tag privacy"><span class="dot"></span>Local-only · Privacy-first</span>
-  </div>
 </body>
 </html>
