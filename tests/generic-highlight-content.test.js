@@ -51,9 +51,26 @@ function trackWindowIntervals(window) {
   };
 }
 
+function trackMutationObservers(window) {
+  const NativeMutationObserver = window.MutationObserver;
+
+  window.MutationObserver = class MutationObserver {
+    observe() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  };
+
+  return () => {
+    window.MutationObserver = NativeMutationObserver;
+  };
+}
+
 async function bootstrapHtml(html, storageData, url) {
   const dom = loadHtmlDom(html, url);
   const cleanupIntervals = trackWindowIntervals(dom.window);
+  const cleanupMutationObservers = trackMutationObservers(dom.window);
 
   dom.window.chrome = createChromeMock(storageData);
 
@@ -61,20 +78,31 @@ async function bootstrapHtml(html, storageData, url) {
   loadScript(dom, 'dom-heuristics.js');
   loadScript(dom, 'content.js');
 
-  await new Promise((resolve) => {
-    dom.window.requestAnimationFrame(() => {
-      dom.window.setTimeout(resolve, 0);
-    });
-  });
+  await new Promise((resolve) => dom.window.setTimeout(resolve, 50));
 
   return {
     dom,
     cleanupIntervals,
+    cleanupMutationObservers,
   };
 }
 
+async function waitForMarkCount(dom, expectedCount, timeoutMs = 1000) {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    const markCount = dom.window.document.querySelectorAll('mark[data-job-hunt-mark]').length;
+
+    if (markCount === expectedCount) {
+      return;
+    }
+
+    await new Promise((resolve) => dom.window.setTimeout(resolve, 20));
+  }
+}
+
 test('generic webpages highlight saved keywords when optional all-site access is enabled', async () => {
-  const { dom, cleanupIntervals } = await bootstrapHtml(
+  const { dom, cleanupIntervals, cleanupMutationObservers } = await bootstrapHtml(
     '<main><article><p>Python backend engineer with Node.js experience wanted.</p></article></main>',
     {
       keywords: [
@@ -89,6 +117,8 @@ test('generic webpages highlight saved keywords when optional all-site access is
   );
 
   try {
+    await waitForMarkCount(dom, 2);
+
     const { document } = dom.window;
     const marks = [...document.querySelectorAll('mark[data-job-hunt-mark]')]
       .map((node) => node.textContent.trim());
@@ -99,11 +129,13 @@ test('generic webpages highlight saved keywords when optional all-site access is
     assert.equal(document.querySelector('[data-jhv-company-stats]'), null);
   } finally {
     cleanupIntervals();
+    cleanupMutationObservers();
+    dom.window.close();
   }
 });
 
 test('generic webpages stay untouched until all-site highlighting is enabled', async () => {
-  const { dom, cleanupIntervals } = await bootstrapHtml(
+  const { dom, cleanupIntervals, cleanupMutationObservers } = await bootstrapHtml(
     '<main><article><p>Python backend engineer with Node.js experience wanted.</p></article></main>',
     {
       keywords: [
@@ -124,5 +156,7 @@ test('generic webpages stay untouched until all-site highlighting is enabled', a
     assert.equal(document.querySelector('[data-jhv-company-stats]'), null);
   } finally {
     cleanupIntervals();
+    cleanupMutationObservers();
+    dom.window.close();
   }
 });
