@@ -1124,13 +1124,53 @@ a { color: inherit; }
    ──────────────────────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
+  /* Nav */
+  .nav-links { display: none; }
+
+  /* Spacing */
   .section { padding: 64px 20px; }
   .privacy-strip { padding: 56px 20px; }
-  .cta-closer { padding: 80px 20px; }
-  .hero { padding: 56px 20px 40px; }
-  .hero-mockup-wrap { margin-top: 36px; padding: 0 20px; }
-  .hero-mockup { padding: 22px 14px 0; }
+  .cta-closer { padding: 72px 20px; }
+  .hero { padding: 52px 20px 36px; }
+  .hero-mockup-wrap { margin-top: 32px; padding: 0 16px; }
+  .hero-mockup { padding: 20px 12px 0; }
   .author-section { padding: 40px 20px 48px; }
   .page-hero, .prose { padding-left: 20px; padding-right: 20px; }
   .support-block { padding: 22px 20px; }
+
+  /* Hero heading — lower minimum so highlighted span fits on narrow screens */
+  .hero h1 { font-size: clamp(32px, 9vw, 84px); }
+  .hero h1 .hl { white-space: normal; }
+  .hero-sub { font-size: 16px; max-width: 100%; }
+
+  /* Buttons: stack vertically and fill available width */
+  .hero-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .btn-primary,
+  .btn-secondary { justify-content: center; }
+
+  /* Permissions table: horizontal scroll instead of overflow */
+  .perm-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .perm-table td:first-child { white-space: normal; }
+
+  /* Section text */
+  .section-lede { font-size: 15px; }
+  .cta-closer p { font-size: 15px; }
+
+  /* Feature cards */
+  .feature-card { padding: 22px 18px; }
+}
+
+@media (max-width: 400px) {
+  /* Very small phones — reduce hero heading and step number further */
+  .hero h1 { font-size: clamp(28px, 9vw, 84px); }
+  .step { padding: 22px 18px 20px; }
+  .step::before { font-size: 28px; }
 }
