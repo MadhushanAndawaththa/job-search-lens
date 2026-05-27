@@ -414,24 +414,14 @@ async function updateDimState(state, enabled) {
 }
 
 function createKeywordRow(keyword) {
+  const isDisabled = keyword.enabled === false;
   const item = document.createElement('li');
 
-  if (keyword.enabled === false) {
+  if (isDisabled) {
     item.className = 'kw-row-disabled';
   }
 
-  const pill = document.createElement('div');
-  pill.className = 'pill';
-
-  const swatch = document.createElement('span');
-  swatch.className = 'swatch';
-  swatch.style.backgroundColor = keyword.color;
-
-  const term = document.createElement('span');
-  term.className = 'term';
-  term.textContent = keyword.term;
-
-  // Inline color picker — swatch button + floating palette popover
+  // ── Color chip (inline color editor) ──
   const wrap = document.createElement('div');
   wrap.className = 'swatch-edit-wrap';
 
@@ -470,29 +460,38 @@ function createKeywordRow(keyword) {
 
   wrap.append(editBtn, popover);
 
+  // ── Keyword term ──
+  const term = document.createElement('span');
+  term.className = 'term';
+  term.textContent = keyword.term;
+
+  // ── Action icons (revealed on row hover; always visible when disabled) ──
+  const actions = document.createElement('div');
+  actions.className = 'kw-actions';
+
   const toggleButton = document.createElement('button');
   toggleButton.type = 'button';
-  toggleButton.className = 'btn-toggle-kw';
-  toggleButton.textContent = keyword.enabled === false ? 'Enable' : 'Disable';
+  toggleButton.className = isDisabled ? 'btn-icon btn-icon--enable' : 'btn-icon btn-icon--disable';
   toggleButton.setAttribute('data-action', 'toggle-keyword');
   toggleButton.setAttribute('data-keyword-id', keyword.id);
-  toggleButton.setAttribute(
-    'aria-label',
-    keyword.enabled === false
-      ? `Enable keyword ${keyword.term}`
-      : `Disable keyword ${keyword.term}`,
-  );
+  toggleButton.setAttribute('aria-label', isDisabled ? `Enable keyword ${keyword.term}` : `Disable keyword ${keyword.term}`);
+  toggleButton.setAttribute('title', isDisabled ? 'Enable' : 'Disable');
+  // Eye-slash icon = currently visible, click to hide; Eye icon = currently hidden, click to show
+  toggleButton.innerHTML = isDisabled
+    ? `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 2l12 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M6.5 3.4A7.2 7.2 0 018 3c3.5 0 6.5 5 6.5 5a12.8 12.8 0 01-1.9 2.6M9.5 12.5A7 7 0 018 13C4.5 13 1.5 8 1.5 8a12.8 12.8 0 012-2.9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M5.9 5.9a2 2 0 002.8 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>`
+    : `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3C4.5 3 1.5 8 1.5 8S4.5 13 8 13 14.5 8 14.5 8 11.5 3 8 3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/></svg>`;
 
   const removeButton = document.createElement('button');
   removeButton.type = 'button';
-  removeButton.className = 'btn-remove';
-  removeButton.textContent = 'Remove';
+  removeButton.className = 'btn-icon btn-icon--remove';
   removeButton.setAttribute('data-action', 'remove-keyword');
   removeButton.setAttribute('data-keyword-id', keyword.id);
   removeButton.setAttribute('aria-label', `Remove keyword ${keyword.term}`);
+  removeButton.setAttribute('title', 'Remove');
+  removeButton.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
 
-  pill.append(swatch, term);
-  item.append(pill, wrap, toggleButton, removeButton);
+  actions.append(toggleButton, removeButton);
+  item.append(wrap, term, actions);
 
   return item;
 }

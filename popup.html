@@ -291,7 +291,7 @@
 
       .color-popover {
         position: absolute;
-        right: 0;
+        left: 0;
         top: calc(100% + 5px);
         z-index: 100;
         background: var(--surface);
@@ -368,31 +368,44 @@
 
       .secondary:hover:not(:disabled) { background: var(--gray-200); }
 
-      .btn-remove {
-        background: transparent;
-        color: var(--gray-500);
-        padding: 5px 9px;
-        border-radius: var(--r-sm);
-        font-size: 12px;
-        font-weight: 500;
+      /* ── Keyword row action icons ── */
+      .kw-actions {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        opacity: 0;
+        transition: opacity 120ms ease;
+        flex-shrink: 0;
       }
 
-      .btn-remove:hover:not(:disabled) { background: var(--danger-tint); color: var(--red); }
+      li:hover .kw-actions,
+      li:focus-within .kw-actions { opacity: 1; }
 
-      .btn-toggle-kw {
+      .btn-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        padding: 0;
+        border-radius: var(--r-sm);
         background: transparent;
         color: var(--gray-500);
-        padding: 5px 9px;
-        border-radius: var(--r-sm);
-        font-size: 12px;
-        font-weight: 500;
+        cursor: pointer;
+        transition: background 100ms, color 100ms;
+        flex-shrink: 0;
+        box-shadow: none;
       }
 
-      .btn-toggle-kw:hover:not(:disabled) { background: var(--gray-100); color: var(--text); }
+      .btn-icon:hover:not(:disabled) { background: var(--gray-100); color: var(--text); }
+      .btn-icon--remove:hover:not(:disabled) { background: var(--danger-tint); color: var(--red); }
 
-      .kw-row-disabled .pill { opacity: 0.4; }
-      .kw-row-disabled .term { text-decoration: line-through; }
-      .kw-row-disabled .swatch-edit-btn { opacity: 0.4; pointer-events: none; }
+      .btn-icon--enable { color: var(--gray-400); }
+      .btn-icon--enable:hover:not(:disabled) { background: rgba(24,128,56,.1); color: var(--green); }
+
+      .kw-row-disabled .term { text-decoration: line-through; color: var(--gray-500); }
+      .kw-row-disabled .swatch-edit-btn { opacity: 0.35; pointer-events: none; }
+      .kw-row-disabled .kw-actions { opacity: 1; }
 
       /* ── Stats row ── */
       .stats-row {
@@ -601,31 +614,18 @@
 
       li {
         display: grid;
-        grid-template-columns: minmax(0,1fr) auto auto;
-        gap: 8px;
+        grid-template-columns: auto minmax(0,1fr) auto;
+        gap: 0 8px;
         align-items: center;
-        padding: 8px 10px;
+        padding: 7px 10px;
         border: 1px solid var(--border);
         border-radius: var(--r-sm);
         background: var(--surface);
         position: relative;
+        transition: background 80ms;
       }
 
       li:hover { background: var(--gray-50); }
-
-      .pill {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        min-width: 0;
-      }
-
-      .swatch {
-        width: 10px;
-        height: 10px;
-        border-radius: 3px;
-        flex-shrink: 0;
-      }
 
       .term {
         min-width: 0;
