@@ -379,6 +379,21 @@
 
       .btn-remove:hover:not(:disabled) { background: var(--danger-tint); color: var(--red); }
 
+      .btn-toggle-kw {
+        background: transparent;
+        color: var(--gray-500);
+        padding: 5px 9px;
+        border-radius: var(--r-sm);
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .btn-toggle-kw:hover:not(:disabled) { background: var(--gray-100); color: var(--text); }
+
+      .kw-row-disabled .pill { opacity: 0.4; }
+      .kw-row-disabled .term { text-decoration: line-through; }
+      .kw-row-disabled .swatch-edit-btn { opacity: 0.4; pointer-events: none; }
+
       /* ── Stats row ── */
       .stats-row {
         display: flex;

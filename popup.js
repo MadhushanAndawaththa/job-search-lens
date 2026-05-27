@@ -9,6 +9,7 @@ const {
   upsertKeyword,
   removeKeywordById,
   updateKeywordColor,
+  toggleKeywordEnabled,
   hydrateSettings,
 } = globalThis.JobHuntVisualizerShared;
 
@@ -344,6 +345,26 @@ async function handleListClick(event) {
     return;
   }
 
+  // Toggle keyword enabled/disabled
+  const kwToggleBtn = event.target.closest('button[data-action="toggle-keyword"]');
+
+  if (kwToggleBtn) {
+    const keywordId = kwToggleBtn.getAttribute('data-keyword-id');
+
+    if (!keywordId) {
+      return;
+    }
+
+    const stored = await chrome.storage.local.get([STORAGE_KEYS.keywords]);
+    const keywords = toggleKeywordEnabled(stored[STORAGE_KEYS.keywords], keywordId);
+
+    await chrome.storage.local.set({
+      [STORAGE_KEYS.keywords]: keywords,
+    });
+
+    return;
+  }
+
   // Remove keyword
   const removeBtn = event.target.closest('button[data-action="remove-keyword"]');
 
@@ -395,6 +416,10 @@ async function updateDimState(state, enabled) {
 function createKeywordRow(keyword) {
   const item = document.createElement('li');
 
+  if (keyword.enabled === false) {
+    item.className = 'kw-row-disabled';
+  }
+
   const pill = document.createElement('div');
   pill.className = 'pill';
 
@@ -445,6 +470,19 @@ function createKeywordRow(keyword) {
 
   wrap.append(editBtn, popover);
 
+  const toggleButton = document.createElement('button');
+  toggleButton.type = 'button';
+  toggleButton.className = 'btn-toggle-kw';
+  toggleButton.textContent = keyword.enabled === false ? 'Enable' : 'Disable';
+  toggleButton.setAttribute('data-action', 'toggle-keyword');
+  toggleButton.setAttribute('data-keyword-id', keyword.id);
+  toggleButton.setAttribute(
+    'aria-label',
+    keyword.enabled === false
+      ? `Enable keyword ${keyword.term}`
+      : `Disable keyword ${keyword.term}`,
+  );
+
   const removeButton = document.createElement('button');
   removeButton.type = 'button';
   removeButton.className = 'btn-remove';
@@ -454,7 +492,7 @@ function createKeywordRow(keyword) {
   removeButton.setAttribute('aria-label', `Remove keyword ${keyword.term}`);
 
   pill.append(swatch, term);
-  item.append(pill, wrap, removeButton);
+  item.append(pill, wrap, toggleButton, removeButton);
 
   return item;
 }

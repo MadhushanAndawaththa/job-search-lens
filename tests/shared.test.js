@@ -97,3 +97,37 @@ test('getContrastColor chooses readable text color', () => {
   assert.equal(shared.getContrastColor('#FFFFFF'), '#111111');
   assert.equal(shared.getContrastColor('#123456'), '#FFFFFF');
 });
+
+test('coerceKeywords defaults enabled to true and preserves explicit false', () => {
+  const keywords = shared.coerceKeywords([
+    { term: 'Python', color: '#FFE082', enabled: false },
+    { term: 'React', color: '#A5D6A7' },
+    { term: 'TypeScript', color: '#81D4FA', enabled: true },
+  ]);
+
+  assert.equal(keywords[0].enabled, false);
+  assert.equal(keywords[1].enabled, true);
+  assert.equal(keywords[2].enabled, true);
+});
+
+test('buildKeywordPatterns excludes disabled keywords', () => {
+  const patterns = shared.buildKeywordPatterns([
+    { term: 'Python', color: '#FFE082', enabled: false },
+    { term: 'React', color: '#A5D6A7', enabled: true },
+    { term: 'TypeScript', color: '#81D4FA' },
+  ]);
+
+  assert.equal(patterns.length, 2);
+  assert.ok(patterns.every((p) => p.term !== 'Python'));
+});
+
+test('toggleKeywordEnabled flips the enabled flag and can be reversed', () => {
+  const keywords = shared.coerceKeywords(['Python', 'React']);
+  const toggled = shared.toggleKeywordEnabled(keywords, 'kw:python');
+
+  assert.equal(toggled.find((k) => k.id === 'kw:python').enabled, false);
+  assert.equal(toggled.find((k) => k.id === 'kw:react').enabled, true);
+
+  const reToggled = shared.toggleKeywordEnabled(toggled, 'kw:python');
+  assert.equal(reToggled.find((k) => k.id === 'kw:python').enabled, true);
+});

@@ -95,6 +95,7 @@
       term: cleanTerm,
       normalized,
       color: sanitizeColor(options.color) || pickColor(options.index || 0, palette),
+      enabled: options.enabled !== false,
     };
   }
 
@@ -121,6 +122,7 @@
         return createKeywordRecord(entry.term, {
           id: entry.id,
           color: entry.color,
+          enabled: entry.enabled,
           index,
           defaultColors: options.defaultColors,
         });
@@ -156,6 +158,7 @@
 
   function buildKeywordPatterns(entries, options = {}) {
     return [...coerceKeywords(entries, options)]
+      .filter((entry) => entry.enabled !== false)
       .sort((left, right) => right.term.length - left.term.length)
       .map((entry, index) => ({
         ...entry,
@@ -256,6 +259,23 @@
     });
   }
 
+  function toggleKeywordEnabled(rawKeywords, keywordId, options = {}) {
+    if (!keywordId) {
+      return coerceKeywords(rawKeywords, options);
+    }
+
+    return coerceKeywords(rawKeywords, options).map((keyword) => {
+      if (keyword.id !== keywordId) {
+        return keyword;
+      }
+
+      return {
+        ...keyword,
+        enabled: !keyword.enabled,
+      };
+    });
+  }
+
   const shared = {
     STORAGE_KEYS,
     LINKEDIN_HOST_PATTERNS,
@@ -277,6 +297,7 @@
     upsertKeyword,
     removeKeywordById,
     updateKeywordColor,
+    toggleKeywordEnabled,
   };
 
   globalScope.JobHuntVisualizerShared = shared;
